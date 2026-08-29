@@ -1,0 +1,125 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+final class Olama_Student_Gateway_Plugin {
+    private static $instance;
+    private $providers;
+    private $shortcode;
+
+    public static function instance() {
+        if (!self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    private function __construct() {
+        load_plugin_textdomain('olama-student-gateway', false, dirname(plugin_basename(OLAMA_STUDENT_GATEWAY_FILE)) . '/languages');
+        add_action('olama_users_register_modules', array($this, 'register_access_module'));
+        add_action('init', array($this, 'register_assets'), 10);
+        add_action('init', array($this, 'register_shortcode'), 20);
+        add_action('wp_enqueue_scripts', array($this, 'maybe_enqueue_assets'));
+        add_action('template_redirect', array($this, 'protect_portal_response'));
+        add_filter('wp_robots', array($this, 'portal_robots'));
+    }
+
+    public function register_access_module() {
+        if (!function_exists('olama_users_register_module')) {
+            return;
+        }
+        olama_users_register_module(array(
+            'id' => 'olama_student_gateway',
+            'plugin' => 'olama-student-gateway',
+            'label' => __('Student Gateway', 'olama-student-gateway'),
+            'capability' => 'olama_student_gateway_access',
+            'items' => array(
+                array('id' => 'gateway.family', 'type' => 'feature', 'label' => __('Family card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_family_view'),
+                array('id' => 'gateway.finance', 'type' => 'feature', 'label' => __('Financial card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_finance_view'),
+                array('id' => 'gateway.weekly_plan', 'type' => 'feature', 'label' => __('Weekly plan', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_weekly_plan_view'),
+                array('id' => 'gateway.exams', 'type' => 'feature', 'label' => __('Exams', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_exams_view'),
+                array('id' => 'gateway.evaluations', 'type' => 'feature', 'label' => __('Evaluations', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_evaluations_view'),
+                array('id' => 'gateway.attendance', 'type' => 'feature', 'label' => __('Attendance', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_attendance_view'),
+                array('id' => 'gateway.transportation', 'type' => 'feature', 'label' => __('Transportation', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_transportation_view'),
+                array('id' => 'gateway.stores', 'type' => 'feature', 'label' => __('School supplies', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_stores_view'),
+                array('id' => 'gateway.messages', 'type' => 'feature', 'label' => __('Messages', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_messages_view'),
+            ),
+        ));
+    }
+
+    public function register_shortcode() {
+        $this->shortcode = new Olama_Student_Gateway_Shortcode($this->providers());
+        add_shortcode('olama_student_gateway', array($this->shortcode, 'render'));
+    }
+
+    public function register_assets() {
+        wp_register_style(
+            'olama-student-gateway',
+            OLAMA_STUDENT_GATEWAY_URL . 'assets/css/gateway.css',
+            array('dashicons'),
+            OLAMA_STUDENT_GATEWAY_VERSION
+        );
+        wp_register_script(
+            'olama-student-gateway',
+            OLAMA_STUDENT_GATEWAY_URL . 'assets/js/gateway.js',
+            array(),
+            OLAMA_STUDENT_GATEWAY_VERSION,
+            true
+        );
+    }
+
+    public function maybe_enqueue_assets() {
+        if ($this->is_portal_request()) {
+            wp_enqueue_style('olama-student-gateway');
+            wp_enqueue_script('olama-student-gateway');
+        }
+    }
+
+    public function protect_portal_response() {
+        if (!$this->is_portal_request()) {
+            return;
+        }
+        if (!defined('DONOTCACHEPAGE')) {
+            define('DONOTCACHEPAGE', true);
+        }
+        nocache_headers();
+        header('Cache-Control: private, no-store, no-cache, must-revalidate, max-age=0', true);
+    }
+
+    public function portal_robots($robots) {
+        if ($this->is_portal_request()) {
+            $robots['noindex'] = true;
+            $robots['nofollow'] = true;
+            $robots['noarchive'] = true;
+        }
+        return $robots;
+    }
+
+    private function is_portal_request() {
+        if (!is_singular()) {
+            return false;
+        }
+        $post = get_queried_object();
+        return $post instanceof WP_Post && has_shortcode($post->post_content, 'olama_student_gateway');
+    }
+
+    public function providers() {
+        if ($this->providers) {
+            return $this->providers;
+        }
+        $registry = new Olama_Student_Gateway_Provider_Registry();
+        $registry->register(new Olama_Student_Gateway_Core_Provider());
+        $registry->register(new Olama_Student_Gateway_Weekly_Plan_Provider());
+        $registry->register(new Olama_Student_Gateway_Exams_Provider());
+        $registry->register(new Olama_Student_Gateway_Transportation_Provider());
+        $registry->register(new Olama_Student_Gateway_Stores_Provider());
+        foreach (array('evaluations', 'attendance', 'messages') as $key) {
+            $registry->register(new Olama_Student_Gateway_Filter_Provider($key));
+        }
+        do_action('olama_student_gateway_register_providers', $registry);
+        $this->providers = $registry;
+        return $this->providers;
+    }
+}

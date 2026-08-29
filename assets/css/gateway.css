@@ -1,0 +1,570 @@
+.olama-gateway,
+.olama-gateway-login,
+.olama-gateway-notice {
+    --og-navy: #123955;
+    --og-navy-dark: #0b2c43;
+    --og-blue: #1f7ac0;
+    --og-blue-soft: #eaf4fb;
+    --og-surface: #ffffff;
+    --og-background: #f2f6fa;
+    --og-text: #102a43;
+    --og-muted: #66788a;
+    --og-border: #dbe5ee;
+    --og-success: #16835b;
+    --og-success-soft: #e7f6ef;
+    --og-warning: #a86210;
+    --og-warning-soft: #fff3df;
+    --og-danger: #b83245;
+    --og-shadow: 0 10px 28px rgba(18, 57, 85, .08);
+    color: var(--og-text);
+    font-family: Tahoma, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.olama-gateway *,
+.olama-gateway-login *,
+.olama-gateway-notice * {
+    box-sizing: border-box;
+}
+
+.olama-gateway {
+    position: relative;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    width: 100%;
+    min-height: 720px;
+    overflow: hidden;
+    background: var(--og-background);
+    border: 1px solid var(--og-border);
+    border-radius: 20px;
+}
+
+.olama-gateway__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px 16px;
+    color: #fff;
+    background: linear-gradient(180deg, var(--og-navy), var(--og-navy-dark));
+}
+
+.olama-gateway__brand,
+.olama-gateway__family-chip,
+.olama-gateway__student-context {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.olama-gateway__brand-mark,
+.olama-gateway__avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    font-weight: 700;
+}
+
+.olama-gateway__brand-mark {
+    color: var(--og-navy);
+    background: #fff;
+}
+
+.olama-gateway__brand span,
+.olama-gateway__family-chip span,
+.olama-gateway__student-context span {
+    display: grid;
+    gap: 3px;
+}
+
+.olama-gateway small {
+    color: var(--og-muted);
+}
+
+.olama-gateway__sidebar small {
+    color: rgba(255, 255, 255, .68);
+}
+
+.olama-gateway__family-chip {
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, .13);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .07);
+}
+
+.olama-gateway__nav {
+    display: grid;
+    gap: 5px;
+}
+
+.olama-gateway__nav a,
+.olama-gateway__logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    color: rgba(255, 255, 255, .82);
+    text-decoration: none;
+    border-radius: 10px;
+}
+
+.olama-gateway__nav a:hover,
+.olama-gateway__nav a:focus,
+.olama-gateway__nav a.is-active {
+    color: #fff;
+    background: rgba(255, 255, 255, .12);
+}
+
+.olama-gateway__logout {
+    margin-top: auto;
+}
+
+.olama-gateway__main {
+    min-width: 0;
+}
+
+.olama-gateway__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 82px;
+    padding: 16px 28px;
+    background: var(--og-surface);
+    border-bottom: 1px solid var(--og-border);
+}
+
+.olama-gateway__avatar {
+    color: var(--og-navy);
+    background: var(--og-blue-soft);
+}
+
+.olama-gateway__student-switch {
+    display: grid;
+    gap: 5px;
+    color: var(--og-muted);
+    font-size: 12px;
+}
+
+.olama-gateway__student-switch select {
+    min-width: 160px;
+    padding: 8px 11px;
+    color: var(--og-text);
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 9px;
+}
+
+.olama-gateway__content {
+    display: grid;
+    gap: 20px;
+    padding: 28px;
+}
+
+.olama-gateway__heading,
+.olama-gateway__panel > header,
+.olama-gateway__week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.olama-gateway h2,
+.olama-gateway h3,
+.olama-gateway p {
+    margin: 0;
+}
+
+.olama-gateway__heading h2 {
+    margin-bottom: 6px;
+    font-size: 24px;
+}
+
+.olama-gateway__heading p {
+    color: var(--og-muted);
+}
+
+.olama-gateway__status,
+.olama-gateway__source {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 5px 9px;
+    color: var(--og-blue);
+    background: var(--og-blue-soft);
+    border-radius: 999px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.olama-gateway__status--success {
+    color: var(--og-success);
+    background: var(--og-success-soft);
+}
+
+.olama-gateway__member-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.olama-gateway__member,
+.olama-gateway__panel {
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 16px;
+    box-shadow: var(--og-shadow);
+}
+
+.olama-gateway__member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px;
+    color: var(--og-text);
+    text-decoration: none;
+}
+
+.olama-gateway__member:hover,
+.olama-gateway__member:focus {
+    border-color: var(--og-blue);
+}
+
+.olama-gateway__member > span:nth-child(2) {
+    display: grid;
+    flex: 1;
+    gap: 4px;
+}
+
+.olama-gateway__grid {
+    display: grid;
+    gap: 18px;
+}
+
+.olama-gateway__grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.olama-gateway__panel {
+    min-width: 0;
+    padding: 20px;
+}
+
+.olama-gateway__panel > header {
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--og-border);
+}
+
+.olama-gateway__panel a,
+.olama-gateway__week-nav a {
+    color: var(--og-blue);
+    text-decoration: none;
+}
+
+.olama-gateway__details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+.olama-gateway__details div {
+    display: grid;
+    gap: 5px;
+    padding: 12px;
+    background: var(--og-background);
+    border-radius: 10px;
+}
+
+.olama-gateway__details div.is-wide {
+    grid-column: 1 / -1;
+}
+
+.olama-gateway__details dt {
+    color: var(--og-muted);
+    font-size: 12px;
+}
+
+.olama-gateway__details dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.olama-gateway__metrics,
+.olama-gateway__week-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.olama-gateway__metrics > div,
+.olama-gateway__week-summary > div {
+    display: grid;
+    gap: 5px;
+    padding: 13px;
+    background: var(--og-background);
+    border-radius: 10px;
+}
+
+.olama-gateway__metrics strong {
+    font-size: 20px;
+}
+
+.olama-gateway__synced,
+.olama-gateway__hint {
+    margin-top: 14px !important;
+    color: var(--og-muted);
+    font-size: 12px;
+}
+
+.olama-gateway__table-wrap {
+    overflow-x: auto;
+}
+
+.olama-gateway table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.olama-gateway th,
+.olama-gateway td {
+    padding: 12px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--og-border);
+}
+
+.olama-gateway th {
+    color: var(--og-muted);
+    font-size: 12px;
+}
+
+.olama-gateway td small {
+    display: block;
+    margin-top: 3px;
+}
+
+.olama-gateway__button,
+.olama-gateway-login input[type="submit"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    color: #fff !important;
+    background: var(--og-blue) !important;
+    border: 0 !important;
+    border-radius: 9px !important;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.olama-gateway__week-nav {
+    padding: 14px 18px;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 12px;
+}
+
+.olama-gateway__week-board {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(175px, 1fr));
+    gap: 12px;
+    overflow-x: auto;
+}
+
+.olama-gateway__day {
+    min-width: 175px;
+    padding: 12px;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 14px;
+}
+
+.olama-gateway__day > header {
+    display: grid;
+    gap: 3px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--og-border);
+}
+
+.olama-gateway__lesson {
+    display: grid;
+    gap: 5px;
+    margin-top: 9px;
+    padding: 10px;
+    background: var(--og-background);
+    border-right: 3px solid var(--og-blue);
+    border-radius: 9px;
+}
+
+.olama-gateway__lesson span,
+.olama-gateway__lesson small {
+    color: var(--og-muted);
+}
+
+.olama-gateway__lesson em {
+    color: var(--og-success);
+    font-style: normal;
+}
+
+.olama-gateway__empty,
+.olama-gateway__hint {
+    padding: 24px;
+    color: var(--og-muted);
+    text-align: center;
+    background: var(--og-surface);
+    border: 1px dashed var(--og-border);
+    border-radius: 12px;
+}
+
+.olama-gateway__menu {
+    display: none;
+}
+
+.olama-gateway-login {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 20px;
+    box-shadow: var(--og-shadow);
+}
+
+.olama-gateway-login__intro,
+.olama-gateway-login__form {
+    padding: 48px;
+}
+
+.olama-gateway-login__intro {
+    color: #fff;
+    background: linear-gradient(145deg, var(--og-navy), var(--og-blue));
+}
+
+.olama-gateway-login__intro p {
+    color: rgba(255, 255, 255, .76);
+}
+
+.olama-gateway-logo {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 30px;
+    color: var(--og-navy);
+    background: #fff;
+    border-radius: 16px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.olama-gateway-login__form form,
+.olama-gateway-login__form p {
+    display: grid;
+    gap: 7px;
+}
+
+.olama-gateway-login input[type="text"],
+.olama-gateway-login input[type="password"] {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--og-border);
+    border-radius: 9px;
+}
+
+.olama-gateway-notice {
+    padding: 18px;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-right: 4px solid var(--og-blue);
+    border-radius: 10px;
+}
+
+.olama-gateway-notice--error {
+    border-right-color: var(--og-danger);
+}
+
+@media (max-width: 980px) {
+    .olama-gateway {
+        grid-template-columns: 1fr;
+    }
+
+    .olama-gateway__menu {
+        position: absolute;
+        z-index: 4;
+        top: 18px;
+        left: 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 10px;
+        color: var(--og-text);
+        background: var(--og-surface);
+        border: 1px solid var(--og-border);
+        border-radius: 8px;
+    }
+
+    .olama-gateway__sidebar {
+        position: absolute;
+        z-index: 3;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(290px, 85%);
+        transform: translateX(105%);
+        transition: transform .2s ease;
+    }
+
+    .olama-gateway__sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .olama-gateway__topbar {
+        padding-left: 105px;
+    }
+}
+
+@media (max-width: 720px) {
+    .olama-gateway__content,
+    .olama-gateway-login__intro,
+    .olama-gateway-login__form {
+        padding: 20px;
+    }
+
+    .olama-gateway-login,
+    .olama-gateway__grid--2,
+    .olama-gateway__member-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .olama-gateway__topbar,
+    .olama-gateway__heading,
+    .olama-gateway__week-nav {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .olama-gateway__topbar {
+        padding-left: 20px;
+        padding-top: 64px;
+    }
+
+    .olama-gateway__student-switch select {
+        width: 100%;
+    }
+
+    .olama-gateway__metrics,
+    .olama-gateway__week-summary,
+    .olama-gateway__details {
+        grid-template-columns: 1fr;
+    }
+
+    .olama-gateway__details div.is-wide {
+        grid-column: auto;
+    }
+}
+
