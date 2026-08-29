@@ -12,7 +12,7 @@ Family-first, read-only portal for information produced by OLAMA Core, OLAMA Use
 1. Activate OLAMA Core and OLAMA Users.
 2. Activate OLAMA Student Gateway.
 3. Grant the gateway capabilities to the intended family role in OLAMA Users.
-4. Add `[olama_student_gateway]` to the portal page.
+4. Add `[olama_student_gateway]` to the portal page. The legacy `[olama_family_gateway]` shortcode is also supported.
 
 == Security model ==
 
@@ -27,4 +27,3 @@ External plugins may register a provider on `olama_student_gateway_register_prov
 * `olama_student_gateway_attendance_data`
 * `olama_student_gateway_transportation_data`
 * `olama_student_gateway_messages_data`
-

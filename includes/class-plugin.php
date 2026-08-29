@@ -30,11 +30,21 @@ final class Olama_Student_Gateway_Plugin {
         if (!function_exists('olama_users_register_module')) {
             return;
         }
+        $family_roles = array('family', 'olama_family');
+        if (class_exists('Olama_Users_Roles')) {
+            $configured_family_role = Olama_Users_Roles::default_role('family');
+            if ($configured_family_role) {
+                $family_roles[] = $configured_family_role;
+            }
+        }
         olama_users_register_module(array(
             'id' => 'olama_student_gateway',
             'plugin' => 'olama-student-gateway',
             'label' => __('Student Gateway', 'olama-student-gateway'),
             'capability' => 'olama_student_gateway_access',
+            'default_grant' => true,
+            'default_grant_roles' => array_values(array_unique($family_roles)),
+            'default_grant_capabilities' => array('olama_student_gateway_family_view'),
             'items' => array(
                 array('id' => 'gateway.family', 'type' => 'feature', 'label' => __('Family card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_family_view'),
                 array('id' => 'gateway.finance', 'type' => 'feature', 'label' => __('Financial card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_finance_view'),
@@ -52,6 +62,8 @@ final class Olama_Student_Gateway_Plugin {
     public function register_shortcode() {
         $this->shortcode = new Olama_Student_Gateway_Shortcode($this->providers());
         add_shortcode('olama_student_gateway', array($this->shortcode, 'render'));
+        // Keep the original family gateway shortcode working for existing pages.
+        add_shortcode('olama_family_gateway', array($this->shortcode, 'render'));
     }
 
     public function register_assets() {
@@ -102,7 +114,12 @@ final class Olama_Student_Gateway_Plugin {
             return false;
         }
         $post = get_queried_object();
-        return $post instanceof WP_Post && has_shortcode($post->post_content, 'olama_student_gateway');
+        if (!$post instanceof WP_Post) {
+            return false;
+        }
+
+        return has_shortcode($post->post_content, 'olama_student_gateway')
+            || has_shortcode($post->post_content, 'olama_family_gateway');
     }
 
     public function providers() {

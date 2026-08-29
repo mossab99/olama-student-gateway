@@ -56,5 +56,4 @@ Add the shortcode below to the WordPress portal page:
 [olama_student_gateway]
 ```
 
-The shortcode renders the existing WordPress login form for guests. OLAMA Users continues to authenticate family numbers and mobile-based passwords.
-
+The shortcode renders the existing WordPress login form for guests. OLAMA Users continues to authenticate family numbers and mobile-based passwords. The legacy `[olama_family_gateway]` shortcode is supported as an alias for existing portal pages.
