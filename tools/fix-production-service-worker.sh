@@ -101,7 +101,7 @@ add_action('wp_footer', function () {
 }, 100);
 PHP
 
-if grep -Eq 'client\.navigate|addEventListener\([[:space:]]*["'"']fetch' "${worker_tmp}"; then
+if grep -Eq "client\\.navigate|addEventListener\\([[:space:]]*['\"]fetch" "${worker_tmp}"; then
     echo 'ERROR: Generated worker contains forbidden navigation/fetch behavior.' >&2
     exit 1
 fi
@@ -125,8 +125,8 @@ elif [[ -d "${MU_PLUGIN_DIR}" ]]; then
     mu_group="$(stat -c '%G' "${MU_PLUGIN_DIR}")"
 fi
 
-install -o "${worker_owner}" -g "${worker_group}" -m 0644 "${worker_tmp}" "${WORKER_PATH}"
-install -o "${mu_owner}" -g "${mu_group}" -m 0644 "${mu_tmp}" "${MU_PLUGIN_PATH}"
+install -o "${worker_owner:-olama}" -g "${worker_group:-olama}" -m 0644 "${worker_tmp}" "${WORKER_PATH}"
+install -o "${mu_owner:-olama}" -g "${mu_group:-olama}" -m 0644 "${mu_tmp}" "${MU_PLUGIN_PATH}"
 
 echo "Installed safe worker: $(sha256sum "${WORKER_PATH}" | awk '{print $1}')"
 echo "Installed MU cleanup: $(sha256sum "${MU_PLUGIN_PATH}" | awk '{print $1}')"
@@ -162,11 +162,11 @@ public_home="$(curl --fail --silent --show-error --max-time 30 \
     "${PUBLIC_HOME_URL}?verify=${timestamp}")"
 
 verification_failed=0
-if grep -Eq 'client\.navigate|addEventListener\([[:space:]]*["'"']fetch' <<<"${public_worker}"; then
+if grep -Eq "client\\.navigate|addEventListener\\([[:space:]]*['\"]fetch" <<<"${public_worker}"; then
     echo 'ERROR: Public worker still contains the reload loop or no-op fetch handler.' >&2
     verification_failed=1
 fi
-if grep -Eq 'serviceWorker\.register\([[:space:]]*["'"']/nochain-sw\.js' <<<"${public_home}"; then
+if grep -Eq "serviceWorker\\.register\\([[:space:]]*['\"]/nochain-sw\\.js" <<<"${public_home}"; then
     echo 'ERROR: Public HTML still contains the obsolete worker-registration injector.' >&2
     verification_failed=1
 fi
