@@ -51,6 +51,8 @@ final class Olama_Student_Gateway_Plugin {
             'default_grant_capabilities' => array(
                 'olama_student_gateway_family_view',
                 'olama_student_gateway_weekly_plan_view',
+                'olama_student_gateway_schedule_view',
+                'olama_student_gateway_teachers_view',
                 'olama_student_gateway_exams_view',
                 'olama_student_gateway_evaluations_view',
                 'olama_student_gateway_attendance_view',
@@ -62,6 +64,8 @@ final class Olama_Student_Gateway_Plugin {
                 array('id' => 'gateway.family', 'type' => 'feature', 'label' => __('Family card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_family_view'),
                 array('id' => 'gateway.finance', 'type' => 'feature', 'label' => __('Financial card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_finance_view'),
                 array('id' => 'gateway.weekly_plan', 'type' => 'feature', 'label' => __('Weekly plan', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_weekly_plan_view'),
+                array('id' => 'gateway.schedule', 'type' => 'feature', 'label' => __('Class schedule', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_schedule_view'),
+                array('id' => 'gateway.teachers', 'type' => 'feature', 'label' => __('Teachers and office hours', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_teachers_view'),
                 array('id' => 'gateway.exams', 'type' => 'feature', 'label' => __('Exams', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_exams_view'),
                 array('id' => 'gateway.evaluations', 'type' => 'feature', 'label' => __('Evaluations', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_evaluations_view'),
                 array('id' => 'gateway.attendance', 'type' => 'feature', 'label' => __('Attendance', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_attendance_view'),
@@ -168,6 +172,7 @@ final class Olama_Student_Gateway_Plugin {
         $registry = new Olama_Student_Gateway_Provider_Registry();
         $registry->register(new Olama_Student_Gateway_Core_Provider());
         $registry->register(new Olama_Student_Gateway_Weekly_Plan_Provider());
+        $registry->register(new Olama_Student_Gateway_School_Context_Provider());
         $registry->register(new Olama_Student_Gateway_Exams_Provider());
         $registry->register(new Olama_Student_Gateway_Transportation_Provider());
         $registry->register(new Olama_Student_Gateway_Stores_Provider());

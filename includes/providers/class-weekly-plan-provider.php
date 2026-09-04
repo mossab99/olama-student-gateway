@@ -117,11 +117,11 @@ class Olama_Student_Gateway_Weekly_Plan_Provider implements Olama_Student_Gatewa
 
     private function day_label($day) {
         $labels = array(
-            0 => __('Sunday', 'olama-student-gateway'),
-            1 => __('Monday', 'olama-student-gateway'),
-            2 => __('Tuesday', 'olama-student-gateway'),
-            3 => __('Wednesday', 'olama-student-gateway'),
-            4 => __('Thursday', 'olama-student-gateway'),
+            0 => __('الأحد', 'olama-student-gateway'),
+            1 => __('الاثنين', 'olama-student-gateway'),
+            2 => __('الثلاثاء', 'olama-student-gateway'),
+            3 => __('الأربعاء', 'olama-student-gateway'),
+            4 => __('الخميس', 'olama-student-gateway'),
         );
         return isset($labels[$day]) ? $labels[$day] : '';
     }

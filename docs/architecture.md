@@ -21,6 +21,8 @@ OLAMA Users owns role and capability assignment. The gateway declares these capa
 | `olama_student_gateway_family_view` | View family profile fields |
 | `olama_student_gateway_finance_view` | View family financial information |
 | `olama_student_gateway_weekly_plan_view` | View approved weekly plans |
+| `olama_student_gateway_schedule_view` | View the student's weekly class schedule |
+| `olama_student_gateway_teachers_view` | View class teachers and office hours |
 | `olama_student_gateway_exams_view` | View exams, hall and released results |
 | `olama_student_gateway_evaluations_view` | View published evaluations |
 | `olama_student_gateway_attendance_view` | View attendance |
@@ -37,6 +39,8 @@ Capabilities decide feature access. Family ownership validation always remains m
 | Family, students, academic context | OLAMA Core | Integrated |
 | Family financial card | OLAMA Core | Integrated |
 | Weekly plan | OLAMA School | Integrated; approved/published records only |
+| Weekly class schedule | OLAMA School | Integrated; current mapped section and semester |
+| Class teachers and office hours | OLAMA School | Integrated; active assigned teachers only |
 | Exam schedule and hall | OLAMA Exam Management | Integrated; approved schedule only |
 | Online exam catalogue | OLAMA Exam Engine | Integrated; published/active exams only |
 | Online exam results | OLAMA Exam Engine | Contract ready; producer read service required |

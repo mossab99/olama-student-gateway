@@ -325,33 +325,135 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
                 </section>
 
             <?php elseif ('weekly_plan' === $active_view) : ?>
-                <section class="olama-gateway__heading"><div><h2>الخطة الأسبوعية</h2><p>الدروس والواجبات المعتمدة والمنشورة فقط.</p></div></section>
+                <section class="olama-gateway__heading"><div><span class="olama-gateway__eyebrow">OLAMA School</span><h2>الخطة الأسبوعية</h2><p>الدروس والواجبات المعتمدة والمنشورة فقط.</p></div><span class="olama-gateway__status olama-gateway__status--success">خطة منشورة</span></section>
                 <?php if (is_wp_error($data)) : ?>
                     <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
                 <?php else : ?>
                     <div class="olama-gateway__week-nav">
-                        <a href="<?php echo esc_url($make_url(array('og_student' => $student['student_uid'], 'og_view' => 'weekly_plan', 'og_week' => $data['previous_week']))); ?>">الأسبوع السابق</a>
-                        <strong><?php echo esc_html($data['week_start']); ?> — <?php echo esc_html($data['week_end']); ?></strong>
-                        <a href="<?php echo esc_url($make_url(array('og_student' => $student['student_uid'], 'og_view' => 'weekly_plan', 'og_week' => $data['next_week']))); ?>">الأسبوع التالي</a>
+                        <a href="<?php echo esc_url($make_url(array('og_student' => $student['student_uid'], 'og_view' => 'weekly_plan', 'og_week' => $data['previous_week']))); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> الأسبوع السابق</a>
+                        <span><small>الفترة المعروضة</small><strong><?php echo esc_html($data['week_start']); ?> — <?php echo esc_html($data['week_end']); ?></strong></span>
+                        <a href="<?php echo esc_url($make_url(array('og_student' => $student['student_uid'], 'og_view' => 'weekly_plan', 'og_week' => $data['next_week']))); ?>">الأسبوع التالي <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span></a>
                     </div>
                     <section class="olama-gateway__week-board">
                         <?php foreach ($data['days'] as $day) : ?>
                             <article class="olama-gateway__day">
-                                <header><strong><?php echo esc_html($day['label']); ?></strong><small><?php echo esc_html($day['date']); ?></small></header>
+                                <header><span><strong><?php echo esc_html($day['label']); ?></strong><small><?php echo esc_html($day['date']); ?></small></span><em><?php echo esc_html(count((array) $day['plans'])); ?> مواد</em></header>
                                 <?php if (!$day['plans']) : ?><div class="olama-gateway__day-empty">لا توجد مواد منشورة</div><?php endif; ?>
                                 <?php foreach ($day['plans'] as $plan) : ?>
                                     <div class="olama-gateway__lesson">
-                                        <strong><?php echo esc_html($plan['subject']); ?></strong>
-                                        <span><?php echo esc_html($plan['lesson'] ?: $plan['topic']); ?></span>
-                                        <?php foreach (array('homework_student_book', 'homework_exercise_book', 'homework_notebook', 'homework_worksheet') as $homework_key) : ?>
-                                            <?php if (!empty($plan[$homework_key])) : ?><small><?php echo esc_html($plan[$homework_key]); ?></small><?php endif; ?>
-                                        <?php endforeach; ?>
-                                        <?php if (!empty($plan['teacher_notes'])) : ?><em><?php echo esc_html($plan['teacher_notes']); ?></em><?php endif; ?>
+                                        <div class="olama-gateway__lesson-head"><strong><?php echo esc_html($plan['subject']); ?></strong><?php if (!empty($plan['period'])) : ?><span>الحصة <?php echo esc_html($plan['period']); ?></span><?php endif; ?></div>
+                                        <p><?php echo esc_html($plan['lesson'] ?: $plan['topic']); ?></p>
+                                        <?php if (!empty($plan['unit'])) : ?><small class="olama-gateway__lesson-unit">الوحدة: <?php echo esc_html($plan['unit']); ?></small><?php endif; ?>
+                                        <?php
+                                        $homework_labels = array(
+                                            'homework_student_book' => 'كتاب الطالب',
+                                            'homework_exercise_book' => 'كتاب التمارين',
+                                            'homework_notebook' => 'الدفتر',
+                                            'homework_worksheet' => 'ورقة العمل',
+                                        );
+                                        $has_homework = false;
+                                        foreach ($homework_labels as $homework_key => $homework_label) {
+                                            if (!empty($plan[$homework_key])) {
+                                                $has_homework = true;
+                                                break;
+                                            }
+                                        }
+                                        ?>
+                                        <?php if ($has_homework) : ?>
+                                            <div class="olama-gateway__homework">
+                                                <strong><span class="dashicons dashicons-edit" aria-hidden="true"></span> الواجبات</strong>
+                                                <?php foreach ($homework_labels as $homework_key => $homework_label) : ?>
+                                                    <?php if (!empty($plan[$homework_key])) : ?><div><small><?php echo esc_html($homework_label); ?></small><span><?php echo esc_html($plan[$homework_key]); ?></span></div><?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($plan['teacher_notes'])) : ?><div class="olama-gateway__teacher-note"><span class="dashicons dashicons-lightbulb" aria-hidden="true"></span><span><?php echo esc_html($plan['teacher_notes']); ?></span></div><?php endif; ?>
+                                        <?php if (!empty($plan['teacher'])) : ?><small class="olama-gateway__lesson-teacher"><span class="dashicons dashicons-admin-users" aria-hidden="true"></span><?php echo esc_html($plan['teacher']); ?></small><?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
                             </article>
                         <?php endforeach; ?>
                     </section>
+                <?php endif; ?>
+
+            <?php elseif ('schedule' === $active_view) : ?>
+                <section class="olama-gateway__heading"><div><span class="olama-gateway__eyebrow">OLAMA School</span><h2>الجدول الدراسي الأسبوعي</h2><p>جدول مواد شعبة الطالب للفصل الدراسي الحالي.</p></div><span class="olama-gateway__source">الشعبة الحالية</span></section>
+                <?php if (is_wp_error($data)) : ?>
+                    <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
+                <?php else :
+                    $schedule_days = !empty($data['days']) ? (array) $data['days'] : array();
+                    $schedule_cells = array();
+                    $max_period = 0;
+                    foreach ($schedule_days as $day) {
+                        $schedule_cells[$day['key']] = array();
+                        foreach ((array) $day['lessons'] as $lesson) {
+                            $period = absint($lesson['period']);
+                            $schedule_cells[$day['key']][$period] = $lesson;
+                            $max_period = max($max_period, $period);
+                        }
+                    }
+                    ?>
+                    <div class="olama-gateway__context-strip">
+                        <span><small>الصف</small><strong><?php echo esc_html($field($data, 'grade_name')); ?></strong></span>
+                        <span><small>الشعبة</small><strong><?php echo esc_html($field($data, 'section_name')); ?></strong></span>
+                        <span><small>الفصل</small><strong><?php echo esc_html($field($data, 'semester_name')); ?></strong></span>
+                    </div>
+                    <?php if (!$max_period) : ?>
+                        <div class="olama-gateway__empty">لم يتم نشر جدول دراسي لهذه الشعبة في الفصل الحالي.</div>
+                    <?php else : ?>
+                        <section class="olama-gateway__panel olama-gateway__schedule-panel">
+                            <div class="olama-gateway__table-wrap">
+                                <table class="olama-gateway__schedule-table">
+                                    <thead><tr><th>الحصة</th><?php foreach ($schedule_days as $day) : ?><th><?php echo esc_html($day['label']); ?></th><?php endforeach; ?></tr></thead>
+                                    <tbody>
+                                        <?php for ($period = 1; $period <= $max_period; $period++) : ?>
+                                            <tr><th><span><?php echo esc_html($period); ?></span></th>
+                                                <?php foreach ($schedule_days as $day) : $lesson = $schedule_cells[$day['key']][$period] ?? null; ?>
+                                                    <td>
+                                                        <?php if ($lesson) : ?><div class="olama-gateway__subject-cell" style="--subject-color:<?php echo esc_attr($lesson['color']); ?>"><strong><?php echo esc_html($lesson['subject']); ?></strong></div><?php else : ?><span class="olama-gateway__no-class">—</span><?php endif; ?>
+                                                    </td>
+                                                <?php endforeach; ?>
+                                            </tr>
+                                        <?php endfor; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    <?php endif; ?>
+                <?php endif; ?>
+
+            <?php elseif ('teachers' === $active_view) : ?>
+                <section class="olama-gateway__heading"><div><span class="olama-gateway__eyebrow">OLAMA School</span><h2>معلمو الشعبة والساعات المكتبية</h2><p>المعلمون المكلّفون بمواد شعبة الطالب ومواعيد استقبال أولياء الأمور.</p></div><span class="olama-gateway__source">بيانات الفصل الحالي</span></section>
+                <?php if (is_wp_error($data)) : ?>
+                    <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
+                <?php elseif (empty($data['teachers'])) : ?>
+                    <div class="olama-gateway__empty">لا يوجد معلمون مرتبطون بهذه الشعبة في السنة الحالية.</div>
+                <?php else : ?>
+                    <div class="olama-gateway__teacher-toolbar">
+                        <div><strong><?php echo esc_html(count($data['teachers'])); ?> معلمين</strong><small><?php echo esc_html($field($data, 'grade_name')); ?> · <?php echo esc_html($field($data, 'section_name')); ?></small></div>
+                        <label><span class="screen-reader-text">البحث عن معلم أو مادة</span><span class="dashicons dashicons-search" aria-hidden="true"></span><input type="search" placeholder="ابحث باسم المعلم أو المادة" data-teacher-search></label>
+                    </div>
+                    <section class="olama-gateway__teacher-grid" data-teacher-list>
+                        <?php foreach ($data['teachers'] as $teacher) :
+                            $search_terms = $teacher['name'] . ' ' . implode(' ', array_column((array) $teacher['subjects'], 'name'));
+                            ?>
+                            <article class="olama-gateway__teacher-card" data-teacher-card data-search="<?php echo esc_attr($search_terms); ?>">
+                                <header><span class="olama-gateway__teacher-avatar"><?php echo esc_html($initial($teacher['name'])); ?></span><span><strong><?php echo esc_html($teacher['name']); ?></strong><small>معلم الشعبة</small></span></header>
+                                <div class="olama-gateway__subject-tags">
+                                    <?php foreach ((array) $teacher['subjects'] as $subject) : ?><span style="--subject-color:<?php echo esc_attr($subject['color']); ?>"><?php echo esc_html($subject['name']); ?></span><?php endforeach; ?>
+                                </div>
+                                <div class="olama-gateway__office-hours">
+                                    <h3><span class="dashicons dashicons-clock" aria-hidden="true"></span> الساعات المكتبية</h3>
+                                    <?php if (empty($teacher['office_hours'])) : ?>
+                                        <p>لم تُنشر ساعات مكتبية لهذا المعلم بعد.</p>
+                                    <?php else : ?>
+                                        <?php foreach ($teacher['office_hours'] as $slot) : ?><div><span><?php echo esc_html($slot['day']); ?></span><strong><?php echo esc_html($slot['time']); ?></strong></div><?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </section>
+                    <div class="olama-gateway__empty" data-teacher-empty hidden>لا يوجد معلم أو مادة مطابقة للبحث.</div>
                 <?php endif; ?>
 
             <?php elseif ('exams' === $active_view) : ?>

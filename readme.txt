@@ -2,7 +2,7 @@
 Contributors: olama
 Requires at least: 6.4
 Requires PHP: 7.4
-Stable tag: 0.2.2
+Stable tag: 0.3.0
 License: GPLv2 or later
 
 Family-first, read-only portal for information produced by OLAMA Core, OLAMA Users, OLAMA School and other OLAMA service plugins.
@@ -29,6 +29,12 @@ External plugins may register a provider on `olama_student_gateway_register_prov
 * `olama_student_gateway_messages_data`
 
 == Changelog ==
+
+= 0.3.0 =
+
+* Added the student's weekly class schedule from OLAMA School.
+* Added the teachers assigned to the student's class and their current office hours.
+* Improved the weekly plan presentation and Arabic day labels.
 
 = 0.2.2 =
 

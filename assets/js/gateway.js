@@ -6,6 +6,7 @@
         var sidebar = gateway.querySelector('[data-gateway-sidebar]');
         var backdrop = gateway.querySelector('[data-gateway-backdrop]');
         var studentSwitch = gateway.querySelector('[data-student-switch]');
+        var teacherSearch = gateway.querySelector('[data-teacher-search]');
 
         if (menu && sidebar) {
             var setMenuState = function (open) {
@@ -45,6 +46,25 @@
             studentSwitch.addEventListener('change', function () {
                 if (studentSwitch.value) {
                     window.location.assign(studentSwitch.value);
+                }
+            });
+        }
+
+        if (teacherSearch) {
+            var teacherCards = Array.prototype.slice.call(gateway.querySelectorAll('[data-teacher-card]'));
+            var teacherEmpty = gateway.querySelector('[data-teacher-empty]');
+            teacherSearch.addEventListener('input', function () {
+                var query = teacherSearch.value.trim().toLocaleLowerCase();
+                var visible = 0;
+                teacherCards.forEach(function (card) {
+                    var matches = !query || (card.getAttribute('data-search') || '').toLocaleLowerCase().indexOf(query) !== -1;
+                    card.hidden = !matches;
+                    if (matches) {
+                        visible += 1;
+                    }
+                });
+                if (teacherEmpty) {
+                    teacherEmpty.hidden = visible !== 0;
                 }
             });
         }

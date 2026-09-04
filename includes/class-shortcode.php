@@ -90,6 +90,8 @@ class Olama_Student_Gateway_Shortcode {
             $views['dashboard'] = array('label' => __('الرئيسية', 'olama-student-gateway'), 'icon' => 'dashicons-dashboard');
             $map = array(
                 'weekly_plan' => array('olama_student_gateway_weekly_plan_view', __('الخطة الأسبوعية', 'olama-student-gateway'), 'dashicons-calendar-alt'),
+                'schedule' => array('olama_student_gateway_schedule_view', __('الجدول الدراسي', 'olama-student-gateway'), 'dashicons-schedule'),
+                'teachers' => array('olama_student_gateway_teachers_view', __('المعلمون والساعات المكتبية', 'olama-student-gateway'), 'dashicons-welcome-learn-more'),
                 'exams' => array('olama_student_gateway_exams_view', __('الامتحانات', 'olama-student-gateway'), 'dashicons-clipboard'),
                 'evaluations' => array('olama_student_gateway_evaluations_view', __('التقييمات', 'olama-student-gateway'), 'dashicons-star-filled'),
                 'attendance' => array('olama_student_gateway_attendance_view', __('الحضور والغياب', 'olama-student-gateway'), 'dashicons-yes-alt'),
@@ -150,6 +152,9 @@ class Olama_Student_Gateway_Shortcode {
         if ('weekly_plan' === $view) {
             $week = isset($_GET['og_week']) ? wp_unslash($_GET['og_week']) : '';
             return $this->providers->data('weekly_plan', $context, array('week' => $week));
+        }
+        if ('schedule' === $view || 'teachers' === $view) {
+            return $this->providers->data('school_context', $context, array('resource' => $view));
         }
         if ('stores' === $view) {
             return $this->providers->data('stores', $context);

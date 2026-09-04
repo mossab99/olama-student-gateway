@@ -226,6 +226,23 @@
     gap: 16px;
 }
 
+.olama-gateway__week-nav > span {
+    display: grid;
+    gap: 3px;
+    text-align: center;
+}
+
+.olama-gateway__week-nav > span small {
+    font-size: 11px;
+}
+
+.olama-gateway__week-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+}
+
 .olama-gateway h2,
 .olama-gateway h3,
 .olama-gateway p {
@@ -688,21 +705,119 @@
 }
 
 .olama-gateway__day > header {
-    display: grid;
-    gap: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     margin-bottom: 10px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--og-border);
+}
+
+.olama-gateway__day > header > span {
+    display: grid;
+    gap: 3px;
+}
+
+.olama-gateway__day > header em {
+    padding: 4px 7px;
+    color: var(--og-blue);
+    background: var(--og-blue-soft);
+    border-radius: 999px;
+    font-size: 10px;
+    font-style: normal;
 }
 
 .olama-gateway__lesson {
     display: grid;
     gap: 5px;
     margin-top: 9px;
-    padding: 10px;
-    background: var(--og-background);
+    padding: 12px;
+    background: linear-gradient(145deg, #fff, #f8fafc);
+    border: 1px solid var(--og-border);
     border-right: 3px solid var(--og-blue);
+    border-radius: 11px;
+}
+
+.olama-gateway__lesson-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.olama-gateway__lesson-head > span {
+    padding: 3px 6px;
+    color: var(--og-blue);
+    background: var(--og-blue-soft);
+    border-radius: 999px;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.olama-gateway__lesson > p {
+    color: var(--og-text);
+    line-height: 1.75;
+}
+
+.olama-gateway__lesson-unit {
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--og-border);
+}
+
+.olama-gateway__homework {
+    display: grid;
+    gap: 7px;
+    margin-top: 4px;
+    padding: 10px;
+    color: var(--og-success);
+    background: var(--og-success-soft);
     border-radius: 9px;
+}
+
+.olama-gateway__homework > strong {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.olama-gateway__homework > div {
+    display: grid;
+    gap: 2px;
+}
+
+.olama-gateway__homework > div small {
+    color: rgba(22, 131, 91, .78);
+    font-size: 10px;
+}
+
+.olama-gateway__homework > div span {
+    color: var(--og-text);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.olama-gateway__teacher-note {
+    display: flex;
+    gap: 7px;
+    padding: 9px;
+    color: var(--og-warning);
+    background: var(--og-warning-soft);
+    border-radius: 9px;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.olama-gateway__teacher-note span {
+    color: inherit;
+}
+
+.olama-gateway__lesson-teacher {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 3px;
 }
 
 .olama-gateway__lesson span,
@@ -713,6 +828,229 @@
 .olama-gateway__lesson em {
     color: var(--og-success);
     font-style: normal;
+}
+
+.olama-gateway__context-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.olama-gateway__context-strip > span {
+    display: grid;
+    gap: 4px;
+    padding: 15px 18px;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 13px;
+}
+
+.olama-gateway__schedule-panel {
+    padding: 0;
+    overflow: hidden;
+}
+
+.olama-gateway__schedule-table {
+    min-width: 780px;
+}
+
+.olama-gateway__schedule-table th,
+.olama-gateway__schedule-table td {
+    min-width: 125px;
+    padding: 11px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.olama-gateway__schedule-table thead th {
+    padding: 17px 11px;
+    color: #fff;
+    background: var(--og-navy);
+    border-color: rgba(255, 255, 255, .12);
+    font-size: 13px;
+}
+
+.olama-gateway__schedule-table tbody th {
+    min-width: 72px;
+    background: var(--og-background);
+}
+
+.olama-gateway__schedule-table tbody th span {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    color: var(--og-navy);
+    background: #fff;
+    border: 1px solid var(--og-border);
+    border-radius: 50%;
+}
+
+.olama-gateway__subject-cell {
+    position: relative;
+    min-height: 54px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 9px;
+    background: var(--og-blue-soft);
+    background: color-mix(in srgb, var(--subject-color) 10%, white);
+    border: 1px solid var(--og-border);
+    border-color: color-mix(in srgb, var(--subject-color) 28%, white);
+    border-radius: 10px;
+}
+
+.olama-gateway__subject-cell::before {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 4px;
+    content: "";
+    background: var(--subject-color);
+}
+
+.olama-gateway__no-class {
+    color: #b2bec8;
+}
+
+.olama-gateway__teacher-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 14px;
+}
+
+.olama-gateway__teacher-toolbar > div {
+    display: grid;
+    gap: 3px;
+}
+
+.olama-gateway__teacher-toolbar label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: min(320px, 100%);
+    padding: 0 11px;
+    background: var(--og-background);
+    border: 1px solid var(--og-border);
+    border-radius: 10px;
+}
+
+.olama-gateway__teacher-toolbar input {
+    width: 100%;
+    padding: 10px 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+}
+
+.olama-gateway__teacher-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.olama-gateway__teacher-card {
+    min-width: 0;
+    overflow: hidden;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 16px;
+    box-shadow: var(--og-shadow);
+}
+
+.olama-gateway__teacher-card > header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px;
+    background: linear-gradient(145deg, var(--og-navy-dark), var(--og-navy));
+}
+
+.olama-gateway__teacher-card > header > span:last-child {
+    display: grid;
+    gap: 3px;
+}
+
+.olama-gateway__teacher-card > header strong {
+    color: #fff;
+}
+
+.olama-gateway__teacher-card > header small {
+    color: rgba(255, 255, 255, .68);
+}
+
+.olama-gateway__teacher-avatar {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    color: var(--og-navy);
+    background: var(--og-brass-soft);
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.olama-gateway__subject-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-height: 64px;
+    padding: 16px 18px 8px;
+}
+
+.olama-gateway__subject-tags span {
+    height: fit-content;
+    padding: 5px 9px;
+    color: var(--subject-color);
+    background: var(--og-blue-soft);
+    background: color-mix(in srgb, var(--subject-color) 10%, white);
+    border: 1px solid var(--og-border);
+    border-color: color-mix(in srgb, var(--subject-color) 22%, white);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.olama-gateway__office-hours {
+    display: grid;
+    gap: 8px;
+    margin: 8px 18px 18px;
+    padding: 14px;
+    background: var(--og-background);
+    border-radius: 11px;
+}
+
+.olama-gateway__office-hours h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+    font-size: 13px;
+}
+
+.olama-gateway__office-hours > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--og-border);
+    font-size: 12px;
+}
+
+.olama-gateway__office-hours p {
+    color: var(--og-muted);
+    font-size: 12px;
+}
+
+.olama-gateway [hidden] {
+    display: none !important;
 }
 
 .olama-gateway__empty,
@@ -929,6 +1267,10 @@
     .olama-gateway__dashboard-side {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
+    .olama-gateway__teacher-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 720px) {
@@ -942,7 +1284,9 @@
     .olama-gateway__grid--2,
     .olama-gateway__member-grid,
     .olama-gateway__dashboard-side,
-    .olama-gateway__quick-stats {
+    .olama-gateway__quick-stats,
+    .olama-gateway__context-strip,
+    .olama-gateway__teacher-grid {
         grid-template-columns: 1fr;
     }
 
@@ -964,6 +1308,11 @@
     }
 
     .olama-gateway__top-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .olama-gateway__teacher-toolbar {
         align-items: stretch;
         flex-direction: column;
     }
