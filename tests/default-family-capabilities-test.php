@@ -31,6 +31,7 @@ $expected = array(
     'olama_student_gateway_weekly_plan_view',
     'olama_student_gateway_schedule_view',
     'olama_student_gateway_teachers_view',
+    'olama_student_gateway_video_library_view',
     'olama_student_gateway_exams_view',
     'olama_student_gateway_evaluations_view',
     'olama_student_gateway_attendance_view',

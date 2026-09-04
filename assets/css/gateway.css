@@ -836,6 +836,10 @@
     gap: 12px;
 }
 
+.olama-gateway__context-strip--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .olama-gateway__context-strip > span {
     display: grid;
     gap: 4px;
@@ -912,7 +916,8 @@
     color: #b2bec8;
 }
 
-.olama-gateway__teacher-toolbar {
+.olama-gateway__teacher-toolbar,
+.olama-gateway__video-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -923,12 +928,14 @@
     border-radius: 14px;
 }
 
-.olama-gateway__teacher-toolbar > div {
+.olama-gateway__teacher-toolbar > div,
+.olama-gateway__video-toolbar > div {
     display: grid;
     gap: 3px;
 }
 
-.olama-gateway__teacher-toolbar label {
+.olama-gateway__teacher-toolbar label,
+.olama-gateway__video-toolbar label {
     display: flex;
     align-items: center;
     gap: 7px;
@@ -939,7 +946,8 @@
     border-radius: 10px;
 }
 
-.olama-gateway__teacher-toolbar input {
+.olama-gateway__teacher-toolbar input,
+.olama-gateway__video-toolbar input {
     width: 100%;
     padding: 10px 0;
     background: transparent;
@@ -1047,6 +1055,130 @@
 .olama-gateway__office-hours p {
     color: var(--og-muted);
     font-size: 12px;
+}
+
+.olama-gateway__video-library {
+    display: grid;
+    gap: 18px;
+}
+
+.olama-gateway__video-subject {
+    overflow: hidden;
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: 16px;
+    box-shadow: var(--og-shadow);
+}
+
+.olama-gateway__video-subject > header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border-right: 5px solid var(--subject-color);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--subject-color) 7%, white), #fff 45%);
+}
+
+.olama-gateway__video-subject > header > span:last-child {
+    display: grid;
+    gap: 3px;
+}
+
+.olama-gateway__video-subject-icon,
+.olama-gateway__play-mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    color: var(--subject-color);
+    background: var(--og-blue-soft);
+    background: color-mix(in srgb, var(--subject-color) 11%, white);
+    border-radius: 12px;
+}
+
+.olama-gateway__video-units {
+    padding: 0 20px 20px;
+}
+
+.olama-gateway__video-units details {
+    border-top: 1px solid var(--og-border);
+}
+
+.olama-gateway__video-units summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 4px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.olama-gateway__video-units summary::-webkit-details-marker {
+    display: none;
+}
+
+.olama-gateway__video-units summary > span {
+    display: grid;
+    gap: 3px;
+}
+
+.olama-gateway__video-units summary > span:last-child {
+    display: flex;
+    align-items: center;
+    color: var(--og-muted);
+    font-size: 12px;
+}
+
+.olama-gateway__video-units details[open] summary .dashicons-arrow-down-alt2 {
+    transform: rotate(180deg);
+}
+
+.olama-gateway__video-lessons {
+    display: grid;
+    gap: 9px;
+    padding-bottom: 14px;
+}
+
+.olama-gateway__video-lesson {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px;
+    background: var(--og-background);
+    border-radius: 11px;
+}
+
+.olama-gateway__play-mark {
+    width: 36px;
+    height: 36px;
+}
+
+.olama-gateway__video-lesson > span:nth-child(2) {
+    display: grid;
+    flex: 1;
+    gap: 3px;
+}
+
+.olama-gateway__video-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.olama-gateway__video-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 11px;
+    color: #fff;
+    background: var(--og-blue);
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
 }
 
 .olama-gateway [hidden] {
@@ -1312,9 +1444,28 @@
         flex-direction: column;
     }
 
-    .olama-gateway__teacher-toolbar {
+    .olama-gateway__teacher-toolbar,
+    .olama-gateway__video-toolbar {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .olama-gateway__context-strip--4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .olama-gateway__video-lesson {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .olama-gateway__video-actions {
+        width: 100%;
+    }
+
+    .olama-gateway__video-actions a {
+        justify-content: center;
+        flex: 1;
     }
 
     .olama-gateway__hero {
@@ -1329,6 +1480,12 @@
 
     .olama-gateway__details div.is-wide {
         grid-column: auto;
+    }
+}
+
+@media (max-width: 460px) {
+    .olama-gateway__context-strip--4 {
+        grid-template-columns: 1fr;
     }
 }
 

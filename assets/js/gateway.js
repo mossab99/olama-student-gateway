@@ -7,6 +7,7 @@
         var backdrop = gateway.querySelector('[data-gateway-backdrop]');
         var studentSwitch = gateway.querySelector('[data-student-switch]');
         var teacherSearch = gateway.querySelector('[data-teacher-search]');
+        var videoSearch = gateway.querySelector('[data-video-search]');
 
         if (menu && sidebar) {
             var setMenuState = function (open) {
@@ -65,6 +66,25 @@
                 });
                 if (teacherEmpty) {
                     teacherEmpty.hidden = visible !== 0;
+                }
+            });
+        }
+
+        if (videoSearch) {
+            var videoSubjects = Array.prototype.slice.call(gateway.querySelectorAll('[data-video-subject]'));
+            var videoEmpty = gateway.querySelector('[data-video-empty]');
+            videoSearch.addEventListener('input', function () {
+                var query = videoSearch.value.trim().toLocaleLowerCase();
+                var visible = 0;
+                videoSubjects.forEach(function (subject) {
+                    var matches = !query || (subject.getAttribute('data-search') || '').toLocaleLowerCase().indexOf(query) !== -1;
+                    subject.hidden = !matches;
+                    if (matches) {
+                        visible += 1;
+                    }
+                });
+                if (videoEmpty) {
+                    videoEmpty.hidden = visible !== 0;
                 }
             });
         }

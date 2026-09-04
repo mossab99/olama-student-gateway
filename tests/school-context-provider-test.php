@@ -13,6 +13,7 @@ function sanitize_text_field($value) { return trim((string) $value); }
 function sanitize_key($value) { return preg_replace('/[^a-z0-9_\-]/', '', strtolower((string) $value)); }
 function sanitize_hex_color($value) { return preg_match('/^#[0-9a-f]{6}$/i', (string) $value) ? $value : null; }
 function absint($value) { return abs((int) $value); }
+function is_wp_error($value) { return $value instanceof WP_Error; }
 
 class Olama_School_Section {
     public static function get_sections() {
@@ -24,15 +25,15 @@ class Olama_School_Section {
         ));
     }
     public static function get_section($id) {
-        return (object) array('id' => $id, 'grade_name' => 'الصف الثامن', 'section_name' => 'أ');
+        return (object) array('id' => $id, 'grade_id' => 8, 'grade_name' => 'الصف الثامن', 'section_name' => 'أ');
     }
 }
 
 class Olama_School_Schedule {
     public static function get_schedule($section_id, $semester_id, $type) {
         return array(
-            'Sunday' => array(1 => (object) array('period_number' => 1, 'subject_name' => 'الرياضيات', 'color_code' => '#2563eb')),
-            'Monday' => array(2 => (object) array('period_number' => 2, 'subject_name' => 'العلوم', 'color_code' => '#16835b')),
+            'Sunday' => array(1 => (object) array('period_number' => 1, 'subject_id' => 21, 'subject_name' => 'الرياضيات', 'color_code' => '#2563eb')),
+            'Monday' => array(2 => (object) array('period_number' => 2, 'subject_id' => 22, 'subject_name' => 'العلوم', 'color_code' => '#16835b')),
         );
     }
 }
@@ -81,6 +82,7 @@ $schedule = $provider->get_data($context, array('resource' => 'schedule'));
 assert_true(12 === $schedule['section_id'], 'The canonical Core section should map to School section 12.');
 assert_true('الأحد' === $schedule['days'][0]['label'], 'Schedule day labels should be Arabic.');
 assert_true('الرياضيات' === $schedule['days'][0]['lessons'][0]['subject'], 'The class subject should be normalized.');
+assert_true(21 === $schedule['days'][0]['lessons'][0]['subject_id'], 'The local School subject ID should be available for media scoping.');
 
 $teachers = $provider->get_data($context, array('resource' => 'teachers'));
 assert_true(1 === count($teachers['teachers']), 'Inactive or unsynchronized teachers should be excluded.');

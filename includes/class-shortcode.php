@@ -92,6 +92,7 @@ class Olama_Student_Gateway_Shortcode {
                 'weekly_plan' => array('olama_student_gateway_weekly_plan_view', __('الخطة الأسبوعية', 'olama-student-gateway'), 'dashicons-calendar-alt'),
                 'schedule' => array('olama_student_gateway_schedule_view', __('الجدول الدراسي', 'olama-student-gateway'), 'dashicons-schedule'),
                 'teachers' => array('olama_student_gateway_teachers_view', __('المعلمون والساعات المكتبية', 'olama-student-gateway'), 'dashicons-welcome-learn-more'),
+                'video_library' => array('olama_student_gateway_video_library_view', __('مكتبة الفيديو', 'olama-student-gateway'), 'dashicons-video-alt3'),
                 'exams' => array('olama_student_gateway_exams_view', __('الامتحانات', 'olama-student-gateway'), 'dashicons-clipboard'),
                 'evaluations' => array('olama_student_gateway_evaluations_view', __('التقييمات', 'olama-student-gateway'), 'dashicons-star-filled'),
                 'attendance' => array('olama_student_gateway_attendance_view', __('الحضور والغياب', 'olama-student-gateway'), 'dashicons-yes-alt'),
@@ -155,6 +156,9 @@ class Olama_Student_Gateway_Shortcode {
         }
         if ('schedule' === $view || 'teachers' === $view) {
             return $this->providers->data('school_context', $context, array('resource' => $view));
+        }
+        if ('video_library' === $view) {
+            return $this->providers->data('video_library', $context);
         }
         if ('stores' === $view) {
             return $this->providers->data('stores', $context);

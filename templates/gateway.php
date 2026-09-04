@@ -456,6 +456,63 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
                     <div class="olama-gateway__empty" data-teacher-empty hidden>لا يوجد معلم أو مادة مطابقة للبحث.</div>
                 <?php endif; ?>
 
+            <?php elseif ('video_library' === $active_view) : ?>
+                <section class="olama-gateway__heading"><div><span class="olama-gateway__eyebrow">OLAMA Media Library</span><h2>مكتبة الفيديو التعليمية</h2><p>الفيديوهات المعتمدة المرتبطة بمنهاج الطالب في الفصل الحالي.</p></div><span class="olama-gateway__status olama-gateway__status--success">فيديوهات معتمدة فقط</span></section>
+                <?php if (is_wp_error($data)) : ?>
+                    <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
+                <?php else : ?>
+                    <div class="olama-gateway__context-strip olama-gateway__context-strip--4">
+                        <span><small>الصف</small><strong><?php echo esc_html($field($data, 'grade_name')); ?></strong></span>
+                        <span><small>الشعبة</small><strong><?php echo esc_html($field($data, 'section_name')); ?></strong></span>
+                        <span><small>الفصل</small><strong><?php echo esc_html($field($data, 'semester_name')); ?></strong></span>
+                        <span><small>الفيديوهات المتاحة</small><strong><?php echo esc_html(absint($field($data, 'video_count', 0))); ?></strong></span>
+                    </div>
+                    <?php if (empty($data['subjects'])) : ?>
+                        <div class="olama-gateway__empty">لا توجد فيديوهات معتمدة لمواد شعبة الطالب في الفصل الحالي.</div>
+                    <?php else : ?>
+                        <div class="olama-gateway__video-toolbar">
+                            <div><strong><?php echo esc_html(count($data['subjects'])); ?> مواد</strong><small>مرتبة حسب المادة والوحدة والدرس</small></div>
+                            <label><span class="screen-reader-text">البحث في مكتبة الفيديو</span><span class="dashicons dashicons-search" aria-hidden="true"></span><input type="search" placeholder="ابحث عن مادة أو وحدة أو درس" data-video-search></label>
+                        </div>
+                        <section class="olama-gateway__video-library" data-video-list>
+                            <?php foreach ($data['subjects'] as $subject) :
+                                $subject_search = $subject['name'];
+                                foreach ((array) $subject['units'] as $search_unit) {
+                                    $subject_search .= ' ' . $search_unit['name'];
+                                    foreach ((array) $search_unit['lessons'] as $search_lesson) {
+                                        $subject_search .= ' ' . $search_lesson['title'];
+                                    }
+                                }
+                                ?>
+                                <article class="olama-gateway__video-subject" data-video-subject data-search="<?php echo esc_attr($subject_search); ?>" style="--subject-color:<?php echo esc_attr($subject['color']); ?>">
+                                    <header><span class="olama-gateway__video-subject-icon"><span class="dashicons dashicons-video-alt3" aria-hidden="true"></span></span><span><strong><?php echo esc_html($subject['name']); ?></strong><small><?php echo esc_html(count((array) $subject['units'])); ?> وحدات متاحة</small></span></header>
+                                    <div class="olama-gateway__video-units">
+                                        <?php foreach ((array) $subject['units'] as $unit_index => $unit) : ?>
+                                            <details <?php echo 0 === $unit_index ? 'open' : ''; ?>>
+                                                <summary><span><strong><?php echo esc_html($unit['name']); ?></strong><?php if ('' !== (string) $unit['number']) : ?><small>الوحدة <?php echo esc_html($unit['number']); ?></small><?php endif; ?></span><span><?php echo esc_html(count((array) $unit['lessons'])); ?> دروس <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></span></summary>
+                                                <div class="olama-gateway__video-lessons">
+                                                    <?php foreach ((array) $unit['lessons'] as $lesson) : ?>
+                                                        <div class="olama-gateway__video-lesson">
+                                                            <span class="olama-gateway__play-mark"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span></span>
+                                                            <span><strong><?php echo esc_html($lesson['title']); ?></strong><?php if ('' !== (string) $lesson['number']) : ?><small>الدرس <?php echo esc_html($lesson['number']); ?></small><?php endif; ?></span>
+                                                            <span class="olama-gateway__video-actions">
+                                                                <?php foreach ((array) $lesson['videos'] as $video) : ?>
+                                                                    <a href="<?php echo esc_url($video['url']); ?>" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo !empty($video['part']) ? 'الجزء ' . esc_html($video['part']) : 'مشاهدة الفيديو'; ?></a>
+                                                                <?php endforeach; ?>
+                                                            </span>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </details>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        </section>
+                        <div class="olama-gateway__empty" data-video-empty hidden>لا توجد مادة أو وحدة أو درس مطابق للبحث.</div>
+                    <?php endif; ?>
+                <?php endif; ?>
+
             <?php elseif ('exams' === $active_view) : ?>
                 <section class="olama-gateway__heading"><div><h2>الامتحانات والنتائج</h2><p>جدول الامتحانات المعتمد، القاعة، الامتحانات الإلكترونية، والنتائج حسب مصدرها.</p></div><span class="olama-gateway__status">المصدر موضح لكل مجموعة</span></section>
                 <?php if (is_wp_error($data)) : ?>

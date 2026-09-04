@@ -53,6 +53,7 @@ final class Olama_Student_Gateway_Plugin {
                 'olama_student_gateway_weekly_plan_view',
                 'olama_student_gateway_schedule_view',
                 'olama_student_gateway_teachers_view',
+                'olama_student_gateway_video_library_view',
                 'olama_student_gateway_exams_view',
                 'olama_student_gateway_evaluations_view',
                 'olama_student_gateway_attendance_view',
@@ -66,6 +67,7 @@ final class Olama_Student_Gateway_Plugin {
                 array('id' => 'gateway.weekly_plan', 'type' => 'feature', 'label' => __('Weekly plan', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_weekly_plan_view'),
                 array('id' => 'gateway.schedule', 'type' => 'feature', 'label' => __('Class schedule', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_schedule_view'),
                 array('id' => 'gateway.teachers', 'type' => 'feature', 'label' => __('Teachers and office hours', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_teachers_view'),
+                array('id' => 'gateway.video_library', 'type' => 'feature', 'label' => __('Video library', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_video_library_view'),
                 array('id' => 'gateway.exams', 'type' => 'feature', 'label' => __('Exams', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_exams_view'),
                 array('id' => 'gateway.evaluations', 'type' => 'feature', 'label' => __('Evaluations', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_evaluations_view'),
                 array('id' => 'gateway.attendance', 'type' => 'feature', 'label' => __('Attendance', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_attendance_view'),
@@ -173,6 +175,7 @@ final class Olama_Student_Gateway_Plugin {
         $registry->register(new Olama_Student_Gateway_Core_Provider());
         $registry->register(new Olama_Student_Gateway_Weekly_Plan_Provider());
         $registry->register(new Olama_Student_Gateway_School_Context_Provider());
+        $registry->register(new Olama_Student_Gateway_Video_Library_Provider());
         $registry->register(new Olama_Student_Gateway_Exams_Provider());
         $registry->register(new Olama_Student_Gateway_Transportation_Provider());
         $registry->register(new Olama_Student_Gateway_Stores_Provider());

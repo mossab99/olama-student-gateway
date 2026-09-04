@@ -2,7 +2,7 @@
 Contributors: olama
 Requires at least: 6.4
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPLv2 or later
 
 Family-first, read-only portal for information produced by OLAMA Core, OLAMA Users, OLAMA School and other OLAMA service plugins.
@@ -29,6 +29,11 @@ External plugins may register a provider on `olama_student_gateway_register_prov
 * `olama_student_gateway_messages_data`
 
 == Changelog ==
+
+= 0.4.0 =
+
+* Added a student-scoped video library for the active year, semester, grade, section and scheduled subjects.
+* Shows only videos published by the guardian-safe OLAMA Media Library service.
 
 = 0.3.0 =
 

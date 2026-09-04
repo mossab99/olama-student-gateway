@@ -20,6 +20,27 @@ class Olama_Student_Gateway_School_Context_Provider implements Olama_Student_Gat
     }
 
     public function get_data(array $context, array $args = array()) {
+        $scope = $this->resolve_scope($context);
+        if (is_wp_error($scope)) {
+            return $scope;
+        }
+
+        $section_id = $scope['section_id'];
+        $academic_year_id = $scope['academic_year_id'];
+        $semester_id = $scope['semester_id'];
+        $base = $scope;
+
+        $resource = isset($args['resource']) ? sanitize_key($args['resource']) : 'schedule';
+        if ('teachers' === $resource) {
+            $base['teachers'] = $this->teachers($section_id, $academic_year_id, $semester_id);
+            return $base;
+        }
+
+        $base['days'] = $this->schedule($section_id, $semester_id);
+        return $base;
+    }
+
+    public function resolve_scope(array $context) {
         $student = isset($context['student']) && is_array($context['student']) ? $context['student'] : null;
         if (!$student || empty($student['academic']) || !is_array($student['academic'])) {
             return new WP_Error(
@@ -45,23 +66,15 @@ class Olama_Student_Gateway_School_Context_Provider implements Olama_Student_Gat
         }
 
         $section = Olama_School_Section::get_section($section_id);
-        $base = array(
+        return array(
             'academic_year_id' => $academic_year_id,
             'semester_id' => $semester_id,
             'semester_name' => sanitize_text_field(isset($academic_context['semester_name']) ? $academic_context['semester_name'] : ''),
             'section_id' => $section_id,
+            'grade_id' => $section && isset($section->grade_id) ? absint($section->grade_id) : 0,
             'section_name' => sanitize_text_field($section && isset($section->section_name) ? $section->section_name : ''),
             'grade_name' => sanitize_text_field($section && isset($section->grade_name) ? $section->grade_name : ''),
         );
-
-        $resource = isset($args['resource']) ? sanitize_key($args['resource']) : 'schedule';
-        if ('teachers' === $resource) {
-            $base['teachers'] = $this->teachers($section_id, $academic_year_id, $semester_id);
-            return $base;
-        }
-
-        $base['days'] = $this->schedule($section_id, $semester_id);
-        return $base;
     }
 
     private function schedule($section_id, $semester_id) {
@@ -80,6 +93,7 @@ class Olama_Student_Gateway_School_Context_Provider implements Olama_Student_Gat
                 $color = sanitize_hex_color($this->value($lesson, 'color_code'));
                 $lessons[] = array(
                     'period' => absint($this->value($lesson, 'period_number') ?: $period),
+                    'subject_id' => absint($this->value($lesson, 'subject_id')),
                     'subject' => sanitize_text_field($this->value($lesson, 'subject_name')),
                     'color' => $color ?: '#1f7ac0',
                 );
