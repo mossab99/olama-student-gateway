@@ -24,6 +24,7 @@ final class Olama_Student_Gateway_Plugin {
         add_action('wp_enqueue_scripts', array($this, 'maybe_enqueue_assets'));
         add_action('template_redirect', array($this, 'protect_portal_response'));
         add_filter('wp_robots', array($this, 'portal_robots'));
+        add_filter('members_post_error_message', array($this, 'replace_members_denial_with_gateway'), 29);
     }
 
     public function register_access_module() {
@@ -107,6 +108,32 @@ final class Olama_Student_Gateway_Plugin {
             $robots['noarchive'] = true;
         }
         return $robots;
+    }
+
+    /**
+     * Let the gateway perform its own guest login and capability checks when the
+     * Members plugin protects the containing page. Other page content remains
+     * protected because only the denial message is replaced.
+     */
+    public function replace_members_denial_with_gateway($message) {
+        if (is_admin() || is_feed()) {
+            return $message;
+        }
+
+        $post = get_post(get_the_ID());
+        if (!$post instanceof WP_Post) {
+            return $message;
+        }
+
+        if (
+            has_shortcode($post->post_content, 'olama_student_gateway')
+            || has_shortcode($post->post_content, 'olama_family_gateway')
+        ) {
+            // Members runs do_shortcode() immediately after this filter.
+            return '[olama_student_gateway]';
+        }
+
+        return $message;
     }
 
     private function is_portal_request() {
