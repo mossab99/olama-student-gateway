@@ -115,12 +115,37 @@ class Olama_Student_Gateway_Shortcode {
             return $data;
         }
         if ('dashboard' === $view) {
-            return array(
-                'weekly_plan' => $this->providers->available('weekly_plan')
-                    ? $this->providers->data('weekly_plan', $context, array('week' => ''))
-                    : array(),
-                'transportation' => $this->providers->data('transportation', $context),
-            );
+            $data = array();
+
+            if (
+                current_user_can('olama_student_gateway_weekly_plan_view')
+                && $this->providers->available('weekly_plan')
+            ) {
+                $data['weekly_plan'] = $this->providers->data('weekly_plan', $context, array('week' => ''));
+            }
+
+            if (
+                current_user_can('olama_student_gateway_exams_view')
+                && $this->providers->available('exams')
+            ) {
+                $data['exams'] = $this->providers->data('exams', $context);
+            }
+
+            if (
+                current_user_can('olama_student_gateway_transportation_view')
+                && $this->providers->available('transportation')
+            ) {
+                $data['transportation'] = $this->providers->data('transportation', $context);
+            }
+
+            if (
+                current_user_can('olama_student_gateway_stores_view')
+                && $this->providers->available('stores')
+            ) {
+                $data['stores'] = $this->providers->data('stores', $context);
+            }
+
+            return $data;
         }
         if ('weekly_plan' === $view) {
             $week = isset($_GET['og_week']) ? wp_unslash($_GET['og_week']) : '';
@@ -141,10 +166,21 @@ class Olama_Student_Gateway_Shortcode {
         <div class="olama-gateway-login" dir="rtl">
             <div class="olama-gateway-login__intro">
                 <span class="olama-gateway-logo">ع</span>
-                <h2><?php esc_html_e('OLAMA Family Gateway', 'olama-student-gateway'); ?></h2>
-                <p><?php esc_html_e('Use the existing family number and password to view all family members and school information.', 'olama-student-gateway'); ?></p>
+                <span class="olama-gateway-login__eyebrow"><?php esc_html_e('أكاديمية علماء المستقبل', 'olama-student-gateway'); ?></span>
+                <h2><?php esc_html_e('كل ما يخص أبناءك في مكان واحد', 'olama-student-gateway'); ?></h2>
+                <p><?php esc_html_e('تابع الخطط الأسبوعية والامتحانات والمواصلات والخدمات المنشورة للأسرة من خلال حساب آمن واحد.', 'olama-student-gateway'); ?></p>
+                <ul class="olama-gateway-login__benefits">
+                    <li><span class="dashicons dashicons-groups" aria-hidden="true"></span><?php esc_html_e('الوصول إلى جميع الأبناء المرتبطين بالأسرة', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-shield-alt" aria-hidden="true"></span><?php esc_html_e('عرض المعلومات التي تسمح بها صلاحيات حسابك فقط', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-update" aria-hidden="true"></span><?php esc_html_e('بيانات منشورة من أنظمة OLAMA المعتمدة', 'olama-student-gateway'); ?></li>
+                </ul>
             </div>
             <div class="olama-gateway-login__form">
+                <div class="olama-gateway-login__form-head">
+                    <span class="olama-gateway-login__eyebrow"><?php esc_html_e('بوابة الأسرة', 'olama-student-gateway'); ?></span>
+                    <h2><?php esc_html_e('تسجيل الدخول', 'olama-student-gateway'); ?></h2>
+                    <p><?php esc_html_e('استخدم رقم الأسرة وكلمة المرور المسجلين لديك.', 'olama-student-gateway'); ?></p>
+                </div>
                 <?php
                 if (isset($_GET['og_login']) && 'failed' === sanitize_key(wp_unslash($_GET['og_login']))) {
                     echo '<div class="olama-gateway-notice olama-gateway-notice--error olama-gateway-login__error" role="alert">'
@@ -165,6 +201,7 @@ class Olama_Student_Gateway_Shortcode {
                     ),
                 ));
                 ?>
+                <p class="olama-gateway-login__security"><span class="dashicons dashicons-lock" aria-hidden="true"></span><?php esc_html_e('لن تظهر أي معلومات قبل التحقق من الحساب والصلاحيات.', 'olama-student-gateway'); ?></p>
             </div>
         </div>
         <?php

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: OLAMA Student Gateway
  * Description: Family-first, read-only gateway for student and family information produced by OLAMA services.
- * Version: 0.1.2
+ * Version: 0.2.0
  * Author: OLAMA
  * Text Domain: olama-student-gateway
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('OLAMA_STUDENT_GATEWAY_VERSION', '0.1.2');
+define('OLAMA_STUDENT_GATEWAY_VERSION', '0.2.0');
 define('OLAMA_STUDENT_GATEWAY_FILE', __FILE__);
 define('OLAMA_STUDENT_GATEWAY_PATH', plugin_dir_path(__FILE__));
 define('OLAMA_STUDENT_GATEWAY_URL', plugin_dir_url(__FILE__));

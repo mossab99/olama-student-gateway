@@ -2,7 +2,7 @@
 Contributors: olama
 Requires at least: 6.4
 Requires PHP: 7.4
-Stable tag: 0.1.2
+Stable tag: 0.2.0
 License: GPLv2 or later
 
 Family-first, read-only portal for information produced by OLAMA Core, OLAMA Users, OLAMA School and other OLAMA service plugins.
@@ -27,3 +27,11 @@ External plugins may register a provider on `olama_student_gateway_register_prov
 * `olama_student_gateway_attendance_data`
 * `olama_student_gateway_transportation_data`
 * `olama_student_gateway_messages_data`
+
+== Changelog ==
+
+= 0.2.0 =
+
+* Introduced the redesigned family and student portal shell.
+* Added capability-aware dashboard summaries for weekly plans, exams, transportation and stores.
+* Improved the real family login screen and responsive navigation accessibility.
