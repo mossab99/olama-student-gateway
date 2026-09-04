@@ -30,8 +30,11 @@ $expected = array(
     'olama_student_gateway_family_view',
     'olama_student_gateway_weekly_plan_view',
     'olama_student_gateway_exams_view',
+    'olama_student_gateway_evaluations_view',
+    'olama_student_gateway_attendance_view',
     'olama_student_gateway_transportation_view',
     'olama_student_gateway_stores_view',
+    'olama_student_gateway_messages_view',
 );
 
 assert_true(is_array($registered_module), 'The Student Gateway module should be registered.');
@@ -39,17 +42,6 @@ foreach ($expected as $capability) {
     assert_true(
         in_array($capability, $registered_module['default_grant_capabilities'], true),
         "Family defaults should include {$capability}."
-    );
-}
-
-foreach (array(
-    'olama_student_gateway_evaluations_view',
-    'olama_student_gateway_attendance_view',
-    'olama_student_gateway_messages_view',
-) as $future_capability) {
-    assert_true(
-        !in_array($future_capability, $registered_module['default_grant_capabilities'], true),
-        "Unimplemented service {$future_capability} must remain opt-in."
     );
 }
 
