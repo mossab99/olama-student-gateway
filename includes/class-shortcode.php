@@ -11,6 +11,27 @@ class Olama_Student_Gateway_Shortcode {
     public function __construct(Olama_Student_Gateway_Provider_Registry $providers) {
         $this->providers = $providers;
         $this->access = new Olama_Student_Gateway_Access_Context();
+        add_action('wp_login_failed', array($this, 'redirect_failed_gateway_login'), 10, 2);
+    }
+
+    public function redirect_failed_gateway_login($username, $error) {
+        if (empty($_POST['olama_gateway_login'])) {
+            return;
+        }
+
+        $nonce = isset($_POST['olama_gateway_login_nonce'])
+            ? sanitize_text_field(wp_unslash($_POST['olama_gateway_login_nonce']))
+            : '';
+        if (!$nonce || !wp_verify_nonce($nonce, 'olama_student_gateway_login')) {
+            return;
+        }
+
+        $redirect = isset($_POST['redirect_to'])
+            ? wp_validate_redirect(wp_unslash($_POST['redirect_to']), home_url('/'))
+            : home_url('/');
+
+        wp_safe_redirect(add_query_arg('og_login', 'failed', $redirect));
+        exit;
     }
 
     public function render($atts = array()) {
@@ -125,6 +146,12 @@ class Olama_Student_Gateway_Shortcode {
             </div>
             <div class="olama-gateway-login__form">
                 <?php
+                if (isset($_GET['og_login']) && 'failed' === sanitize_key(wp_unslash($_GET['og_login']))) {
+                    echo '<div class="olama-gateway-notice olama-gateway-notice--error olama-gateway-login__error" role="alert">'
+                        . esc_html__('Invalid username or password. Please try again.', 'olama-student-gateway')
+                        . '</div>';
+                }
+
                 wp_login_form(array(
                     'redirect' => get_permalink() ? get_permalink() : home_url('/'),
                     'label_username' => __('Family number', 'olama-student-gateway'),
@@ -132,6 +159,10 @@ class Olama_Student_Gateway_Shortcode {
                     'label_remember' => __('Remember me', 'olama-student-gateway'),
                     'label_log_in' => __('Sign in', 'olama-student-gateway'),
                     'remember' => true,
+                    'login_form_middle' => sprintf(
+                        '<input type="hidden" name="olama_gateway_login" value="1"><input type="hidden" name="olama_gateway_login_nonce" value="%s">',
+                        esc_attr(wp_create_nonce('olama_student_gateway_login'))
+                    ),
                 ));
                 ?>
             </div>

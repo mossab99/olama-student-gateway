@@ -468,6 +468,10 @@
     gap: 7px;
 }
 
+.olama-gateway-login__error {
+    margin-bottom: 18px;
+}
+
 .olama-gateway-login input[type="text"],
 .olama-gateway-login input[type="password"] {
     width: 100%;
@@ -567,4 +571,3 @@
         grid-column: auto;
     }
 }
-
