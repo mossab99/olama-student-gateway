@@ -45,7 +45,16 @@ final class Olama_Student_Gateway_Plugin {
             'capability' => 'olama_student_gateway_access',
             'default_grant' => true,
             'default_grant_roles' => array_values(array_unique($family_roles)),
-            'default_grant_capabilities' => array('olama_student_gateway_family_view'),
+            // Seed the read-only services that already have production providers.
+            // OLAMA Users records each seed once, so administrators can still
+            // revoke any capability later without it being silently restored.
+            'default_grant_capabilities' => array(
+                'olama_student_gateway_family_view',
+                'olama_student_gateway_weekly_plan_view',
+                'olama_student_gateway_exams_view',
+                'olama_student_gateway_transportation_view',
+                'olama_student_gateway_stores_view',
+            ),
             'items' => array(
                 array('id' => 'gateway.family', 'type' => 'feature', 'label' => __('Family card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_family_view'),
                 array('id' => 'gateway.finance', 'type' => 'feature', 'label' => __('Financial card', 'olama-student-gateway'), 'capability' => 'olama_student_gateway_finance_view'),
