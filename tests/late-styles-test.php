@@ -2,7 +2,7 @@
 
 define('ABSPATH', __DIR__);
 define('OLAMA_STUDENT_GATEWAY_URL', 'https://school.test/wp-content/plugins/olama-student-gateway/');
-define('OLAMA_STUDENT_GATEWAY_VERSION', '0.4.6');
+define('OLAMA_STUDENT_GATEWAY_VERSION', '0.5.0');
 
 $test_head_done = false;
 $test_gateway_style_done = false;
@@ -46,6 +46,6 @@ assert_true('' === $method->invoke($shortcode), 'Styles already printed in the h
 $_GET['og_view'] = 'exams';
 $_GET['exam_view'] = 'take';
 $markup = $method->invoke($shortcode);
-assert_true(false !== strpos($markup, 'gateway.css?ver=0.4.6'), 'Embedded exams should always receive a direct versioned gateway stylesheet link.');
+assert_true(false !== strpos($markup, 'gateway.css?ver=0.5.0'), 'Embedded exams should always receive a direct versioned gateway stylesheet link.');
 
 echo "Late gateway style tests passed.\n";

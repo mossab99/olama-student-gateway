@@ -180,14 +180,21 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
 
             <?php elseif ('dashboard' === $active_view) : ?>
                 <section class="olama-gateway__hero">
-                    <div>
-                        <span class="olama-gateway__eyebrow">ملخص الطالب</span>
-                        <h2>مرحباً <?php echo esc_html($first_name); ?></h2>
-                        <p>هذه أحدث المعلومات المنشورة والمتاحة لحساب العائلة.</p>
+                    <div class="olama-gateway__hero-copy">
+                        <span class="olama-gateway__eyebrow">ملخص الطالب · <?php echo esc_html($context['study_year'] ?: 'السنة الحالية'); ?></span>
+                        <h2>إليك ملخص يوم <?php echo esc_html($first_name); ?></h2>
+                        <p><?php echo esc_html(wp_date('l، j F Y', current_time('timestamp'))); ?> · أحدث المعلومات المنشورة لحساب العائلة.</p>
+                        <div class="olama-gateway__hero-actions">
+                            <?php if (isset($model['views']['weekly_plan'])) : ?>
+                                <a class="olama-gateway__button olama-gateway__button--gold" href="<?php echo esc_url($student_url($student['student_uid'], 'weekly_plan')); ?>">
+                                    <span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span> عرض الخطة الأسبوعية
+                                </a>
+                            <?php endif; ?>
+                            <a class="olama-gateway__button olama-gateway__button--ghost" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
+                                <span class="dashicons dashicons-groups" aria-hidden="true"></span> أفراد العائلة
+                            </a>
+                        </div>
                     </div>
-                    <a class="olama-gateway__button olama-gateway__button--light" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
-                        <span class="dashicons dashicons-groups" aria-hidden="true"></span> عرض أفراد العائلة
-                    </a>
                 </section>
                 <?php
                 $weekly = isset($data['weekly_plan']) ? $data['weekly_plan'] : null;

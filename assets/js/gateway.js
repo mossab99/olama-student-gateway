@@ -10,37 +10,63 @@
         var videoSearch = gateway.querySelector('[data-video-search]');
 
         if (menu && sidebar) {
-            var setMenuState = function (open) {
+            var mobileMenu = window.matchMedia('(max-width: 980px)');
+            var setMenuState = function (open, returnFocus) {
+                open = mobileMenu.matches && open;
                 sidebar.classList.toggle('is-open', open);
                 gateway.classList.toggle('has-open-menu', open);
+                document.documentElement.classList.toggle('olama-gateway-menu-lock', open);
                 menu.setAttribute('aria-expanded', open ? 'true' : 'false');
+                sidebar.inert = mobileMenu.matches && !open;
+                if (mobileMenu.matches) {
+                    sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+                } else {
+                    sidebar.removeAttribute('aria-hidden');
+                }
                 if (backdrop) {
                     backdrop.setAttribute('tabindex', open ? '0' : '-1');
+                }
+                if (open) {
+                    var firstLink = sidebar.querySelector('a[href]');
+                    if (firstLink) {
+                        firstLink.focus();
+                    }
+                } else if (returnFocus) {
+                    menu.focus();
                 }
             };
 
             menu.addEventListener('click', function () {
-                setMenuState(!sidebar.classList.contains('is-open'));
+                setMenuState(!sidebar.classList.contains('is-open'), false);
             });
 
             if (backdrop) {
                 backdrop.addEventListener('click', function () {
-                    setMenuState(false);
+                    setMenuState(false, true);
                 });
             }
 
             sidebar.querySelectorAll('a').forEach(function (link) {
                 link.addEventListener('click', function () {
-                    setMenuState(false);
+                    setMenuState(false, false);
                 });
             });
 
             document.addEventListener('keydown', function (event) {
                 if ('Escape' === event.key && sidebar.classList.contains('is-open')) {
-                    setMenuState(false);
-                    menu.focus();
+                    setMenuState(false, true);
                 }
             });
+
+            var syncMenuMode = function () {
+                setMenuState(false, false);
+            };
+            if (mobileMenu.addEventListener) {
+                mobileMenu.addEventListener('change', syncMenuMode);
+            } else {
+                mobileMenu.addListener(syncMenuMode);
+            }
+            syncMenuMode();
         }
 
         if (studentSwitch) {

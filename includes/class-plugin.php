@@ -87,9 +87,15 @@ final class Olama_Student_Gateway_Plugin {
 
     public function register_assets() {
         wp_register_style(
+            'olama-student-gateway-fonts',
+            'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@500;600;700&family=Readex+Pro:wght@400;500;600;700&display=swap',
+            array(),
+            null
+        );
+        wp_register_style(
             'olama-student-gateway',
             OLAMA_STUDENT_GATEWAY_URL . 'assets/css/gateway.css',
-            array('dashicons'),
+            array('dashicons', 'olama-student-gateway-fonts'),
             OLAMA_STUDENT_GATEWAY_VERSION
         );
         wp_register_script(

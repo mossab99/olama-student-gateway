@@ -1,26 +1,34 @@
 .olama-gateway,
 .olama-gateway-login,
 .olama-gateway-notice {
-    --og-navy: #123955;
-    --og-navy-dark: #0b2c43;
-    --og-brass: #b9853b;
-    --og-brass-soft: #fbf3e8;
-    --og-blue: #1f7ac0;
-    --og-blue-soft: #eaf4fb;
+    --og-navy: #10395c;
+    --og-navy-dark: #0b2740;
+    --og-navy-light: #1e5a8a;
+    --og-teal: #12b5a5;
+    --og-teal-dark: #0e8f82;
+    --og-teal-soft: #e0f5f2;
+    --og-brass: #e8a93d;
+    --og-brass-soft: #fbf1de;
+    --og-blue: #147f93;
+    --og-blue-soft: #e5f4f6;
     --og-surface: #ffffff;
-    --og-background: #f5f7f9;
-    --og-text: #102a43;
-    --og-muted: #66788a;
-    --og-border: #dbe5ee;
-    --og-success: #16835b;
-    --og-success-soft: #e7f6ef;
-    --og-warning: #a86210;
-    --og-warning-soft: #fff3df;
-    --og-danger: #b83245;
-    --og-shadow: 0 12px 32px rgba(18, 57, 85, .075);
+    --og-background: #f4f6fa;
+    --og-text: #0e1b2c;
+    --og-muted: #63758a;
+    --og-border: #e3e9f0;
+    --og-success: #0b7c70;
+    --og-success-soft: #e0f5f2;
+    --og-warning: #926411;
+    --og-warning-soft: #fbf1de;
+    --og-danger: #b9384a;
+    --og-shadow-sm: 0 1px 2px rgba(14, 27, 44, .04), 0 5px 16px rgba(14, 27, 44, .05);
+    --og-shadow: 0 8px 24px rgba(14, 27, 44, .08);
     color: var(--og-text);
-    font-family: Tahoma, Arial, sans-serif;
+    font-family: "Readex Pro", "Segoe UI", Tahoma, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 
 .olama-gateway *,
@@ -29,14 +37,21 @@
     box-sizing: border-box;
 }
 
+html.olama-gateway-menu-lock {
+    overflow: hidden;
+}
+
 .olama-gateway {
     position: relative;
     display: grid;
-    grid-template-columns: 276px minmax(0, 1fr);
+    grid-template-columns: 264px minmax(0, 1fr);
     width: 100%;
     min-height: 720px;
     overflow: hidden;
-    background: var(--og-background);
+    background:
+        radial-gradient(circle at 92% 0, rgba(18, 181, 165, .07), transparent 28%),
+        radial-gradient(circle at 0 12%, rgba(30, 90, 138, .06), transparent 24%),
+        var(--og-background);
     border: 1px solid var(--og-border);
     border-radius: 24px;
     isolation: isolate;
@@ -61,12 +76,13 @@
 .olama-gateway__sidebar {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 26px 18px;
+    gap: 18px;
+    padding: 24px 16px;
     color: #fff;
     background:
-        radial-gradient(circle at 20% 5%, rgba(255, 255, 255, .09), transparent 24%),
-        linear-gradient(180deg, var(--og-navy), var(--og-navy-dark));
+        radial-gradient(circle at 14% 4%, rgba(232, 169, 61, .12), transparent 24%),
+        linear-gradient(180deg, var(--og-navy-dark), #0e3556);
+    box-shadow: -12px 0 34px rgba(11, 39, 64, .13);
 }
 
 .olama-gateway__brand,
@@ -89,9 +105,9 @@
 }
 
 .olama-gateway__brand-mark {
-    color: #fff;
-    background: var(--og-brass);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, .17);
+    color: #3a2a08;
+    background: linear-gradient(135deg, #f0bd59, var(--og-brass));
+    box-shadow: 0 8px 22px rgba(232, 169, 61, .28);
 }
 
 .olama-gateway__brand span,
@@ -111,9 +127,10 @@
 
 .olama-gateway__family-chip {
     padding: 14px;
-    border: 1px solid rgba(255, 255, 255, .13);
+    border: 1px solid rgba(255, 255, 255, .12);
     border-radius: 14px;
-    background: rgba(255, 255, 255, .07);
+    background: rgba(255, 255, 255, .065);
+    backdrop-filter: blur(8px);
 }
 
 .olama-gateway__nav {
@@ -134,21 +151,24 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 11px 12px;
+    min-height: 44px;
+    padding: 10px 12px;
     color: rgba(255, 255, 255, .82);
     text-decoration: none;
-    border-radius: 10px;
+    border-radius: 11px;
+    transition: color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
 .olama-gateway__nav a:hover,
-.olama-gateway__nav a:focus,
-.olama-gateway__nav a.is-active {
+.olama-gateway__nav a:focus {
     color: #fff;
     background: rgba(255, 255, 255, .12);
 }
 
 .olama-gateway__nav a.is-active {
-    box-shadow: inset -3px 0 0 var(--og-brass);
+    color: #fff;
+    background: linear-gradient(90deg, rgba(18, 181, 165, .9), rgba(18, 181, 165, .55));
+    box-shadow: inset -4px 0 0 var(--og-brass), 0 6px 18px rgba(18, 181, 165, .2);
 }
 
 .olama-gateway__logout {
@@ -161,14 +181,18 @@
 }
 
 .olama-gateway__topbar {
+    position: sticky;
+    z-index: 5;
+    top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    min-height: 88px;
+    min-height: 86px;
     padding: 16px 28px;
-    background: var(--og-surface);
+    background: rgba(255, 255, 255, .9);
     border-bottom: 1px solid var(--og-border);
+    backdrop-filter: blur(14px);
 }
 
 .olama-gateway__top-actions {
@@ -185,36 +209,39 @@
     color: var(--og-muted);
     background: var(--og-background);
     border: 1px solid var(--og-border);
-    border-radius: 10px;
-    font-size: 12px;
+    border-radius: 999px;
+    font-size: 13px;
     white-space: nowrap;
 }
 
 .olama-gateway__avatar {
-    color: var(--og-navy);
-    background: var(--og-blue-soft);
+    color: #fff;
+    background: linear-gradient(135deg, var(--og-navy-light), var(--og-teal));
+    box-shadow: 0 6px 16px rgba(18, 181, 165, .2);
 }
 
 .olama-gateway__student-switch {
     display: grid;
     gap: 5px;
     color: var(--og-muted);
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .olama-gateway__student-switch select {
     min-width: 160px;
-    padding: 8px 11px;
+    min-height: 42px;
+    padding: 8px 12px;
     color: var(--og-text);
     background: var(--og-surface);
     border: 1px solid var(--og-border);
-    border-radius: 9px;
+    border-radius: 11px;
+    font: inherit;
 }
 
 .olama-gateway__content {
     display: grid;
-    gap: 20px;
-    padding: 30px;
+    gap: 22px;
+    padding: 28px;
 }
 
 .olama-gateway__heading,
@@ -251,11 +278,13 @@
 
 .olama-gateway__heading h2 {
     margin-bottom: 6px;
-    font-size: 24px;
+    font-size: clamp(22px, 2.4vw, 28px);
+    line-height: 1.35;
 }
 
 .olama-gateway__heading p {
     color: var(--og-muted);
+    font-size: 15px;
 }
 
 .olama-gateway__status,
@@ -287,7 +316,7 @@
     background: var(--og-surface);
     border: 1px solid var(--og-border);
     border-radius: 16px;
-    box-shadow: var(--og-shadow);
+    box-shadow: var(--og-shadow-sm);
 }
 
 .olama-gateway__member {
@@ -297,6 +326,7 @@
     padding: 20px;
     color: var(--og-text);
     text-decoration: none;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 
 .olama-gateway__member em {
@@ -308,7 +338,9 @@
 
 .olama-gateway__member:hover,
 .olama-gateway__member:focus {
-    border-color: var(--og-blue);
+    border-color: rgba(18, 181, 165, .55);
+    box-shadow: var(--og-shadow);
+    transform: translateY(-2px);
 }
 
 .olama-gateway__member > span:nth-child(2) {
@@ -331,6 +363,11 @@
     padding: 22px;
 }
 
+.olama-gateway__panel h3 {
+    font-size: 17px;
+    line-height: 1.45;
+}
+
 .olama-gateway__panel > header > div p {
     margin-top: 4px;
     color: var(--og-muted);
@@ -345,8 +382,13 @@
 
 .olama-gateway__panel a,
 .olama-gateway__week-nav a {
-    color: var(--og-blue);
+    color: var(--og-teal-dark);
     text-decoration: none;
+}
+
+.olama-gateway__panel a:hover,
+.olama-gateway__week-nav a:hover {
+    color: var(--og-navy-light);
 }
 
 .olama-gateway__details {
@@ -419,6 +461,7 @@
     padding: 12px 10px;
     text-align: right;
     border-bottom: 1px solid var(--og-border);
+    font-family: "IBM Plex Sans Arabic", "Readex Pro", sans-serif;
 }
 
 .olama-gateway th {
@@ -436,13 +479,24 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 16px;
+    min-height: 44px;
+    padding: 10px 18px;
     color: #fff !important;
-    background: var(--og-blue) !important;
+    background: linear-gradient(135deg, var(--og-teal), var(--og-teal-dark)) !important;
     border: 0 !important;
-    border-radius: 9px !important;
+    border-radius: 999px !important;
     text-decoration: none;
     cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    box-shadow: 0 7px 18px rgba(18, 181, 165, .2);
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.olama-gateway__button:hover,
+.olama-gateway-login input[type="submit"]:hover {
+    box-shadow: 0 10px 24px rgba(18, 181, 165, .28);
+    transform: translateY(-2px);
 }
 
 .olama-gateway__button {
@@ -452,6 +506,24 @@
 .olama-gateway__button--light {
     color: var(--og-navy) !important;
     background: #fff !important;
+}
+
+.olama-gateway__button--gold {
+    color: #3a2a08 !important;
+    background: linear-gradient(135deg, #f0bd59, var(--og-brass)) !important;
+    box-shadow: 0 7px 18px rgba(232, 169, 61, .26);
+}
+
+.olama-gateway__button--ghost {
+    color: #fff !important;
+    background: rgba(255, 255, 255, .1) !important;
+    border: 1px solid rgba(255, 255, 255, .22) !important;
+    box-shadow: none;
+}
+
+.olama-gateway__button--ghost:hover {
+    background: rgba(255, 255, 255, .17) !important;
+    box-shadow: none;
 }
 
 .olama-gateway__button--compact {
@@ -505,16 +577,18 @@
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 24px;
     overflow: hidden;
-    padding: 28px 30px;
+    min-height: 190px;
+    padding: 30px 32px;
     color: #fff;
     background:
-        radial-gradient(circle at 12% 30%, rgba(255, 255, 255, .13), transparent 24%),
-        linear-gradient(130deg, var(--og-navy-dark), var(--og-navy));
-    border-radius: 18px;
-    box-shadow: var(--og-shadow);
+        radial-gradient(circle at 8% 25%, rgba(232, 169, 61, .22), transparent 23%),
+        radial-gradient(circle at 32% 110%, rgba(18, 181, 165, .25), transparent 32%),
+        linear-gradient(125deg, var(--og-navy-dark), var(--og-navy) 58%, var(--og-navy-light) 120%);
+    border-radius: 20px;
+    box-shadow: 0 14px 34px rgba(16, 57, 92, .2);
 }
 
 .olama-gateway__hero::after {
@@ -524,7 +598,7 @@
     width: 210px;
     height: 210px;
     content: "";
-    border: 34px solid rgba(185, 133, 59, .2);
+    border: 34px solid rgba(232, 169, 61, .2);
     border-radius: 50%;
 }
 
@@ -536,17 +610,30 @@
 .olama-gateway__hero h2 {
     margin: 5px 0 7px;
     color: #fff;
-    font-size: clamp(24px, 3vw, 32px);
+    font-size: clamp(24px, 3vw, 31px);
+    line-height: 1.4;
 }
 
 .olama-gateway__hero p {
     color: rgba(255, 255, 255, .76);
+    font-size: 15px;
+}
+
+.olama-gateway__hero-copy {
+    max-width: 720px;
+}
+
+.olama-gateway__hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .olama-gateway__eyebrow,
 .olama-gateway-login__eyebrow {
     color: var(--og-brass);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
 }
 
@@ -569,7 +656,8 @@
 
 .olama-gateway__week-summary > div.is-today {
     color: #fff;
-    background: var(--og-navy);
+    background: linear-gradient(145deg, var(--og-navy), var(--og-navy-light));
+    box-shadow: 0 8px 18px rgba(16, 57, 92, .17);
 }
 
 .olama-gateway__week-summary > div.is-today span {
@@ -606,7 +694,8 @@
 }
 
 .olama-gateway__today-row {
-    padding: 12px 4px;
+    min-width: 0;
+    padding: 14px 4px;
     border-bottom: 1px solid var(--og-border);
 }
 
@@ -621,9 +710,10 @@
 }
 
 .olama-gateway__subject-mark {
-    width: 9px;
+    flex: 0 0 auto;
+    width: 5px;
     height: 34px;
-    background: var(--og-brass);
+    background: var(--og-teal);
     border-radius: 8px;
 }
 
@@ -641,10 +731,19 @@
     display: flex;
     align-items: center;
     gap: 11px;
-    padding: 16px;
+    min-width: 0;
+    padding: 17px;
     background: var(--og-surface);
     border: 1px solid var(--og-border);
     border-radius: 14px;
+    box-shadow: var(--og-shadow-sm);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.olama-gateway__quick-stats > div:hover {
+    border-color: rgba(18, 181, 165, .38);
+    box-shadow: var(--og-shadow);
+    transform: translateY(-2px);
 }
 
 .olama-gateway__quick-stats > div > .dashicons {
@@ -652,9 +751,9 @@
     place-items: center;
     width: 38px;
     height: 38px;
-    color: var(--og-blue);
-    background: var(--og-blue-soft);
-    border-radius: 11px;
+    color: var(--og-teal-dark);
+    background: var(--og-teal-soft);
+    border-radius: 13px;
 }
 
 .olama-gateway__quick-stats > div > span:last-child {
@@ -664,6 +763,8 @@
 
 .olama-gateway__quick-stats strong {
     font-size: 20px;
+    font-family: "IBM Plex Sans Arabic", "Readex Pro", sans-serif;
+    font-variant-numeric: tabular-nums;
 }
 
 .olama-gateway__summary-card header {
@@ -686,9 +787,9 @@
     place-items: center;
     width: 38px;
     height: 38px;
-    color: var(--og-blue);
-    background: var(--og-blue-soft);
-    border-radius: 11px;
+    color: var(--og-teal-dark);
+    background: var(--og-teal-soft);
+    border-radius: 13px;
 }
 
 .olama-gateway__summary-icon.is-warning {
@@ -704,6 +805,7 @@
 .olama-gateway__summary-value {
     display: block;
     font-size: 18px;
+    line-height: 1.5;
 }
 
 .olama-gateway__quiet {
@@ -1239,7 +1341,7 @@
     text-align: center;
     background: var(--og-surface);
     border: 1px dashed var(--og-border);
-    border-radius: 12px;
+    border-radius: 14px;
 }
 
 .olama-gateway__menu {
@@ -1254,7 +1356,7 @@
     border: 1px solid var(--og-border);
     min-height: 540px;
     border-radius: 24px;
-    box-shadow: var(--og-shadow);
+    box-shadow: 0 18px 48px rgba(14, 27, 44, .11);
 }
 
 .olama-gateway-login__intro,
@@ -1268,7 +1370,8 @@
 .olama-gateway-login__intro {
     color: #fff;
     background:
-        radial-gradient(circle at 18% 15%, rgba(255, 255, 255, .1), transparent 25%),
+        radial-gradient(circle at 14% 15%, rgba(232, 169, 61, .2), transparent 25%),
+        radial-gradient(circle at 70% 110%, rgba(18, 181, 165, .24), transparent 35%),
         linear-gradient(145deg, var(--og-navy-dark), var(--og-navy));
 }
 
@@ -1319,8 +1422,8 @@
     width: 52px;
     height: 52px;
     margin-bottom: 30px;
-    color: var(--og-navy);
-    background: #fff;
+    color: #3a2a08;
+    background: linear-gradient(135deg, #f0bd59, var(--og-brass));
     border-radius: 16px;
     font-size: 24px;
     font-weight: 700;
@@ -1364,9 +1467,11 @@
 .olama-gateway-login input[type="text"],
 .olama-gateway-login input[type="password"] {
     width: 100%;
-    padding: 11px 12px;
+    min-height: 48px;
+    padding: 11px 14px;
     border: 1px solid var(--og-border);
-    border-radius: 9px;
+    border-radius: 11px;
+    font: inherit;
 }
 
 .olama-gateway-notice {
@@ -1384,9 +1489,10 @@
 .olama-gateway a:focus-visible,
 .olama-gateway button:focus-visible,
 .olama-gateway select:focus-visible,
+.olama-gateway input:focus-visible,
 .olama-gateway-login input:focus-visible {
-    outline: 3px solid rgba(31, 122, 192, .28);
-    outline-offset: 2px;
+    outline: 4px solid rgba(18, 181, 165, .2);
+    outline-offset: 3px;
 }
 
 @media (max-width: 980px) {
@@ -1395,29 +1501,36 @@
     }
 
     .olama-gateway__menu {
-        position: absolute;
-        z-index: 8;
-        top: 18px;
-        left: 18px;
+        position: fixed;
+        z-index: 1002;
+        right: auto;
+        bottom: max(20px, env(safe-area-inset-bottom));
+        left: max(20px, env(safe-area-inset-left));
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 8px 10px;
-        color: var(--og-text);
-        background: var(--og-surface);
-        border: 1px solid var(--og-border);
-        border-radius: 8px;
+        min-height: 50px;
+        padding: 11px 15px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--og-teal), var(--og-teal-dark));
+        border: 0;
+        border-radius: 999px;
+        box-shadow: 0 12px 30px rgba(18, 181, 165, .34);
+        font: inherit;
+        font-weight: 600;
     }
 
     .olama-gateway__sidebar {
-        position: absolute;
-        z-index: 7;
+        position: fixed;
+        z-index: 1001;
         top: 0;
         right: 0;
-        bottom: 0;
+        height: 100vh;
+        height: 100dvh;
         width: min(290px, 85%);
+        overflow-y: auto;
         transform: translateX(105%);
-        transition: transform .2s ease;
+        transition: transform .26s ease;
     }
 
     .olama-gateway__sidebar.is-open {
@@ -1425,18 +1538,15 @@
     }
 
     .olama-gateway.has-open-menu .olama-gateway__backdrop {
-        position: absolute;
-        z-index: 6;
+        position: fixed;
+        z-index: 1000;
         inset: 0;
         display: block;
         padding: 0;
-        background: rgba(4, 22, 35, .48);
+        background: rgba(4, 22, 35, .56);
+        backdrop-filter: blur(2px);
         border: 0;
         cursor: pointer;
-    }
-
-    .olama-gateway__topbar {
-        padding-left: 105px;
     }
 
     .olama-gateway__dashboard-grid {
@@ -1456,7 +1566,7 @@
     .olama-gateway__content,
     .olama-gateway-login__intro,
     .olama-gateway-login__form {
-        padding: 20px;
+        padding: 18px;
     }
 
     .olama-gateway-login,
@@ -1469,7 +1579,6 @@
         grid-template-columns: 1fr;
     }
 
-    .olama-gateway__topbar,
     .olama-gateway__heading,
     .olama-gateway__week-nav,
     .olama-gateway__hero {
@@ -1478,17 +1587,44 @@
     }
 
     .olama-gateway__topbar {
-        padding-left: 20px;
-        padding-top: 64px;
+        align-items: center;
+        gap: 12px;
+        min-height: 76px;
+        padding: 12px 18px;
     }
 
-    .olama-gateway__student-switch select {
-        width: 100%;
+    .olama-gateway__student-context {
+        min-width: 0;
+    }
+
+    .olama-gateway__student-context > span:last-child {
+        min-width: 0;
+    }
+
+    .olama-gateway__student-context strong,
+    .olama-gateway__student-context small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .olama-gateway__top-actions {
-        align-items: stretch;
-        flex-direction: column;
+        margin-inline-start: auto;
+    }
+
+    .olama-gateway__year,
+    .olama-gateway__student-switch > span {
+        display: none;
+    }
+
+    .olama-gateway__student-switch select {
+        width: min(42vw, 180px);
+        min-width: 0;
+    }
+
+    .olama-gateway__top-actions {
+        align-items: center;
+        flex-direction: row;
     }
 
     .olama-gateway__teacher-toolbar,
@@ -1516,13 +1652,31 @@
     }
 
     .olama-gateway__hero {
+        min-height: 0;
         padding: 24px 20px;
     }
 
+    .olama-gateway__hero-actions .olama-gateway__button {
+        flex: 1 1 190px;
+    }
+
     .olama-gateway__metrics,
-    .olama-gateway__week-summary,
     .olama-gateway__details {
         grid-template-columns: 1fr;
+    }
+
+    .olama-gateway__week-summary {
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(94px, 1fr);
+        overflow-x: auto;
+        padding: 2px 2px 10px;
+        scroll-snap-type: inline proximity;
+        scrollbar-width: thin;
+    }
+
+    .olama-gateway__week-summary > div {
+        scroll-snap-align: start;
     }
 
     .olama-gateway__details div.is-wide {
@@ -1531,13 +1685,57 @@
 }
 
 @media (max-width: 460px) {
+    .olama-gateway {
+        border-inline: 0;
+        border-radius: 0;
+    }
+
+    .olama-gateway__content {
+        padding: 14px;
+    }
+
+    .olama-gateway__panel,
+    .olama-gateway__panel--feature {
+        padding: 17px;
+    }
+
+    .olama-gateway__topbar {
+        padding-inline: 14px;
+    }
+
+    .olama-gateway__avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .olama-gateway__student-context small {
+        display: none;
+    }
+
+    .olama-gateway__student-switch select {
+        width: 130px;
+    }
+
+    .olama-gateway__today-row {
+        display: grid;
+        grid-template-columns: 5px minmax(0, 1fr);
+    }
+
+    .olama-gateway__today-row > small:last-child {
+        grid-column: 2;
+    }
+
     .olama-gateway__context-strip--4 {
         grid-template-columns: 1fr;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .olama-gateway__sidebar {
-        transition: none;
+    .olama-gateway *,
+    .olama-gateway-login * {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
