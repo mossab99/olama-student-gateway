@@ -99,7 +99,32 @@ class Olama_Student_Gateway_Shortcode {
      * shortcode output instead of leaving the portal unstyled.
      */
     private function late_style_markup() {
-        if (!did_action('wp_head') || wp_style_is('olama-student-gateway', 'done')) {
+        if (!did_action('wp_head')) {
+            return '';
+        }
+
+        $exam_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
+        $gateway_view = isset($_GET['og_view']) ? sanitize_key(wp_unslash($_GET['og_view'])) : '';
+        $is_embedded_exam = 'exams' === $gateway_view && in_array($exam_view, array('take', 'results'), true);
+
+        if ($is_embedded_exam) {
+            // Some optimization/access stacks mark the registered gateway
+            // handle as done even though its link tag was omitted. The Exam
+            // Engine already uses a direct late link successfully, so mirror
+            // that behavior for the shell on embedded exam routes.
+            $markup = '<link rel="stylesheet" id="olama-student-gateway-embedded" href="'
+                . esc_url(OLAMA_STUDENT_GATEWAY_URL . 'assets/css/gateway.css?ver=' . OLAMA_STUDENT_GATEWAY_VERSION)
+                . '" type="text/css" media="all" />';
+
+            if (!wp_style_is('dashicons', 'done')) {
+                $markup .= '<link rel="stylesheet" id="dashicons-gateway-embedded" href="'
+                    . esc_url(includes_url('css/dashicons.min.css'))
+                    . '" type="text/css" media="all" />';
+            }
+            return $markup;
+        }
+
+        if (wp_style_is('olama-student-gateway', 'done')) {
             return '';
         }
 
