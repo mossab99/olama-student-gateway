@@ -102,10 +102,32 @@ final class Olama_Student_Gateway_Plugin {
     }
 
     public function maybe_enqueue_assets() {
-        if ($this->is_portal_request()) {
-            wp_enqueue_style('olama-student-gateway');
-            wp_enqueue_script('olama-student-gateway');
+        $is_portal = $this->is_portal_request();
+        $is_embedded_exam = $this->is_exam_engine_request();
+        if (!$is_portal && !$is_embedded_exam) {
+            return;
         }
+
+        wp_enqueue_style('olama-student-gateway');
+        wp_enqueue_script('olama-student-gateway');
+
+        // The Exam Engine shortcode is embedded by the gateway later in the
+        // body. Load its dependency graph now so header dependencies such as
+        // jQuery are printed before jQuery UI and footer scripts execute.
+        // The explicit query check also covers access plugins that replace the
+        // page content late, when shortcode-based portal detection can fail.
+        if ($is_embedded_exam) {
+            wp_enqueue_script('jquery');
+            if (function_exists('olama_exam_enqueue_frontend_assets')) {
+                olama_exam_enqueue_frontend_assets(true);
+            }
+        }
+    }
+
+    private function is_exam_engine_request() {
+        $view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
+        $gateway_view = isset($_GET['og_view']) ? sanitize_key(wp_unslash($_GET['og_view'])) : '';
+        return 'exams' === $gateway_view && in_array($view, array('take', 'results'), true);
     }
 
     public function protect_portal_response() {
