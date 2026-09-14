@@ -454,6 +454,34 @@
     background: #fff !important;
 }
 
+.olama-gateway__button--compact {
+    min-width: 150px;
+    padding: 8px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.olama-gateway__exam-action {
+    min-width: 175px;
+}
+
+.olama-gateway__exam-state {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 10px;
+    color: var(--og-muted);
+    background: var(--og-background);
+    border-radius: 999px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.olama-gateway__exam-state--ended,
+.olama-gateway__exam-state--unavailable {
+    color: #9f1239;
+    background: #fff1f2;
+}
+
 .olama-gateway__hero {
     position: relative;
     display: flex;
