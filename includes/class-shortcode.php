@@ -50,7 +50,13 @@ class Olama_Student_Gateway_Shortcode {
             return $this->notice($context->get_error_message(), 'error', true);
         }
 
+        $exam_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
         $requested_student = isset($_GET['og_student']) ? wp_unslash($_GET['og_student']) : '';
+        if (!$requested_student && in_array($exam_view, array('dashboard', 'take', 'results'), true) && isset($_GET['student_uid'])) {
+            // Exam Engine back links carry student_uid. Revalidate it through
+            // the gateway ownership check before using it as the selection.
+            $requested_student = wp_unslash($_GET['student_uid']);
+        }
         $student = $this->access->select_student($context, $requested_student);
         if (is_wp_error($student)) {
             return $this->notice($student->get_error_message(), 'error');
@@ -61,6 +67,9 @@ class Olama_Student_Gateway_Shortcode {
 
         $views = $this->allowed_views((bool) $student);
         $requested_view = isset($_GET['og_view']) ? sanitize_key(wp_unslash($_GET['og_view'])) : '';
+        if (!$requested_view && $exam_view && isset($views['exams'])) {
+            $requested_view = 'exams';
+        }
         $active_view = $requested_view && isset($views[$requested_view]) ? $requested_view : ($student ? 'dashboard' : 'family');
         $base_url = get_permalink();
         if (!$base_url) {

@@ -482,6 +482,25 @@
     background: #fff1f2;
 }
 
+.olama-gateway__exam-runner {
+    padding: 16px;
+}
+
+.olama-gateway__exam-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 4px 14px;
+    color: var(--og-blue);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.olama-gateway__exam-runner .oe-container {
+    max-width: none;
+    margin: 0;
+}
+
 .olama-gateway__hero {
     position: relative;
     display: flex;

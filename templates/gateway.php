@@ -515,7 +515,19 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
 
             <?php elseif ('exams' === $active_view) : ?>
                 <section class="olama-gateway__heading"><div><h2>الامتحانات والنتائج</h2><p>جدول الامتحانات المعتمد، القاعة، الامتحانات الإلكترونية، والنتائج حسب مصدرها.</p></div><span class="olama-gateway__status">المصدر موضح لكل مجموعة</span></section>
-                <?php if (is_wp_error($data)) : ?>
+                <?php
+                $exam_engine_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
+                if (in_array($exam_engine_view, array('take', 'results'), true)) :
+                    ?>
+                    <section class="olama-gateway__panel olama-gateway__exam-runner">
+                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($student_url($student['student_uid'], 'exams')); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى قائمة الامتحانات</a>
+                        <?php if (shortcode_exists('olama_exam')) : ?>
+                            <?php echo do_shortcode('[olama_exam]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted producer shortcode. ?>
+                        <?php else : ?>
+                            <div class="olama-gateway__empty">محرك الامتحانات غير متاح حالياً.</div>
+                        <?php endif; ?>
+                    </section>
+                <?php elseif (is_wp_error($data)) : ?>
                     <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
                 <?php else :
                     $schedule = !empty($data['schedule']) && is_array($data['schedule']) ? $data['schedule'] : array();
@@ -550,7 +562,7 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
                         <?php if (!$online_exams) : ?><div class="olama-gateway__empty">لا توجد امتحانات إلكترونية منشورة حالياً.</div>
                         <?php else : ?><div class="olama-gateway__table-wrap"><table><thead><tr><th>الامتحان</th><th>المادة</th><th>البداية</th><th>النهاية</th><th>المدة</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody>
                             <?php foreach ($online_exams as $exam) :
-                                $exam_action = Olama_Student_Gateway_Exam_Launcher::action($exam, $student['student_uid']);
+                                $exam_action = Olama_Student_Gateway_Exam_Launcher::action($exam, $student['student_uid'], $student_url($student['student_uid'], 'exams'));
                                 ?><tr><td><strong><?php echo esc_html($field($exam, 'title')); ?></strong></td><td><?php echo esc_html($field($exam, 'subject_name')); ?></td><td><?php echo esc_html($field($exam, 'start_time')); ?></td><td><?php echo esc_html($field($exam, 'end_time')); ?></td><td><?php echo esc_html($field($exam, 'duration_minutes')); ?> دقيقة</td><td><?php echo esc_html($field($exam, 'status')); ?></td><td class="olama-gateway__exam-action"><?php if ('available' === $exam_action['state']) : ?><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($exam_action['url']); ?>"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo esc_html($exam_action['label']); ?></a><?php else : ?><span class="olama-gateway__exam-state olama-gateway__exam-state--<?php echo esc_attr($exam_action['state']); ?>"><?php echo esc_html($exam_action['label']); ?></span><?php endif; ?></td></tr><?php endforeach; ?>
                         </tbody></table></div><?php endif; ?>
                     </section>
