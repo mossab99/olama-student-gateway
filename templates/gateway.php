@@ -54,7 +54,7 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
         </div>
         <div class="olama-gateway__family-chip">
             <span class="dashicons dashicons-groups" aria-hidden="true"></span>
-            <span><strong><?php echo esc_html($field($family, 'sponsor_full_name', 'الأسرة')); ?></strong><small>رقم الأسرة <?php echo esc_html($context['family_id']); ?></small></span>
+            <span><strong><?php echo esc_html($field($family, 'sponsor_full_name', 'العائلة')); ?></strong><small>رقم العائلة <?php echo esc_html($context['family_id']); ?></small></span>
         </div>
         <nav class="olama-gateway__nav" aria-label="أقسام البوابة">
             <span class="olama-gateway__nav-label">الخدمات</span>
@@ -96,20 +96,20 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
                     </label>
                 </div>
             <?php else : ?>
-                <div><strong>لوحة الأسرة</strong><small><?php echo esc_html($context['study_year'] ?: 'السنة الدراسية غير محددة'); ?></small></div>
+                <div><strong>لوحة العائلة</strong><small><?php echo esc_html($context['study_year'] ?: 'السنة الدراسية غير محددة'); ?></small></div>
             <?php endif; ?>
         </header>
 
         <div class="olama-gateway__content">
             <?php if ('family' === $active_view) : ?>
                 <section class="olama-gateway__heading">
-                    <div><h2>مرحباً بكم في بوابة الأسرة</h2><p>اختر أحد الأبناء لمتابعة معلوماته، أو راجع بطاقة الأسرة والملخص المالي.</p></div>
+                    <div><h2>مرحباً بكم في بوابة العائلة</h2><p>اختر أحد الأبناء لمتابعة معلوماته، أو راجع بطاقة العائلة والملخص المالي.</p></div>
                     <span class="olama-gateway__status">بيانات OLAMA Core</span>
                 </section>
 
-                <section class="olama-gateway__member-grid" aria-label="أفراد الأسرة">
+                <section class="olama-gateway__member-grid" aria-label="أفراد العائلة">
                     <?php if (!$students) : ?>
-                        <div class="olama-gateway__empty">لا يوجد طلاب مرتبطون بحساب الأسرة في OLAMA Core.</div>
+                        <div class="olama-gateway__empty">لا يوجد طلاب مرتبطون بحساب العائلة في OLAMA Core.</div>
                     <?php endif; ?>
                     <?php foreach ($students as $family_student) : ?>
                         <a class="olama-gateway__member" href="<?php echo esc_url($student_url($family_student['student_uid'])); ?>">
@@ -123,7 +123,7 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
                 <section class="olama-gateway__grid olama-gateway__grid--2">
                     <?php if (current_user_can('olama_student_gateway_family_view')) : ?>
                     <article class="olama-gateway__panel">
-                        <header><h3>بطاقة الأسرة</h3><span class="olama-gateway__status olama-gateway__status--success">فعالة</span></header>
+                        <header><h3>بطاقة العائلة</h3><span class="olama-gateway__status olama-gateway__status--success">فعالة</span></header>
                         <dl class="olama-gateway__details">
                             <div><dt>ولي الأمر</dt><dd><?php echo esc_html($field($family, 'sponsor_full_name')); ?></dd></div>
                             <div><dt>اسم الأم</dt><dd><?php echo esc_html($field($family, 'mother_name')); ?></dd></div>
@@ -183,10 +183,10 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
                     <div>
                         <span class="olama-gateway__eyebrow">ملخص الطالب</span>
                         <h2>مرحباً <?php echo esc_html($first_name); ?></h2>
-                        <p>هذه أحدث المعلومات المنشورة والمتاحة لحساب الأسرة.</p>
+                        <p>هذه أحدث المعلومات المنشورة والمتاحة لحساب العائلة.</p>
                     </div>
                     <a class="olama-gateway__button olama-gateway__button--light" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
-                        <span class="dashicons dashicons-groups" aria-hidden="true"></span> عرض أفراد الأسرة
+                        <span class="dashicons dashicons-groups" aria-hidden="true"></span> عرض أفراد العائلة
                     </a>
                 </section>
                 <?php

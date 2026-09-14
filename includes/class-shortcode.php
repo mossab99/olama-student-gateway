@@ -135,7 +135,7 @@ class Olama_Student_Gateway_Shortcode {
 
     private function allowed_views($has_student) {
         $views = array(
-            'family' => array('label' => __('الأسرة', 'olama-student-gateway'), 'icon' => 'dashicons-groups'),
+            'family' => array('label' => __('العائلة', 'olama-student-gateway'), 'icon' => 'dashicons-groups'),
         );
         if ($has_student) {
             $views['dashboard'] = array('label' => __('الرئيسية', 'olama-student-gateway'), 'icon' => 'dashicons-dashboard');
@@ -228,18 +228,18 @@ class Olama_Student_Gateway_Shortcode {
                 <span class="olama-gateway-logo">ع</span>
                 <span class="olama-gateway-login__eyebrow"><?php esc_html_e('أكاديمية علماء المستقبل', 'olama-student-gateway'); ?></span>
                 <h2><?php esc_html_e('كل ما يخص أبناءك في مكان واحد', 'olama-student-gateway'); ?></h2>
-                <p><?php esc_html_e('تابع الخطط الأسبوعية والامتحانات والمواصلات والخدمات المنشورة للأسرة من خلال حساب آمن واحد.', 'olama-student-gateway'); ?></p>
+                <p><?php esc_html_e('تابع الخطط الأسبوعية والامتحانات والمواصلات والخدمات المنشورة للعائلة من خلال حساب آمن واحد.', 'olama-student-gateway'); ?></p>
                 <ul class="olama-gateway-login__benefits">
-                    <li><span class="dashicons dashicons-groups" aria-hidden="true"></span><?php esc_html_e('الوصول إلى جميع الأبناء المرتبطين بالأسرة', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-groups" aria-hidden="true"></span><?php esc_html_e('الوصول إلى جميع الأبناء المرتبطين بالعائلة', 'olama-student-gateway'); ?></li>
                     <li><span class="dashicons dashicons-shield-alt" aria-hidden="true"></span><?php esc_html_e('عرض المعلومات التي تسمح بها صلاحيات حسابك فقط', 'olama-student-gateway'); ?></li>
                     <li><span class="dashicons dashicons-update" aria-hidden="true"></span><?php esc_html_e('بيانات منشورة من أنظمة OLAMA المعتمدة', 'olama-student-gateway'); ?></li>
                 </ul>
             </div>
             <div class="olama-gateway-login__form">
                 <div class="olama-gateway-login__form-head">
-                    <span class="olama-gateway-login__eyebrow"><?php esc_html_e('بوابة الأسرة', 'olama-student-gateway'); ?></span>
+                    <span class="olama-gateway-login__eyebrow"><?php esc_html_e('بوابة العائلة', 'olama-student-gateway'); ?></span>
                     <h2><?php esc_html_e('تسجيل الدخول', 'olama-student-gateway'); ?></h2>
-                    <p><?php esc_html_e('استخدم رقم الأسرة وكلمة المرور المسجلين لديك.', 'olama-student-gateway'); ?></p>
+                    <p><?php esc_html_e('استخدم رقم العائلة وكلمة المرور المسجلين لديك.', 'olama-student-gateway'); ?></p>
                 </div>
                 <?php
                 if (isset($_GET['og_login']) && 'failed' === sanitize_key(wp_unslash($_GET['og_login']))) {
