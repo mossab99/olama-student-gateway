@@ -37,17 +37,18 @@ class Olama_Student_Gateway_Shortcode {
     public function render($atts = array()) {
         wp_enqueue_style('olama-student-gateway');
         wp_enqueue_script('olama-student-gateway');
+        $late_styles = $this->late_style_markup();
 
         if (!is_user_logged_in()) {
-            return $this->render_login();
+            return $late_styles . $this->render_login();
         }
         if (!current_user_can('olama_student_gateway_access')) {
-            return $this->notice(__('Your account does not have access to the Student Gateway.', 'olama-student-gateway'), 'error');
+            return $late_styles . $this->notice(__('Your account does not have access to the Student Gateway.', 'olama-student-gateway'), 'error');
         }
 
         $context = $this->access->current();
         if (is_wp_error($context)) {
-            return $this->notice($context->get_error_message(), 'error', true);
+            return $late_styles . $this->notice($context->get_error_message(), 'error', true);
         }
 
         $exam_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
@@ -59,7 +60,7 @@ class Olama_Student_Gateway_Shortcode {
         }
         $student = $this->access->select_student($context, $requested_student);
         if (is_wp_error($student)) {
-            return $this->notice($student->get_error_message(), 'error');
+            return $late_styles . $this->notice($student->get_error_message(), 'error');
         }
         if ($student) {
             $context['student'] = $student;
@@ -88,7 +89,23 @@ class Olama_Student_Gateway_Shortcode {
 
         ob_start();
         include OLAMA_STUDENT_GATEWAY_PATH . 'templates/gateway.php';
-        return ob_get_clean();
+        return $late_styles . ob_get_clean();
+    }
+
+    /**
+     * Members and other content guards may evaluate the gateway shortcode after
+     * wp_head has already printed. In that case a normal enqueue is too late,
+     * so print only the gateway styles (and Dashicons dependency) beside the
+     * shortcode output instead of leaving the portal unstyled.
+     */
+    private function late_style_markup() {
+        if (!did_action('wp_head') || wp_style_is('olama-student-gateway', 'done')) {
+            return '';
+        }
+
+        ob_start();
+        wp_print_styles(array('dashicons', 'olama-student-gateway'));
+        return (string) ob_get_clean();
     }
 
     private function allowed_views($has_student) {
