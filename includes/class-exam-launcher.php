@@ -31,12 +31,15 @@ final class Olama_Student_Gateway_Exam_Launcher {
             return array('state' => 'ended', 'label' => __('انتهى الامتحان', 'olama-student-gateway'), 'url' => '');
         }
 
+        $is_demo = 0 === strpos((string) $student_uid, 'LOCAL-MEMBER-');
         return array(
             'state' => 'available',
-            'label' => __('بدء أو استكمال الامتحان', 'olama-student-gateway'),
+            'label' => $is_demo
+                ? __('تجربة الامتحان', 'olama-student-gateway')
+                : __('بدء أو استكمال الامتحان', 'olama-student-gateway'),
             'url' => add_query_arg(
                 array(
-                    'exam_view' => 'take',
+                    'exam_view' => $is_demo ? 'demo' : 'take',
                     'exam_id' => $exam_id,
                     'student_uid' => sanitize_text_field((string) $student_uid),
                 ),

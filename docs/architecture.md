@@ -33,7 +33,7 @@ OLAMA Users owns role and capability assignment. The gateway declares these capa
 
 Capabilities decide feature access. Family ownership validation always remains mandatory for record-level isolation.
 
-For a Temp Family, the local member list replaces family ownership validation. Every requested local member UID must occur in that list. Temp Families start on a member dashboard and do not receive the family profile, finance, or transportation capabilities by default. Grade/section-scoped providers can operate normally; providers requiring a canonical student record return no student-specific data.
+For a Temp Family, the local member list replaces family ownership validation. Every requested local member UID must occur in that list. Temp Families start on a member dashboard and do not receive the family profile, finance, or transportation capabilities by default. Grade/section-scoped providers can operate normally; providers requiring a canonical student record return no student-specific data. Published online exams are available through a separate browser-only demo renderer. It reads the selected section's exam catalogue and preview questions but never creates an Exam Engine attempt, autosaves an answer, grades a submission, or exposes marks/results.
 
 ## Current provider coverage
 

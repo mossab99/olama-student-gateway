@@ -19,6 +19,28 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
             return array();
         }
 
+        if (!empty($context['is_temp_family'])) {
+            $scope_provider = new Olama_Student_Gateway_School_Context_Provider();
+            $scope = $scope_provider->resolve_scope($context);
+            if (is_wp_error($scope)) {
+                return $scope;
+            }
+            return array(
+                'schedule' => array(
+                    'year_id' => absint($scope['academic_year_id']),
+                    'semester_id' => absint($scope['semester_id']),
+                    'grade_id' => absint($scope['grade_id']),
+                    'section_id' => absint($scope['section_id']),
+                    'exams' => array(),
+                ),
+                'hall' => array(),
+                'online_exams' => $this->online_exams($scope),
+                'online_results' => array(),
+                'official_marks' => array(),
+                'demo_mode' => true,
+            );
+        }
+
         $schedule = $this->schedule($student['student_uid']);
         $online = $this->online_exams($schedule);
         $hall = $this->hall_assignment($student['student_uid'], $schedule);
@@ -48,11 +70,14 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
     }
 
     private function online_exams(array $schedule) {
-        if (!class_exists('Olama_Exam_Manager') || empty($schedule['year_id']) || empty($schedule['semester_id'])) {
+        $year_id = !empty($schedule['academic_year_id'])
+            ? absint($schedule['academic_year_id'])
+            : (!empty($schedule['year_id']) ? absint($schedule['year_id']) : 0);
+        if (!class_exists('Olama_Exam_Manager') || !$year_id || empty($schedule['semester_id'])) {
             return array();
         }
         $base = array(
-            'academic_year_id' => absint($schedule['year_id']),
+            'academic_year_id' => $year_id,
             'semester_id' => absint($schedule['semester_id']),
             'section_id' => !empty($schedule['section_id']) ? absint($schedule['section_id']) : 0,
             'is_placement' => 0,

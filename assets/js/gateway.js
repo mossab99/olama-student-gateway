@@ -8,6 +8,7 @@
         var studentSwitch = gateway.querySelector('[data-student-switch]');
         var teacherSearch = gateway.querySelector('[data-teacher-search]');
         var videoSearch = gateway.querySelector('[data-video-search]');
+        var demoExam = gateway.querySelector('[data-demo-exam]');
 
         if (menu && sidebar) {
             var mobileMenu = window.matchMedia('(max-width: 980px)');
@@ -113,6 +114,43 @@
                     videoEmpty.hidden = visible !== 0;
                 }
             });
+        }
+
+        if (demoExam) {
+            var demoQuestions = Array.prototype.slice.call(demoExam.querySelectorAll('[data-demo-question]'));
+            var demoProgress = demoExam.querySelector('[data-demo-progress]');
+            var demoFinish = demoExam.querySelector('[data-demo-finish]');
+            var demoMessage = demoExam.querySelector('[data-demo-message]');
+            var questionAnswered = function (question) {
+                var controls = Array.prototype.slice.call(question.querySelectorAll('[data-demo-answer]'));
+                var radios = controls.filter(function (control) { return 'radio' === control.type; });
+                if (radios.length) {
+                    return radios.some(function (control) { return control.checked; });
+                }
+                return controls.length > 0 && controls.every(function (control) {
+                    return String(control.value || '').trim() !== '';
+                });
+            };
+            var updateDemoProgress = function () {
+                var answered = demoQuestions.filter(questionAnswered).length;
+                if (demoProgress) {
+                    demoProgress.textContent = answered + ' / ' + demoQuestions.length;
+                }
+                return answered;
+            };
+
+            demoExam.querySelectorAll('[data-demo-answer]').forEach(function (control) {
+                control.addEventListener('input', updateDemoProgress);
+                control.addEventListener('change', updateDemoProgress);
+            });
+            if (demoFinish && demoMessage) {
+                demoFinish.addEventListener('click', function () {
+                    var answered = updateDemoProgress();
+                    demoMessage.hidden = false;
+                    demoMessage.textContent = 'اكتمل العرض التجريبي: أجبت عن ' + answered + ' من ' + demoQuestions.length + ' أسئلة. لم يتم حفظ أي إجابة أو محاولة أو علامة.';
+                    demoMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                });
+            }
         }
     });
 }());

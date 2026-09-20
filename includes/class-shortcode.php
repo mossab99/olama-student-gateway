@@ -53,7 +53,7 @@ class Olama_Student_Gateway_Shortcode {
 
         $exam_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
         $requested_student = isset($_GET['og_student']) ? wp_unslash($_GET['og_student']) : '';
-        if (!$requested_student && in_array($exam_view, array('dashboard', 'take', 'results'), true) && isset($_GET['student_uid'])) {
+        if (!$requested_student && in_array($exam_view, array('dashboard', 'take', 'results', 'demo'), true) && isset($_GET['student_uid'])) {
             // Exam Engine back links carry student_uid. Revalidate it through
             // the gateway ownership check before using it as the selection.
             $requested_student = wp_unslash($_GET['student_uid']);
@@ -147,7 +147,7 @@ class Olama_Student_Gateway_Shortcode {
                 'schedule' => array('olama_student_gateway_schedule_view', __('الجدول الدراسي', 'olama-student-gateway'), 'dashicons-schedule'),
                 'teachers' => array('olama_student_gateway_teachers_view', __('المعلمون والساعات المكتبية', 'olama-student-gateway'), 'dashicons-welcome-learn-more'),
                 'video_library' => array('olama_student_gateway_video_library_view', __('مكتبة الفيديو', 'olama-student-gateway'), 'dashicons-video-alt3'),
-                'exams' => array('olama_student_gateway_exams_view', __('الامتحانات', 'olama-student-gateway'), 'dashicons-clipboard'),
+                'exams' => array('olama_student_gateway_exams_view', $is_temp_family ? __('الامتحانات الإلكترونية', 'olama-student-gateway') : __('الامتحانات', 'olama-student-gateway'), 'dashicons-clipboard'),
                 'evaluations' => array('olama_student_gateway_evaluations_view', __('التقييمات', 'olama-student-gateway'), 'dashicons-star-filled'),
                 'attendance' => array('olama_student_gateway_attendance_view', __('الحضور والغياب', 'olama-student-gateway'), 'dashicons-yes-alt'),
                 'transportation' => array('olama_student_gateway_transportation_view', __('المواصلات', 'olama-student-gateway'), 'dashicons-location-alt'),

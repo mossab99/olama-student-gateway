@@ -63,4 +63,9 @@ $test_now = '2026-09-14 12:00:00';
 $action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
 assert_true(false === strpos($action['url'], '/exams/'), 'The action should not use the old nonexistent fallback page.');
 
+$demo_action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'LOCAL-MEMBER-abc', $gateway_url);
+assert_true(false !== strpos($demo_action['url'], 'exam_view=demo'), 'A local member should open the non-persistent demo runner.');
+assert_true(false === strpos($demo_action['url'], 'exam_view=take'), 'A local member must never enter the attempt-taking flow.');
+assert_true('تجربة الامتحان' === $demo_action['label'], 'A local member should see a demo-specific action label.');
+
 echo "Exam launcher tests passed.\n";
