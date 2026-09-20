@@ -242,7 +242,7 @@ class Olama_Student_Gateway_Shortcode {
                 <div class="olama-gateway-login__form-head">
                     <span class="olama-gateway-login__eyebrow"><?php esc_html_e('بوابة العائلة', 'olama-student-gateway'); ?></span>
                     <h2><?php esc_html_e('تسجيل الدخول', 'olama-student-gateway'); ?></h2>
-                    <p><?php esc_html_e('استخدم رقم العائلة وكلمة المرور المسجلين لديك.', 'olama-student-gateway'); ?></p>
+                    <p><?php esc_html_e('استخدم رقم العائلة، أو اسم المستخدم المؤقت، وكلمة المرور المسجلين لديك.', 'olama-student-gateway'); ?></p>
                 </div>
                 <?php
                 if (isset($_GET['og_login']) && 'failed' === sanitize_key(wp_unslash($_GET['og_login']))) {
@@ -253,7 +253,7 @@ class Olama_Student_Gateway_Shortcode {
 
                 wp_login_form(array(
                     'redirect' => get_permalink() ? get_permalink() : home_url('/'),
-                    'label_username' => __('Family number', 'olama-student-gateway'),
+                    'label_username' => __('Family number or temporary username', 'olama-student-gateway'),
                     'label_password' => __('Password', 'olama-student-gateway'),
                     'label_remember' => __('Remember me', 'olama-student-gateway'),
                     'label_log_in' => __('Sign in', 'olama-student-gateway'),
