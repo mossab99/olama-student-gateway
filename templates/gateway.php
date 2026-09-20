@@ -41,6 +41,7 @@ $first_name = $student && !empty($student['student_name']) ? strtok($student['st
 $academic_context = isset($context['academic']) ? $context['academic'] : array();
 $academic_year_id = absint($field($academic_context, 'academic_year_id', 0));
 $semester_id = absint($field($academic_context, 'semester_id', 0));
+$is_temp_family = !empty($context['is_temp_family']);
 ?>
 <div class="olama-gateway olama-gateway--<?php echo esc_attr($active_view); ?>" dir="rtl" data-olama-gateway>
     <a class="olama-gateway__skip" href="#olama-gateway-content">انتقل إلى المحتوى</a>
@@ -56,8 +57,8 @@ $semester_id = absint($field($academic_context, 'semester_id', 0));
             <span><strong>بوابة الطالب</strong><small>أكاديمية علماء المستقبل</small></span>
         </div>
         <div class="olama-gateway__family-chip">
-            <span class="dashicons dashicons-groups" aria-hidden="true"></span>
-            <span><strong><?php echo esc_html($field($family, 'sponsor_full_name', 'العائلة')); ?></strong><small>رقم العائلة <?php echo esc_html($context['family_id']); ?></small></span>
+            <span class="dashicons <?php echo $is_temp_family ? 'dashicons-clock' : 'dashicons-groups'; ?>" aria-hidden="true"></span>
+            <span><strong><?php echo esc_html($field($family, 'sponsor_full_name', 'العائلة')); ?></strong><small><?php echo $is_temp_family ? 'وصول مؤقت' : 'رقم العائلة ' . esc_html($context['family_id']); ?></small></span>
         </div>
         <nav class="olama-gateway__nav" aria-label="أقسام البوابة">
             <span class="olama-gateway__nav-label">الخدمات</span>
@@ -193,9 +194,11 @@ $semester_id = absint($field($academic_context, 'semester_id', 0));
                                     <span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span> عرض الخطة الأسبوعية
                                 </a>
                             <?php endif; ?>
-                            <a class="olama-gateway__button olama-gateway__button--ghost" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
-                                <span class="dashicons dashicons-groups" aria-hidden="true"></span> أفراد العائلة
-                            </a>
+                            <?php if (!$is_temp_family) : ?>
+                                <a class="olama-gateway__button olama-gateway__button--ghost" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
+                                    <span class="dashicons dashicons-groups" aria-hidden="true"></span> أفراد العائلة
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </section>

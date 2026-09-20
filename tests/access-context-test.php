@@ -32,6 +32,9 @@ function is_user_logged_in() { global $test_logged_in; return $test_logged_in; }
 function get_current_user_id() { return 77; }
 function sanitize_text_field($value) { return trim((string) $value); }
 function olama_users_get_identity($user_id) { global $test_identity; return $test_identity; }
+function olama_users_get_temp_family_student_uids($user_id) { return array('ORA-STU-459-2'); }
+function olama_users_temp_family_is_expired($user_id) { return false; }
+function wp_get_current_user() { return (object) array('display_name' => 'Temporary Guardian'); }
 
 class Test_Family_Service {
     public function get_by_oracle_id($id) {
@@ -47,6 +50,14 @@ class Test_Family_Service {
 }
 
 class Test_Student_Service {
+    public function get_by_uids($student_uids) {
+        $students = array(
+            'ORA-STU-459-1' => array('student_uid' => 'ORA-STU-459-1', 'student_name' => 'أحمد'),
+            'ORA-STU-459-2' => array('student_uid' => 'ORA-STU-459-2', 'student_name' => 'سارة'),
+        );
+        return array_values(array_intersect_key($students, array_flip($student_uids)));
+    }
+
     public function belongs_to_family($student_uid, $family_uid) {
         return 'ORA-FAM-459' === $family_uid && in_array($student_uid, array('ORA-STU-459-1', 'ORA-STU-459-2'), true);
     }
@@ -94,6 +105,14 @@ assert_true(is_array($student) && 'ORA-STU-459-2' === $student['student_uid'], '
 $forbidden = $access->select_student($context, 'ORA-STU-999-1');
 assert_true($forbidden instanceof WP_Error && 'olama_gateway_student_forbidden' === $forbidden->get_error_code(), 'Unowned student should be rejected.');
 
+$test_identity['identity_type'] = 'temp_family';
+$temp_context = $access->current();
+assert_true(is_array($temp_context) && !empty($temp_context['is_temp_family']), 'Temp Family context should resolve locally.');
+assert_true(1 === count($temp_context['students']), 'Only explicitly assigned students should be returned.');
+assert_true('ORA-STU-459-2' === $temp_context['students'][0]['student_uid'], 'The local student whitelist should be authoritative.');
+$temp_forbidden = $access->select_student($temp_context, 'ORA-STU-459-1');
+assert_true($temp_forbidden instanceof WP_Error, 'A sibling outside the local whitelist should be rejected.');
+
 $test_identity['identity_type'] = 'employee';
 $not_family = $access->current();
 assert_true($not_family instanceof WP_Error && 'olama_gateway_family_identity_required' === $not_family->get_error_code(), 'Non-family identity should be rejected.');
@@ -104,4 +123,3 @@ $guest = $access->current();
 assert_true($guest instanceof WP_Error && 'olama_gateway_login_required' === $guest->get_error_code(), 'Guests should be rejected.');
 
 echo "Access context tests passed.\n";
-

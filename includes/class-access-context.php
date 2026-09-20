@@ -17,8 +17,56 @@ class Olama_Student_Gateway_Access_Context {
         }
 
         $identity = olama_users_get_identity(get_current_user_id());
-        if (!$identity || 'family' !== (string) $identity['identity_type'] || 'active' !== (string) $identity['account_status']) {
+        if (!$identity || 'active' !== (string) $identity['account_status']) {
             return new WP_Error('olama_gateway_family_identity_required', __('This gateway is available to active family accounts only.', 'olama-student-gateway'));
+        }
+
+        $identity_type = (string) $identity['identity_type'];
+        if (!in_array($identity_type, array('family', 'temp_family'), true)) {
+            return new WP_Error('olama_gateway_family_identity_required', __('This gateway is available to active family accounts only.', 'olama-student-gateway'));
+        }
+
+        $academic = olama_core()->academic_context()->current();
+        $study_year = $academic && !empty($academic->study_year) ? (string) $academic->study_year : '';
+
+        if ('temp_family' === $identity_type) {
+            if (
+                !function_exists('olama_users_get_temp_family_student_uids') ||
+                (function_exists('olama_users_temp_family_is_expired') && olama_users_temp_family_is_expired(get_current_user_id()))
+            ) {
+                return new WP_Error('olama_gateway_temp_family_inactive', __('This temporary access account is no longer active.', 'olama-student-gateway'));
+            }
+            $student_uids = olama_users_get_temp_family_student_uids(get_current_user_id());
+            $students = $student_uids ? olama_core()->students()->get_by_uids($student_uids) : array();
+            $students = is_array($students) ? $students : array();
+            $by_uid = array();
+            foreach ($students as $student) {
+                $by_uid[(string) $student['student_uid']] = $student;
+            }
+            $students = array_values(array_filter(array_map(function($uid) use ($by_uid) {
+                return isset($by_uid[$uid]) ? $by_uid[$uid] : null;
+            }, $student_uids)));
+            if (!$students) {
+                return new WP_Error('olama_gateway_temp_family_students_missing', __('No students are currently assigned to this temporary account.', 'olama-student-gateway'));
+            }
+            foreach ($students as &$student) {
+                $student['academic'] = $study_year
+                    ? olama_core()->student_years()->get_current_year($student['student_uid'], $study_year)
+                    : olama_core()->student_years()->get_current_year($student['student_uid']);
+            }
+            unset($student);
+            $user = wp_get_current_user();
+            return array(
+                'user_id' => get_current_user_id(),
+                'identity' => $identity,
+                'is_temp_family' => true,
+                'family_id' => '',
+                'family_uid' => '',
+                'family' => array('sponsor_full_name' => $user->display_name),
+                'students' => $students,
+                'academic' => $academic,
+                'study_year' => $study_year,
+            );
         }
 
         $family_id = sanitize_text_field((string) $identity['oracle_identifier']);
@@ -27,8 +75,6 @@ class Olama_Student_Gateway_Access_Context {
             return new WP_Error('olama_gateway_family_missing', __('The family record is not available in OLAMA Core.', 'olama-student-gateway'));
         }
 
-        $academic = olama_core()->academic_context()->current();
-        $study_year = $academic && !empty($academic->study_year) ? (string) $academic->study_year : '';
         $students = olama_core()->families()->get_students($family['family_uid']);
         $students = is_array($students) ? $students : array();
 
@@ -42,6 +88,7 @@ class Olama_Student_Gateway_Access_Context {
         return array(
             'user_id' => get_current_user_id(),
             'identity' => $identity,
+            'is_temp_family' => false,
             'family_id' => $family_id,
             'family_uid' => (string) $family['family_uid'],
             'family' => $family,
@@ -59,7 +106,7 @@ class Olama_Student_Gateway_Access_Context {
 
         foreach ($context['students'] as $student) {
             if (hash_equals((string) $student['student_uid'], $requested_uid)) {
-                if (!olama_core()->students()->belongs_to_family($requested_uid, $context['family_uid'])) {
+                if (empty($context['is_temp_family']) && !olama_core()->students()->belongs_to_family($requested_uid, $context['family_uid'])) {
                     break;
                 }
                 return $student;
@@ -69,4 +116,3 @@ class Olama_Student_Gateway_Access_Context {
         return new WP_Error('olama_gateway_student_forbidden', __('The selected student is not available to this family account.', 'olama-student-gateway'));
     }
 }
-

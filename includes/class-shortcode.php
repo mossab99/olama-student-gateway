@@ -64,9 +64,12 @@ class Olama_Student_Gateway_Shortcode {
         }
         if ($student) {
             $context['student'] = $student;
+        } elseif (!empty($context['is_temp_family']) && !empty($context['students'])) {
+            $student = reset($context['students']);
+            $context['student'] = $student;
         }
 
-        $views = $this->allowed_views((bool) $student);
+        $views = $this->allowed_views((bool) $student, !empty($context['is_temp_family']));
         $requested_view = isset($_GET['og_view']) ? sanitize_key(wp_unslash($_GET['og_view'])) : '';
         if (!$requested_view && $exam_view && isset($views['exams'])) {
             $requested_view = 'exams';
@@ -133,8 +136,8 @@ class Olama_Student_Gateway_Shortcode {
         return (string) ob_get_clean();
     }
 
-    private function allowed_views($has_student) {
-        $views = array(
+    private function allowed_views($has_student, $is_temp_family = false) {
+        $views = $is_temp_family ? array() : array(
             'family' => array('label' => __('العائلة', 'olama-student-gateway'), 'icon' => 'dashicons-groups'),
         );
         if ($has_student) {

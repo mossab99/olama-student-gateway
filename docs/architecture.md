@@ -4,7 +4,7 @@
 
 The Student Gateway is a presentation and orchestration plugin. It owns no family, student, academic, examination, financial, transportation, inventory, evaluation, attendance, or messaging source records.
 
-The authenticated WordPress user is resolved through `olama_users_get_identity()`. Only an active `family` identity is accepted. Its `oracle_identifier` is used to load the canonical family from `olama_core()->families()`.
+The authenticated WordPress user is resolved through `olama_users_get_identity()`. Active `family` identities use their `oracle_identifier` to load the canonical family from `olama_core()->families()`. Active `temp_family` identities use the local student whitelist maintained by OLAMA Users and never receive a Core family context.
 
 The gateway never reads a family number from a request. A requested `student_uid` is accepted only after both of these checks pass:
 
@@ -32,6 +32,8 @@ OLAMA Users owns role and capability assignment. The gateway declares these capa
 | `olama_student_gateway_messages_view` | View messages when the service exists |
 
 Capabilities decide feature access. Family ownership validation always remains mandatory for record-level isolation.
+
+For a Temp Family, the local student whitelist replaces family ownership validation. Every requested student UID must occur in that whitelist. Temp Families start on a student dashboard and do not receive the family profile, finance, or transportation capabilities by default.
 
 ## Current provider coverage
 
