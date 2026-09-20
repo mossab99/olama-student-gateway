@@ -24,6 +24,9 @@ class Olama_School_Section {
             'core_section_id' => 'A',
         ));
     }
+    public static function get_section($id) {
+        return 12 === (int) $id ? (object) array('id' => 12) : null;
+    }
 }
 
 class Olama_School_Plan {
@@ -60,5 +63,9 @@ assert_true(1 === count($data['days'][0]['plans']), 'Draft plans must be exclude
 assert_true('رياضيات' === $data['days'][0]['plans'][0]['subject'], 'Approved plan should be present.');
 assert_true(1 === count($data['days'][1]['plans']), 'Published plan should be present.');
 
-echo "Weekly plan provider tests passed.\n";
+$local_data = $provider->get_data(array(
+    'student' => array('academic' => array('school_section_id' => 12)),
+), array('week' => '2026-08-23'));
+assert_true(is_array($local_data) && 12 === $local_data['section_id'], 'A local member should resolve its selected School section directly.');
 
+echo "Weekly plan provider tests passed.\n";

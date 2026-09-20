@@ -153,6 +153,10 @@ class Olama_Student_Gateway_School_Context_Provider implements Olama_Student_Gat
     }
 
     private function resolve_school_section_id(array $academic) {
+        if (!empty($academic['school_section_id'])) {
+            $section = Olama_School_Section::get_section(absint($academic['school_section_id']));
+            return $section ? absint($section->id) : 0;
+        }
         $year = $this->normalize_year(isset($academic['study_year']) ? $academic['study_year'] : '');
         $grade_id = isset($academic['class_id']) ? (string) $academic['class_id'] : '';
         $section_id = isset($academic['section_id']) ? (string) $academic['section_id'] : '';

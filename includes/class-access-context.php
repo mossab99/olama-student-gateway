@@ -31,28 +31,23 @@ class Olama_Student_Gateway_Access_Context {
 
         if ('temp_family' === $identity_type) {
             if (
-                !function_exists('olama_users_get_temp_family_student_uids') ||
+                !function_exists('olama_users_get_temp_family_members') ||
                 (function_exists('olama_users_temp_family_is_expired') && olama_users_temp_family_is_expired(get_current_user_id()))
             ) {
                 return new WP_Error('olama_gateway_temp_family_inactive', __('This temporary access account is no longer active.', 'olama-student-gateway'));
             }
-            $student_uids = olama_users_get_temp_family_student_uids(get_current_user_id());
-            $students = $student_uids ? olama_core()->students()->get_by_uids($student_uids) : array();
+            $students = olama_users_get_temp_family_members(get_current_user_id());
             $students = is_array($students) ? $students : array();
-            $by_uid = array();
-            foreach ($students as $student) {
-                $by_uid[(string) $student['student_uid']] = $student;
-            }
-            $students = array_values(array_filter(array_map(function($uid) use ($by_uid) {
-                return isset($by_uid[$uid]) ? $by_uid[$uid] : null;
-            }, $student_uids)));
             if (!$students) {
-                return new WP_Error('olama_gateway_temp_family_students_missing', __('No students are currently assigned to this temporary account.', 'olama-student-gateway'));
+                return new WP_Error('olama_gateway_temp_family_students_missing', __('No members are currently defined for this temporary account.', 'olama-student-gateway'));
             }
             foreach ($students as &$student) {
-                $student['academic'] = $study_year
-                    ? olama_core()->student_years()->get_current_year($student['student_uid'], $study_year)
-                    : olama_core()->student_years()->get_current_year($student['student_uid']);
+                if (empty($student['academic']) || !is_array($student['academic'])) {
+                    $student['academic'] = array();
+                }
+                if (empty($student['academic']['study_year'])) {
+                    $student['academic']['study_year'] = $study_year;
+                }
             }
             unset($student);
             $user = wp_get_current_user();
@@ -113,6 +108,6 @@ class Olama_Student_Gateway_Access_Context {
             }
         }
 
-        return new WP_Error('olama_gateway_student_forbidden', __('The selected student is not available to this family account.', 'olama-student-gateway'));
+        return new WP_Error('olama_gateway_student_forbidden', __('The selected member is not available to this family account.', 'olama-student-gateway'));
     }
 }

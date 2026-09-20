@@ -92,4 +92,8 @@ assert_true('الأحد' === $teachers['teachers'][0]['office_hours'][0]['day'],
 assert_true(!isset($teachers['teachers'][0]['user_email']), 'Teacher email must not be exposed.');
 assert_true(!isset($teachers['teachers'][0]['phone_number']), 'Teacher phone must not be exposed.');
 
+$context['student']['academic'] = array('school_section_id' => 12);
+$local_schedule = $provider->get_data($context, array('resource' => 'schedule'));
+assert_true(is_array($local_schedule) && 12 === $local_schedule['section_id'], 'A local member should use the selected School section directly.');
+
 echo "School context provider tests passed.\n";

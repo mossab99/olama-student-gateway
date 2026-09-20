@@ -4,7 +4,7 @@
 
 The Student Gateway is a presentation and orchestration plugin. It owns no family, student, academic, examination, financial, transportation, inventory, evaluation, attendance, or messaging source records.
 
-The authenticated WordPress user is resolved through `olama_users_get_identity()`. Active `family` identities use their `oracle_identifier` to load the canonical family from `olama_core()->families()`. Active `temp_family` identities use the local student whitelist maintained by OLAMA Users and never receive a Core family context.
+The authenticated WordPress user is resolved through `olama_users_get_identity()`. Active `family` identities use their `oracle_identifier` to load the canonical family from `olama_core()->families()`. Active `temp_family` identities use locally defined members maintained by OLAMA Users and never receive a Core family or Core student context. Each local member carries a selected OLAMA School grade and section.
 
 The gateway never reads a family number from a request. A requested `student_uid` is accepted only after both of these checks pass:
 
@@ -33,7 +33,7 @@ OLAMA Users owns role and capability assignment. The gateway declares these capa
 
 Capabilities decide feature access. Family ownership validation always remains mandatory for record-level isolation.
 
-For a Temp Family, the local student whitelist replaces family ownership validation. Every requested student UID must occur in that whitelist. Temp Families start on a student dashboard and do not receive the family profile, finance, or transportation capabilities by default.
+For a Temp Family, the local member list replaces family ownership validation. Every requested local member UID must occur in that list. Temp Families start on a member dashboard and do not receive the family profile, finance, or transportation capabilities by default. Grade/section-scoped providers can operate normally; providers requiring a canonical student record return no student-specific data.
 
 ## Current provider coverage
 
