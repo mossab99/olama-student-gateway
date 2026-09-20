@@ -2,7 +2,7 @@
 Contributors: olama
 Requires at least: 6.4
 Requires PHP: 7.4
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPLv2 or later
 
 Family-first, read-only portal for information produced by OLAMA Core, OLAMA Users, OLAMA School and other OLAMA service plugins.
@@ -29,6 +29,11 @@ External plugins may register a provider on `olama_student_gateway_register_prov
 * `olama_student_gateway_messages_data`
 
 == Changelog ==
+
+= 0.6.0 =
+* Uses the canonical OLAMA School shortcode reports for weekly plans, class schedules, and exam schedules.
+* Corrects the teachers and office-hours RTL alignment.
+* Places the electronic-exam action first and clarifies the start/resume label.
 
 = 0.5.0 =
 * Introduces the navy, teal, and gold responsive visual system with Readex Pro typography.

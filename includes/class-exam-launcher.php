@@ -33,7 +33,7 @@ final class Olama_Student_Gateway_Exam_Launcher {
 
         return array(
             'state' => 'available',
-            'label' => __('بدء / استكمال الامتحان', 'olama-student-gateway'),
+            'label' => __('بدء أو استكمال الامتحان', 'olama-student-gateway'),
             'url' => add_query_arg(
                 array(
                     'exam_view' => 'take',

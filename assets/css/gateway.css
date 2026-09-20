@@ -287,6 +287,28 @@ html.olama-gateway-menu-lock {
     font-size: 15px;
 }
 
+.olama-gateway--teachers .olama-gateway__heading,
+.olama-gateway--teachers .olama-gateway__heading > div,
+.olama-gateway--teachers .olama-gateway__teacher-toolbar,
+.olama-gateway--teachers .olama-gateway__teacher-card,
+.olama-gateway--teachers .olama-gateway__teacher-card > header,
+.olama-gateway--teachers .olama-gateway__office-hours {
+    direction: rtl;
+    text-align: right;
+}
+
+.olama-gateway__standard-report {
+    min-width: 0;
+    width: 100%;
+    direction: rtl;
+}
+
+.olama-gateway__standard-report > :first-child {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+}
+
 .olama-gateway__status,
 .olama-gateway__source {
     display: inline-flex;
