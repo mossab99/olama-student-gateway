@@ -22,6 +22,7 @@ foreach (array('بطاقة العائلة', 'الزي والكتب', 'الخطة
 assert_menu_organization(false !== strpos($template, "'og_message' => 'compose'"), 'The compose link should carry its message mode.');
 assert_menu_organization(false !== strpos($template, "'og_message' => 'inbox'"), 'The inbox link should carry its message mode.');
 assert_menu_organization(false !== strpos($template, 'olama-gateway__student-menu'), 'The sidebar should expose the family student list.');
+assert_menu_organization(false !== strpos($template, 'olama-gateway__student-menu-name'), 'Each sidebar student should render on one compact line.');
 assert_menu_organization(false === strpos($template, 'olama-gateway__family-chip'), 'The sidebar should not render the old family summary card.');
 assert_menu_organization(false !== strpos($template, '$student_first_name($family_student)'), 'Student lists should show first names only.');
 assert_menu_organization(false !== strpos($template, 'olama-gateway__panel--family-profile'), 'The family profile should use the full-width layout hook.');

@@ -102,7 +102,7 @@ $menu_groups = array(
                 <?php foreach ($students as $family_student) :
                     $is_current_student = $student && $student['student_uid'] === $family_student['student_uid'];
                     ?>
-                    <a class="<?php echo $is_current_student ? 'is-current' : ''; ?>" href="<?php echo esc_url($student_url($family_student['student_uid'])); ?>" <?php echo $is_current_student ? 'aria-current="page"' : ''; ?>><span class="olama-gateway__avatar"><?php echo esc_html($initial($family_student['student_name'])); ?></span><span><strong><?php echo esc_html($student_first_name($family_student)); ?></strong><small><?php echo esc_html($student_grade($family_student)); ?></small></span></a>
+                    <a class="<?php echo $is_current_student ? 'is-current' : ''; ?>" href="<?php echo esc_url($student_url($family_student['student_uid'])); ?>" <?php echo $is_current_student ? 'aria-current="page"' : ''; ?>><span class="olama-gateway__student-menu-name"><?php echo esc_html($student_first_name($family_student) . ' · ' . $student_grade($family_student)); ?></span></a>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>

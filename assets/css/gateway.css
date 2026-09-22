@@ -149,9 +149,8 @@ html.olama-gateway-menu-lock {
 .olama-gateway__student-menu > a {
     display: flex;
     align-items: center;
-    gap: 9px;
-    min-height: 50px;
-    padding: 8px;
+    min-height: 42px;
+    padding: 9px 11px;
     color: rgba(255, 255, 255, .86);
     text-decoration: none;
     border-radius: 10px;
@@ -164,26 +163,13 @@ html.olama-gateway-menu-lock {
     background: rgba(255, 255, 255, .11);
 }
 
-.olama-gateway__student-menu .olama-gateway__avatar {
-    width: 32px;
-    height: 32px;
-    color: var(--og-navy);
-    background: var(--og-brass-soft);
-    border-radius: 10px;
-    font-size: 13px;
-}
-
-.olama-gateway__student-menu > a > span:last-child {
-    display: grid;
-    gap: 1px;
+.olama-gateway__student-menu-name {
     min-width: 0;
-}
-
-.olama-gateway__student-menu strong,
-.olama-gateway__student-menu small {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .olama-gateway__nav {
