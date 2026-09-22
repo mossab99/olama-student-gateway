@@ -23,8 +23,11 @@ assert_menu_organization(false !== strpos($template, "'og_message' => 'compose'"
 assert_menu_organization(false !== strpos($template, "'og_message' => 'inbox'"), 'The inbox link should carry its message mode.');
 assert_menu_organization(false !== strpos($template, "'og_exam_section' => 'schedule'"), 'The schedule link should target the schedule section.');
 assert_menu_organization(false !== strpos($template, "'og_exam_section' => 'online-results'"), 'The results link should target the online-results section.');
-assert_menu_organization(false !== strpos($template, 'id="exam-hall"'), 'The hall panel should expose its navigation target.');
-assert_menu_organization(false !== strpos($template, 'id="online-results"'), 'The results panel should expose its navigation target.');
+assert_menu_organization(false !== strpos($template, "'hall' === \$exam_section"), 'The hall should render on its own route.');
+assert_menu_organization(false !== strpos($template, "'schedule' === \$exam_section"), 'The schedule should render on its own route.');
+assert_menu_organization(false !== strpos($template, "'online' === \$exam_section"), 'Online exams should render on their own route.');
+assert_menu_organization(false !== strpos($template, "'online-results' === \$exam_section"), 'Online results should render on their own route.');
+assert_menu_organization(false !== strpos($template, "'og_exam_section' => 'online'"), 'Returning from an exam should lead to the online-exams page.');
 assert_menu_organization(false !== strpos($shortcode, "array('mode' => \$message_mode)"), 'The messages provider should receive the requested mode.');
 
 echo "Menu organization tests passed.\n";

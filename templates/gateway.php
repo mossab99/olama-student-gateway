@@ -43,14 +43,11 @@ $academic_year_id = absint($field($academic_context, 'academic_year_id', 0));
 $semester_id = absint($field($academic_context, 'semester_id', 0));
 $is_temp_family = !empty($context['is_temp_family']);
 $menu_url = static function ($view_key, array $args = array()) use ($make_url, $student) {
-    $fragment = isset($args['fragment']) ? sanitize_key($args['fragment']) : '';
-    unset($args['fragment']);
     $args['og_view'] = $view_key;
     if ('family' !== $view_key && $student) {
         $args['og_student'] = $student['student_uid'];
     }
-    $url = $make_url($args);
-    return $fragment ? $url . '#' . rawurlencode($fragment) : $url;
+    return $make_url($args);
 };
 $menu_groups = array(
     array('key' => 'family', 'label' => 'معلومات العائلة', 'icon' => 'dashicons-groups', 'items' => array(
@@ -71,10 +68,10 @@ $menu_groups = array(
         array('view' => 'evaluations', 'label' => 'التقييمات'),
     )),
     array('key' => 'exams', 'label' => 'الامتحانات', 'icon' => 'dashicons-clipboard', 'items' => array(
-        array('view' => 'exams', 'label' => 'جدول الامتحانات', 'standard_only' => true, 'args' => array('og_exam_section' => 'schedule', 'fragment' => 'exam-schedule')),
-        array('view' => 'exams', 'label' => 'الامتحانات الإلكترونية', 'args' => array('og_exam_section' => 'online', 'fragment' => 'online-exams')),
-        array('view' => 'exams', 'label' => 'نتائج الامتحانات الإلكترونية', 'standard_only' => true, 'args' => array('og_exam_section' => 'online-results', 'fragment' => 'online-results')),
-        array('view' => 'exams', 'label' => 'قاعات الامتحان', 'standard_only' => true, 'args' => array('og_exam_section' => 'hall', 'fragment' => 'exam-hall')),
+        array('view' => 'exams', 'label' => 'جدول الامتحانات', 'standard_only' => true, 'args' => array('og_exam_section' => 'schedule')),
+        array('view' => 'exams', 'label' => 'الامتحانات الإلكترونية', 'args' => array('og_exam_section' => 'online')),
+        array('view' => 'exams', 'label' => 'نتائج الامتحانات الإلكترونية', 'standard_only' => true, 'args' => array('og_exam_section' => 'online-results')),
+        array('view' => 'exams', 'label' => 'قاعات الامتحان', 'standard_only' => true, 'args' => array('og_exam_section' => 'hall')),
     )),
     array('key' => 'messages', 'label' => 'الرسائل', 'icon' => 'dashicons-email-alt', 'items' => array(
         array('view' => 'messages', 'label' => 'إرسال رسالة', 'args' => array('og_message' => 'compose')),
@@ -530,20 +527,31 @@ $menu_groups = array(
                 <?php endif; ?>
 
             <?php elseif ('exams' === $active_view) : ?>
-                <section class="olama-gateway__heading"><div><h2><?php echo !empty($context['is_temp_family']) ? 'الامتحانات الإلكترونية التجريبية' : 'الامتحانات والنتائج'; ?></h2><p><?php echo !empty($context['is_temp_family']) ? 'تجربة الامتحانات المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'جدول الامتحانات المعتمد، القاعة، الامتحانات الإلكترونية، والنتائج حسب مصدرها.'; ?></p></div><span class="olama-gateway__status"><?php echo !empty($context['is_temp_family']) ? 'عرض تجريبي فقط' : 'المصدر موضح لكل مجموعة'; ?></span></section>
                 <?php
                 $exam_engine_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
+                $exam_section = !empty($model['exam_section']) ? $model['exam_section'] : ($is_temp_family ? 'online' : 'schedule');
+                $exam_sections = array(
+                    'schedule' => array('جدول الامتحانات', 'جدول الامتحانات المعتمد للطالب.'),
+                    'online' => array($is_temp_family ? 'الامتحانات الإلكترونية التجريبية' : 'الامتحانات الإلكترونية', $is_temp_family ? 'تجربة الامتحانات المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'الامتحانات المتاحة للبدء أو الاستكمال.'),
+                    'online-results' => array('نتائج الامتحانات الإلكترونية', 'نتائج الامتحانات الإلكترونية المنشورة للطالب.'),
+                    'hall' => array('قاعات الامتحان', 'توزيع القاعة والمقعد المنشور للطالب.'),
+                );
+                $exam_heading = $exam_sections[$exam_section];
+                $exam_list_url = $make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => 'online'));
+                ?>
+                <section class="olama-gateway__heading"><div><h2><?php echo esc_html($exam_heading[0]); ?></h2><p><?php echo esc_html($exam_heading[1]); ?></p></div><span class="olama-gateway__status"><?php echo $is_temp_family ? 'عرض تجريبي فقط' : 'قسم الامتحانات'; ?></span></section>
+                <?php
                 if ('demo' === $exam_engine_view && !empty($context['is_temp_family'])) :
                     $available_demo_exams = !is_wp_error($data) && !empty($data['online_exams']) ? (array) $data['online_exams'] : array();
                     ?>
                     <section class="olama-gateway__panel olama-gateway__exam-runner">
-                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($student_url($student['student_uid'], 'exams')); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى قائمة الامتحانات</a>
-                        <?php echo Olama_Student_Gateway_Demo_Exam::render(isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0, $available_demo_exams, $student['student_uid'], $student_url($student['student_uid'], 'exams')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes its output. ?>
+                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($exam_list_url); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى الامتحانات الإلكترونية</a>
+                        <?php echo Olama_Student_Gateway_Demo_Exam::render(isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0, $available_demo_exams, $student['student_uid'], $exam_list_url); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes its output. ?>
                     </section>
                 <?php elseif (in_array($exam_engine_view, array('take', 'results'), true) && empty($context['is_temp_family'])) :
                     ?>
                     <section class="olama-gateway__panel olama-gateway__exam-runner">
-                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($student_url($student['student_uid'], 'exams')); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى قائمة الامتحانات</a>
+                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($exam_list_url); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى الامتحانات الإلكترونية</a>
                         <?php if (shortcode_exists('olama_exam')) : ?>
                             <?php echo do_shortcode('[olama_exam]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted producer shortcode. ?>
                         <?php else : ?>
@@ -560,22 +568,18 @@ $menu_groups = array(
                     $hall = isset($data['hall']) ? $data['hall'] : array();
                     $online_exams = isset($data['online_exams']) ? (array) $data['online_exams'] : array();
                     $online_results = isset($data['online_results']) ? (array) $data['online_results'] : array();
-                    $official_marks = isset($data['official_marks']) ? (array) $data['official_marks'] : array();
                     ?>
-                    <?php if (empty($context['is_temp_family'])) : ?>
-                    <section class="olama-gateway__grid olama-gateway__grid--2" id="exam-hall">
+                    <?php if (empty($context['is_temp_family']) && 'hall' === $exam_section) : ?>
+                    <section class="olama-gateway__grid" id="exam-hall">
                         <article class="olama-gateway__panel">
                             <header><h3>القاعة والمقعد</h3><span class="olama-gateway__source">OLAMA Exam Management</span></header>
                             <?php if (!$hall) : ?><div class="olama-gateway__empty">لم يتم نشر توزيع قاعة لهذا الطالب.</div>
                             <?php else : ?><dl class="olama-gateway__details"><div><dt>القاعة</dt><dd><?php echo esc_html($field($hall, 'hall_name')); ?></dd></div><div><dt>المقعد</dt><dd><?php echo esc_html($field($hall, 'seat_number')); ?></dd></div><div><dt>الصف</dt><dd><?php echo esc_html($field($hall, 'grade_name')); ?></dd></div><div><dt>الشعبة</dt><dd><?php echo esc_html($field($hall, 'section_name')); ?></dd></div></dl><?php endif; ?>
                         </article>
-                        <article class="olama-gateway__panel">
-                            <header><h3>العلامات الرسمية</h3><span class="olama-gateway__source">Oracle · مرحلة لاحقة</span></header>
-                            <?php if (!$official_marks) : ?><div class="olama-gateway__empty">لم يتم تفعيل استيراد العلامات الرسمية من Oracle بعد.</div><?php else : do_action('olama_student_gateway_render_official_marks', $official_marks, $context); endif; ?>
-                        </article>
                     </section>
+                    <?php endif; ?>
 
-                    <?php if (shortcode_exists('olama_exam_report')) :
+                    <?php if (empty($context['is_temp_family']) && 'schedule' === $exam_section && shortcode_exists('olama_exam_report')) :
                         $exam_report_shortcode = sprintf(
                             '[olama_exam_report year="%d" semester="%d" grade="%d" exam="active"]',
                             !empty($schedule['year_id']) ? absint($schedule['year_id']) : $academic_year_id,
@@ -597,7 +601,7 @@ $menu_groups = array(
                         <section class="olama-gateway__standard-report olama-gateway__standard-report--exams" id="exam-schedule" aria-label="جدول الامتحانات المعتمد">
                             <?php echo $exam_report_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted OLAMA School shortcode. ?>
                         </section>
-                    <?php else : ?>
+                    <?php elseif (empty($context['is_temp_family']) && 'schedule' === $exam_section) : ?>
                         <section class="olama-gateway__panel" id="exam-schedule">
                             <header><h3>جدول الامتحانات المعتمد</h3><span class="olama-gateway__source">OLAMA Exam Management</span></header>
                             <?php if (!$scheduled_exams) : ?><div class="olama-gateway__empty">لا توجد امتحانات معتمدة منشورة للطالب.</div>
@@ -606,19 +610,18 @@ $menu_groups = array(
                             </tbody></table></div><?php endif; ?>
                         </section>
                     <?php endif; ?>
-                    <?php endif; ?>
 
-                    <section class="olama-gateway__panel olama-gateway__panel--online-exams" id="online-exams">
+                    <?php if ('online' === $exam_section) : ?><section class="olama-gateway__panel olama-gateway__panel--online-exams" id="online-exams">
                         <header><h3>الامتحانات الإلكترونية</h3><span class="olama-gateway__source"><?php echo !empty($context['is_temp_family']) ? 'عرض تجريبي · بلا حفظ' : 'OLAMA Exam Engine'; ?></span></header>
                         <?php if (!$online_exams) : ?><div class="olama-gateway__empty">لا توجد امتحانات إلكترونية منشورة حالياً.</div>
                         <?php else : ?><div class="olama-gateway__table-wrap olama-gateway__table-wrap--exams"><table class="olama-gateway__exam-table"><thead><tr><th>الإجراء</th><th>الامتحان</th><th>المادة</th><th>البداية</th><th>النهاية</th><th>المدة</th><th>الحالة</th></tr></thead><tbody>
                             <?php foreach ($online_exams as $exam) :
-                                $exam_action = Olama_Student_Gateway_Exam_Launcher::action($exam, $student['student_uid'], $student_url($student['student_uid'], 'exams'));
+                                $exam_action = Olama_Student_Gateway_Exam_Launcher::action($exam, $student['student_uid'], $exam_list_url);
                                 ?><tr class="olama-gateway__exam-card" data-exam-state="<?php echo esc_attr($exam_action['state']); ?>"><td class="olama-gateway__exam-action" data-label="الإجراء"><?php if ('available' === $exam_action['state']) : ?><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($exam_action['url']); ?>"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo esc_html($exam_action['label']); ?></a><?php else : ?><span class="olama-gateway__exam-state olama-gateway__exam-state--<?php echo esc_attr($exam_action['state']); ?>"><?php echo esc_html($exam_action['label']); ?></span><?php endif; ?></td><td class="olama-gateway__exam-title" data-label="الامتحان"><strong><?php echo esc_html($field($exam, 'title')); ?></strong></td><td class="olama-gateway__exam-subject" data-label="المادة"><?php echo esc_html($field($exam, 'subject_name')); ?></td><td data-label="البداية"><?php echo esc_html($field($exam, 'start_time')); ?></td><td data-label="النهاية"><?php echo esc_html($field($exam, 'end_time')); ?></td><td data-label="المدة"><?php echo esc_html($field($exam, 'duration_minutes')); ?> دقيقة</td><td class="olama-gateway__exam-status" data-label="الحالة"><?php echo esc_html($field($exam, 'status')); ?></td></tr><?php endforeach; ?>
                         </tbody></table></div><?php endif; ?>
-                    </section>
+                    </section><?php endif; ?>
 
-                    <?php if (empty($context['is_temp_family'])) : ?>
+                    <?php if (empty($context['is_temp_family']) && 'online-results' === $exam_section) : ?>
                     <section class="olama-gateway__panel" id="online-results">
                         <header><h3>نتائج الامتحانات الإلكترونية</h3><span class="olama-gateway__source">OLAMA Exam Engine</span></header>
                         <?php if (!$online_results) : ?><div class="olama-gateway__empty">ينتظر هذا القسم خدمة نتائج الطالب من Exam Engine؛ لن تتم قراءة جدول المحاولات مباشرة.</div><?php else : do_action('olama_student_gateway_render_exam_results', $online_results, $context); endif; ?>
