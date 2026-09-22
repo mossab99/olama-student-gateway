@@ -1874,6 +1874,119 @@ html.olama-gateway-menu-lock {
     .olama-gateway__details div.is-wide {
         grid-column: auto;
     }
+
+    /* The desktop exam table becomes a scan-friendly RTL card list on phones. */
+    .olama-gateway__panel--online-exams > header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .olama-gateway__table-wrap--exams {
+        overflow: visible;
+    }
+
+    .olama-gateway__exam-table,
+    .olama-gateway__exam-table tbody {
+        display: grid;
+        gap: 14px;
+    }
+
+    .olama-gateway__exam-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .olama-gateway__exam-card {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 14px;
+        overflow: hidden;
+        padding: 16px;
+        background: linear-gradient(145deg, #fff, #fbfcfe);
+        border: 1px solid var(--og-border);
+        border-radius: 15px;
+        box-shadow: var(--og-shadow-sm);
+    }
+
+    .olama-gateway__exam-card::before {
+        position: absolute;
+        inset: 0 0 0 auto;
+        width: 4px;
+        content: "";
+        background: var(--og-blue);
+    }
+
+    .olama-gateway__exam-card[data-exam-state="available"]::before {
+        background: var(--og-teal);
+    }
+
+    .olama-gateway__exam-card > td {
+        display: grid;
+        align-content: start;
+        gap: 3px;
+        min-width: 0;
+        padding: 11px 0;
+        overflow-wrap: anywhere;
+        border-bottom: 1px solid var(--og-border);
+        line-height: 1.55;
+    }
+
+    .olama-gateway__exam-card > td:nth-last-child(-n + 2) {
+        border-bottom: 0;
+    }
+
+    .olama-gateway__exam-card > td::before {
+        color: var(--og-muted);
+        content: attr(data-label);
+        font-family: "Readex Pro", "Segoe UI", Tahoma, Arial, sans-serif;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .olama-gateway__exam-card > .olama-gateway__exam-title {
+        grid-column: 1 / -1;
+        order: -1;
+        padding-top: 0;
+    }
+
+    .olama-gateway__exam-title strong {
+        font-size: 15px;
+        line-height: 1.75;
+    }
+
+    .olama-gateway__exam-subject {
+        color: var(--og-navy);
+        font-weight: 700;
+    }
+
+    .olama-gateway__exam-card > .olama-gateway__exam-action {
+        grid-column: 1 / -1;
+        order: 1;
+        min-width: 0;
+        padding: 14px 0 0;
+        border-bottom: 0;
+    }
+
+    .olama-gateway__exam-action::before {
+        display: none;
+    }
+
+    .olama-gateway__exam-action .olama-gateway__button,
+    .olama-gateway__exam-action .olama-gateway__exam-state {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .olama-gateway__exam-status {
+        color: var(--og-success);
+        font-weight: 700;
+    }
 }
 
 @media (max-width: 460px) {
