@@ -179,6 +179,17 @@ class Olama_Student_Gateway_Shortcode {
             if (current_user_can('olama_student_gateway_finance_view')) {
                 $data['finance'] = $this->providers->data('core', $context, array('resource' => 'finance'));
             }
+            if (
+                current_user_can('olama_student_gateway_transportation_view')
+                && $this->providers->available('transportation')
+            ) {
+                $data['transportation'] = array();
+                foreach ((array) $context['students'] as $family_student) {
+                    $student_context = $context;
+                    $student_context['student'] = $family_student;
+                    $data['transportation'][$family_student['student_uid']] = $this->providers->data('transportation', $student_context);
+                }
+            }
             return $data;
         }
         if ('dashboard' === $view) {
