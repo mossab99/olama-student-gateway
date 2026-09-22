@@ -198,20 +198,6 @@ class Olama_Student_Gateway_Shortcode {
                 $data['exams'] = $this->providers->data('exams', $context);
             }
 
-            if (
-                current_user_can('olama_student_gateway_transportation_view')
-                && $this->providers->available('transportation')
-            ) {
-                $data['transportation'] = $this->providers->data('transportation', $context);
-            }
-
-            if (
-                current_user_can('olama_student_gateway_stores_view')
-                && $this->providers->available('stores')
-            ) {
-                $data['stores'] = $this->providers->data('stores', $context);
-            }
-
             return $data;
         }
         if ('weekly_plan' === $view) {

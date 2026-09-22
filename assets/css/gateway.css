@@ -914,6 +914,12 @@ html.olama-gateway-menu-lock {
     border-top: 1px solid var(--og-border);
 }
 
+.olama-gateway__today-list--standalone {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+}
+
 .olama-gateway__section-title,
 .olama-gateway__today-row {
     display: flex;
@@ -965,6 +971,10 @@ html.olama-gateway-menu-lock {
     gap: 12px;
 }
 
+.olama-gateway__quick-stats--single {
+    grid-template-columns: 1fr;
+}
+
 .olama-gateway__quick-stats:empty {
     display: none;
 }
@@ -1001,6 +1011,11 @@ html.olama-gateway-menu-lock {
 .olama-gateway__quick-stats > div > span:last-child {
     display: grid;
     gap: 3px;
+}
+
+.olama-gateway__quick-stats > div > span:last-child small:last-child {
+    color: var(--og-muted);
+    font-variant-numeric: tabular-nums;
 }
 
 .olama-gateway__quick-stats strong {
@@ -1797,6 +1812,10 @@ html.olama-gateway-menu-lock {
 
     .olama-gateway__dashboard-side {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .olama-gateway__dashboard-side--single {
+        grid-template-columns: 1fr;
     }
 
     .olama-gateway__teacher-grid {

@@ -59,9 +59,10 @@ $test_capabilities['olama_student_gateway_stores_view'] = true;
 $providers->calls = array();
 $data = $reflection->invoke($shortcode, 'dashboard', array());
 assert_same(
-    array('weekly_plan', 'exams', 'transportation', 'stores'),
+    array('weekly_plan', 'exams'),
     array_keys($data),
-    'Dashboard should include every authorized first-round summary.'
+    'Dashboard should avoid loading transportation and stores when their cards are not displayed.'
 );
+assert_same(array('weekly_plan', 'exams'), $providers->calls, 'Dashboard should load only the displayed summaries.');
 
 echo "Dashboard capability tests passed.\n";
