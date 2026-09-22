@@ -30,6 +30,10 @@ $student_grade = static function ($item) {
 $initial = static function ($name) {
     return function_exists('mb_substr') ? mb_substr((string) $name, 0, 1) : substr((string) $name, 0, 1);
 };
+$student_first_name = static function ($item) {
+    $name = is_array($item) && !empty($item['student_name']) ? (string) $item['student_name'] : '';
+    return $name ? strtok($name, ' ') : 'طالب';
+};
 $mask_phone = static function ($phone) {
     $phone = preg_replace('/\s+/', '', (string) $phone);
     if (strlen($phone) < 7) {
@@ -98,7 +102,7 @@ $menu_groups = array(
                 <?php foreach ($students as $family_student) :
                     $is_current_student = $student && $student['student_uid'] === $family_student['student_uid'];
                     ?>
-                    <a class="<?php echo $is_current_student ? 'is-current' : ''; ?>" href="<?php echo esc_url($student_url($family_student['student_uid'])); ?>" <?php echo $is_current_student ? 'aria-current="page"' : ''; ?>><span class="olama-gateway__avatar"><?php echo esc_html($initial($family_student['student_name'])); ?></span><span><strong><?php echo esc_html($family_student['student_name']); ?></strong><small><?php echo esc_html($student_grade($family_student)); ?></small></span></a>
+                    <a class="<?php echo $is_current_student ? 'is-current' : ''; ?>" href="<?php echo esc_url($student_url($family_student['student_uid'])); ?>" <?php echo $is_current_student ? 'aria-current="page"' : ''; ?>><span class="olama-gateway__avatar"><?php echo esc_html($initial($family_student['student_name'])); ?></span><span><strong><?php echo esc_html($student_first_name($family_student)); ?></strong><small><?php echo esc_html($student_grade($family_student)); ?></small></span></a>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -152,7 +156,7 @@ $menu_groups = array(
             <?php if ($student) : ?>
                 <div class="olama-gateway__student-context">
                     <span class="olama-gateway__avatar"><?php echo esc_html($initial($student['student_name'])); ?></span>
-                    <span><strong><?php echo esc_html($student['student_name']); ?></strong><small><?php echo esc_html($student_grade($student)); ?></small></span>
+                    <span><strong><?php echo esc_html($student_first_name($student)); ?></strong><small><?php echo esc_html($student_grade($student)); ?></small></span>
                 </div>
                 <div class="olama-gateway__top-actions">
                     <span class="olama-gateway__year"><span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span><?php echo esc_html($context['study_year'] ?: 'السنة الحالية'); ?></span>
@@ -161,7 +165,7 @@ $menu_groups = array(
                         <select data-student-switch>
                             <?php foreach ($students as $family_student) : ?>
                                 <option value="<?php echo esc_url($student_url($family_student['student_uid'])); ?>" <?php selected($student['student_uid'], $family_student['student_uid']); ?>>
-                                    <?php echo esc_html($family_student['student_name']); ?>
+                                    <?php echo esc_html($student_first_name($family_student) . ' · ' . $student_grade($family_student)); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -186,7 +190,7 @@ $menu_groups = array(
                     <?php foreach ($students as $family_student) : ?>
                         <a class="olama-gateway__member" href="<?php echo esc_url($student_url($family_student['student_uid'])); ?>">
                             <span class="olama-gateway__avatar"><?php echo esc_html($initial($family_student['student_name'])); ?></span>
-                            <span><strong><?php echo esc_html($family_student['student_name']); ?></strong><small><?php echo esc_html($student_grade($family_student)); ?></small><em>عرض بوابة الطالب</em></span>
+                            <span><strong><?php echo esc_html($student_first_name($family_student)); ?></strong><small><?php echo esc_html($student_grade($family_student)); ?></small><em>عرض بوابة الطالب</em></span>
                             <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
                         </a>
                     <?php endforeach; ?>
@@ -230,33 +234,25 @@ $menu_groups = array(
 
                 <?php
                 $family_transportation = isset($data['transportation']) && is_array($data['transportation']) ? $data['transportation'] : array();
-                $transportation_students = array();
+                $transportation_student = isset($data['transportation_student']) && is_array($data['transportation_student']) ? $data['transportation_student'] : null;
+                $registration = !empty($family_transportation['registration']) ? $family_transportation['registration'] : array();
+                $family_student_names = array();
                 foreach ($students as $family_student) {
-                    $transportation = isset($family_transportation[$family_student['student_uid']]) ? $family_transportation[$family_student['student_uid']] : array();
-                    if (is_array($transportation) && !empty($transportation['registration'])) {
-                        $transportation_students[] = array('student' => $family_student, 'registration' => $transportation['registration']);
-                    }
+                    $family_student_names[] = $student_first_name($family_student);
                 }
                 ?>
-                <?php if ($family_transportation) : ?>
+                <?php if ($family_transportation && $transportation_student) : ?>
                     <section class="olama-gateway__panel olama-gateway__family-transportation">
                         <header><h3>بطاقة المواصلات</h3><span class="olama-gateway__source">OLAMA Core</span></header>
-                        <?php if (!$transportation_students) : ?>
-                            <div class="olama-gateway__empty">لا توجد معلومات مواصلات منشورة للطلاب حالياً.</div>
-                        <?php else : ?>
-                            <div class="olama-gateway__family-transportation-list">
-                                <?php foreach ($transportation_students as $transportation_student) :
-                                    $transport_student = $transportation_student['student'];
-                                    $registration = $transportation_student['registration'];
-                                    ?>
-                                    <article class="olama-gateway__family-transport-card">
-                                        <header><span class="olama-gateway__avatar"><?php echo esc_html($initial($transport_student['student_name'])); ?></span><span><strong><?php echo esc_html($transport_student['student_name']); ?></strong><small><?php echo esc_html($student_grade($transport_student)); ?></small></span></header>
-                                        <dl class="olama-gateway__details"><div><dt>الذهاب</dt><dd><?php echo esc_html($field($registration, 'departure_bus_name', $field($registration, 'departure_bus'))); ?></dd></div><div><dt>العودة</dt><dd><?php echo esc_html($field($registration, 'arrival_bus_name', $field($registration, 'arrival_bus'))); ?></dd></div><div class="is-wide"><dt>المسار</dt><dd><?php echo esc_html($field($registration, 'trans_route_name')); ?></dd></div></dl>
-                                        <a href="<?php echo esc_url($make_url(array('og_view' => 'transportation', 'og_student' => $transport_student['student_uid']))); ?>">تفاصيل المواصلات</a>
-                                    </article>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
+                        <article class="olama-gateway__family-transport-card">
+                            <header><span class="olama-gateway__avatar"><?php echo esc_html($initial($transportation_student['student_name'])); ?></span><span><strong>الطلاب: <?php echo esc_html(implode('، ', $family_student_names)); ?></strong><small><?php echo esc_html($student_first_name($transportation_student) . ' · ' . $student_grade($transportation_student)); ?></small></span></header>
+                            <?php if (!$registration) : ?>
+                                <div class="olama-gateway__transport-walk"><span class="dashicons dashicons-location-alt" aria-hidden="true"></span><strong>مشي</strong></div>
+                            <?php else : ?>
+                                <dl class="olama-gateway__details"><div><dt>الذهاب</dt><dd><?php echo esc_html($field($registration, 'departure_bus_name', $field($registration, 'departure_bus'))); ?></dd></div><div><dt>العودة</dt><dd><?php echo esc_html($field($registration, 'arrival_bus_name', $field($registration, 'arrival_bus'))); ?></dd></div><div class="is-wide"><dt>المسار</dt><dd><?php echo esc_html($field($registration, 'trans_route_name')); ?></dd></div></dl>
+                                <a href="<?php echo esc_url($make_url(array('og_view' => 'transportation', 'og_student' => $transportation_student['student_uid']))); ?>">تفاصيل المواصلات</a>
+                            <?php endif; ?>
+                        </article>
                     </section>
                 <?php endif; ?>
 

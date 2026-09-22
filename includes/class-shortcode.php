@@ -182,13 +182,15 @@ class Olama_Student_Gateway_Shortcode {
             if (
                 current_user_can('olama_student_gateway_transportation_view')
                 && $this->providers->available('transportation')
+                && !empty($context['students'])
             ) {
-                $data['transportation'] = array();
-                foreach ((array) $context['students'] as $family_student) {
-                    $student_context = $context;
-                    $student_context['student'] = $family_student;
-                    $data['transportation'][$family_student['student_uid']] = $this->providers->data('transportation', $student_context);
-                }
+                // Transportation is a shared family arrangement. The first
+                // student is the canonical display record for the family card.
+                $first_student = reset($context['students']);
+                $student_context = $context;
+                $student_context['student'] = $first_student;
+                $data['transportation'] = $this->providers->data('transportation', $student_context);
+                $data['transportation_student'] = $first_student;
             }
             return $data;
         }

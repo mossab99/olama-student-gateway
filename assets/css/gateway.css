@@ -534,6 +534,21 @@ html.olama-gateway-menu-lock {
     font-weight: 700;
 }
 
+.olama-gateway__transport-walk {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px;
+    color: var(--og-muted);
+    background: #fff;
+    border: 1px dashed var(--og-border);
+    border-radius: 10px;
+}
+
+.olama-gateway__transport-walk .dashicons {
+    color: var(--og-teal-dark);
+}
+
 .olama-gateway__panel h3 {
     font-size: 17px;
     line-height: 1.45;
