@@ -2,7 +2,7 @@
 Contributors: olama
 Requires at least: 6.4
 Requires PHP: 7.4
-Stable tag: 0.8.5
+Stable tag: 0.8.6
 License: GPLv2 or later
 
 Family-first, read-only portal for information produced by OLAMA Core, OLAMA Users, OLAMA School and other OLAMA service plugins.
@@ -29,6 +29,9 @@ External plugins may register a provider on `olama_student_gateway_register_prov
 * `olama_student_gateway_messages_data`
 
 == Changelog ==
+
+= 0.8.6 =
+* Replaces technical online-exam statuses with parent-friendly availability labels and priority ordering.
 
 = 0.8.5 =
 * Simplifies the dashboard to today's homework, today's plan, and an exam-count date range.

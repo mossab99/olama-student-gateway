@@ -35,6 +35,7 @@ $exam = (object) array(
 $gateway_url = 'https://school.test/student-gateway/?og_student=STU-123&og_view=exams';
 $action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
 assert_true('available' === $action['state'], 'An in-window published exam should be available.');
+assert_true('متاح الآن' === $action['status_label'], 'An in-window exam should expose a parent-friendly availability label.');
 assert_true(0 === strpos($action['url'], 'https://school.test/student-gateway/'), 'The action should stay on the existing gateway page.');
 assert_true(false !== strpos($action['url'], 'og_view=exams'), 'The action should preserve the gateway exams view.');
 assert_true(false !== strpos($action['url'], 'exam_view=take'), 'The action should open the Exam Engine taking view.');
@@ -44,10 +45,12 @@ assert_true(false !== strpos($action['url'], 'student_uid=STU-123'), 'The action
 $test_now = '2026-09-13 23:59:59';
 $action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
 assert_true('upcoming' === $action['state'] && '' === $action['url'], 'A future exam should not have a launch URL.');
+assert_true('لم يبدأ بعد' === $action['status_label'], 'A future exam should expose a parent-friendly upcoming label.');
 
 $test_now = '2026-10-14 00:00:01';
 $action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
 assert_true('ended' === $action['state'] && '' === $action['url'], 'An ended exam should not have a launch URL.');
+assert_true('انتهى الامتحان' === $action['status_label'], 'An ended exam should expose a parent-friendly ended label.');
 
 $exam->status = 'draft';
 $action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);

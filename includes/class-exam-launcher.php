@@ -19,16 +19,16 @@ final class Olama_Student_Gateway_Exam_Launcher {
         $now = current_time('mysql');
 
         if (!$exam_id || !in_array($status, array('published', 'active'), true)) {
-            return array('state' => 'unavailable', 'label' => __('غير متاح', 'olama-student-gateway'), 'url' => '');
+            return array('state' => 'unavailable', 'label' => __('غير متاح', 'olama-student-gateway'), 'status_label' => __('غير متاح', 'olama-student-gateway'), 'url' => '');
         }
         if (!$start || !$end) {
-            return array('state' => 'unavailable', 'label' => __('الموعد غير مكتمل', 'olama-student-gateway'), 'url' => '');
+            return array('state' => 'unavailable', 'label' => __('الموعد غير مكتمل', 'olama-student-gateway'), 'status_label' => __('غير متاح', 'olama-student-gateway'), 'url' => '');
         }
         if ($now < $start) {
-            return array('state' => 'upcoming', 'label' => __('لم يبدأ بعد', 'olama-student-gateway'), 'url' => '');
+            return array('state' => 'upcoming', 'label' => __('لم يبدأ بعد', 'olama-student-gateway'), 'status_label' => __('لم يبدأ بعد', 'olama-student-gateway'), 'url' => '');
         }
         if ($now > $end) {
-            return array('state' => 'ended', 'label' => __('انتهى الامتحان', 'olama-student-gateway'), 'url' => '');
+            return array('state' => 'ended', 'label' => __('انتهى الامتحان', 'olama-student-gateway'), 'status_label' => __('انتهى الامتحان', 'olama-student-gateway'), 'url' => '');
         }
 
         $is_demo = 0 === strpos((string) $student_uid, 'LOCAL-MEMBER-');
@@ -37,6 +37,7 @@ final class Olama_Student_Gateway_Exam_Launcher {
             'label' => $is_demo
                 ? __('تجربة الامتحان', 'olama-student-gateway')
                 : __('بدء أو استكمال الامتحان', 'olama-student-gateway'),
+            'status_label' => __('متاح الآن', 'olama-student-gateway'),
             'url' => add_query_arg(
                 array(
                     'exam_view' => $is_demo ? 'demo' : 'take',

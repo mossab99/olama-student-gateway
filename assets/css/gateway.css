@@ -2062,6 +2062,15 @@ html.olama-gateway-menu-lock {
         color: var(--og-success);
         font-weight: 700;
     }
+
+    .olama-gateway__exam-status--upcoming {
+        color: var(--og-warning);
+    }
+
+    .olama-gateway__exam-status--ended,
+    .olama-gateway__exam-status--unavailable {
+        color: var(--og-danger);
+    }
 }
 
 @media (max-width: 460px) {

@@ -542,6 +542,25 @@ $menu_groups = array(
                     $hall = isset($data['hall']) ? $data['hall'] : array();
                     $online_exams = isset($data['online_exams']) ? (array) $data['online_exams'] : array();
                     $online_results = isset($data['online_results']) ? (array) $data['online_results'] : array();
+                    $online_exam_rows = array();
+                    $exam_state_priority = array('available' => 0, 'upcoming' => 1, 'ended' => 2, 'unavailable' => 3);
+                    foreach ($online_exams as $online_exam) {
+                        $online_exam_action = Olama_Student_Gateway_Exam_Launcher::action($online_exam, $student['student_uid'], $exam_list_url);
+                        $online_exam_rows[] = array(
+                            'exam' => $online_exam,
+                            'action' => $online_exam_action,
+                            'priority' => isset($exam_state_priority[$online_exam_action['state']]) ? $exam_state_priority[$online_exam_action['state']] : 3,
+                        );
+                    }
+                    usort($online_exam_rows, static function ($left, $right) use ($field) {
+                        if ($left['priority'] !== $right['priority']) {
+                            return $left['priority'] - $right['priority'];
+                        }
+                        $left_state = $left['action']['state'];
+                        $left_time = 'ended' === $left_state ? $field($left['exam'], 'end_time', '') : $field($left['exam'], 'start_time', '');
+                        $right_time = 'ended' === $right['action']['state'] ? $field($right['exam'], 'end_time', '') : $field($right['exam'], 'start_time', '');
+                        return 'ended' === $left_state ? strcmp($right_time, $left_time) : strcmp($left_time, $right_time);
+                    });
                     ?>
                     <?php if (empty($context['is_temp_family']) && 'hall' === $exam_section) : ?>
                     <section class="olama-gateway__grid" id="exam-hall">
@@ -587,11 +606,12 @@ $menu_groups = array(
 
                     <?php if ('online' === $exam_section) : ?><section class="olama-gateway__panel olama-gateway__panel--online-exams" id="online-exams">
                         <header><h3>الامتحانات الإلكترونية</h3><span class="olama-gateway__source"><?php echo !empty($context['is_temp_family']) ? 'عرض تجريبي · بلا حفظ' : 'OLAMA Exam Engine'; ?></span></header>
-                        <?php if (!$online_exams) : ?><div class="olama-gateway__empty">لا توجد امتحانات إلكترونية منشورة حالياً.</div>
+                        <?php if (!$online_exam_rows) : ?><div class="olama-gateway__empty">لا توجد امتحانات إلكترونية منشورة حالياً.</div>
                         <?php else : ?><div class="olama-gateway__table-wrap olama-gateway__table-wrap--exams"><table class="olama-gateway__exam-table"><thead><tr><th>الإجراء</th><th>الامتحان</th><th>المادة</th><th>البداية</th><th>النهاية</th><th>المدة</th><th>الحالة</th></tr></thead><tbody>
-                            <?php foreach ($online_exams as $exam) :
-                                $exam_action = Olama_Student_Gateway_Exam_Launcher::action($exam, $student['student_uid'], $exam_list_url);
-                                ?><tr class="olama-gateway__exam-card" data-exam-state="<?php echo esc_attr($exam_action['state']); ?>"><td class="olama-gateway__exam-action" data-label="الإجراء"><?php if ('available' === $exam_action['state']) : ?><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($exam_action['url']); ?>"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo esc_html($exam_action['label']); ?></a><?php else : ?><span class="olama-gateway__exam-state olama-gateway__exam-state--<?php echo esc_attr($exam_action['state']); ?>"><?php echo esc_html($exam_action['label']); ?></span><?php endif; ?></td><td class="olama-gateway__exam-title" data-label="الامتحان"><strong><?php echo esc_html($field($exam, 'title')); ?></strong></td><td class="olama-gateway__exam-subject" data-label="المادة"><?php echo esc_html($field($exam, 'subject_name')); ?></td><td data-label="البداية"><?php echo esc_html($field($exam, 'start_time')); ?></td><td data-label="النهاية"><?php echo esc_html($field($exam, 'end_time')); ?></td><td data-label="المدة"><?php echo esc_html($field($exam, 'duration_minutes')); ?> دقيقة</td><td class="olama-gateway__exam-status" data-label="الحالة"><?php echo esc_html($field($exam, 'status')); ?></td></tr><?php endforeach; ?>
+                            <?php foreach ($online_exam_rows as $online_exam_row) :
+                                $exam = $online_exam_row['exam'];
+                                $exam_action = $online_exam_row['action'];
+                                ?><tr class="olama-gateway__exam-card" data-exam-state="<?php echo esc_attr($exam_action['state']); ?>"><td class="olama-gateway__exam-action" data-label="الإجراء"><?php if ('available' === $exam_action['state']) : ?><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($exam_action['url']); ?>"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo esc_html($exam_action['label']); ?></a><?php else : ?><span class="olama-gateway__exam-state olama-gateway__exam-state--<?php echo esc_attr($exam_action['state']); ?>"><?php echo esc_html($exam_action['label']); ?></span><?php endif; ?></td><td class="olama-gateway__exam-title" data-label="الامتحان"><strong><?php echo esc_html($field($exam, 'title')); ?></strong></td><td class="olama-gateway__exam-subject" data-label="المادة"><?php echo esc_html($field($exam, 'subject_name')); ?></td><td data-label="البداية"><?php echo esc_html($field($exam, 'start_time')); ?></td><td data-label="النهاية"><?php echo esc_html($field($exam, 'end_time')); ?></td><td data-label="المدة"><?php echo esc_html($field($exam, 'duration_minutes')); ?> دقيقة</td><td class="olama-gateway__exam-status olama-gateway__exam-status--<?php echo esc_attr($exam_action['state']); ?>" data-label="الحالة"><?php echo esc_html($exam_action['status_label']); ?></td></tr><?php endforeach; ?>
                         </tbody></table></div><?php endif; ?>
                     </section><?php endif; ?>
 
