@@ -135,7 +135,7 @@ html.olama-gateway-menu-lock {
 
 .olama-gateway__nav {
     display: grid;
-    gap: 5px;
+    gap: 7px;
 }
 
 .olama-gateway__nav-label {
@@ -157,6 +157,62 @@ html.olama-gateway-menu-lock {
     text-decoration: none;
     border-radius: 11px;
     transition: color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.olama-gateway__nav-group {
+    display: grid;
+    gap: 5px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.olama-gateway__nav-group summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    padding: 7px 12px;
+    color: rgba(255, 255, 255, .9);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    list-style: none;
+}
+
+.olama-gateway__nav-group summary::-webkit-details-marker {
+    display: none;
+}
+
+.olama-gateway__nav-group summary:hover,
+.olama-gateway__nav-group summary:focus-visible {
+    background: rgba(255, 255, 255, .08);
+    outline: 0;
+}
+
+.olama-gateway__nav-group summary .dashicons-arrow-down-alt2 {
+    margin-inline-start: auto;
+    color: rgba(255, 255, 255, .54);
+    transition: transform .18s ease;
+}
+
+.olama-gateway__nav-group[open] summary .dashicons-arrow-down-alt2 {
+    transform: rotate(180deg);
+}
+
+.olama-gateway__nav-group-links {
+    display: grid;
+    gap: 3px;
+    margin-inline: 12px 4px;
+    padding-inline: 9px 0;
+    border-inline-start: 1px solid rgba(255, 255, 255, .16);
+}
+
+.olama-gateway__nav-group-links a {
+    min-height: 38px;
+    padding: 8px 11px;
+    color: rgba(255, 255, 255, .74);
+    font-size: 12px;
 }
 
 .olama-gateway__nav a:hover,

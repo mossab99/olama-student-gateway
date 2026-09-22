@@ -43,3 +43,4 @@ Do not use a family ID supplied by the browser. Do not return drafts, internal s
 
 Any future write operation, such as replying to a teacher message, must call the producing plugin service and perform its own nonce, capability and ownership checks.
 
+For the messages view, the optional `$args['mode']` is either `inbox` or `compose`. A producing plugin may use it to render the guardian's inbox or the compose interface; it must perform its own authorization and nonce checks for any write action.

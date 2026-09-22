@@ -42,6 +42,37 @@ $academic_context = isset($context['academic']) ? $context['academic'] : array()
 $academic_year_id = absint($field($academic_context, 'academic_year_id', 0));
 $semester_id = absint($field($academic_context, 'semester_id', 0));
 $is_temp_family = !empty($context['is_temp_family']);
+$menu_url = static function ($view_key, array $args = array()) use ($make_url, $student) {
+    $args['og_view'] = $view_key;
+    if ('family' !== $view_key && $student) {
+        $args['og_student'] = $student['student_uid'];
+    }
+    return $make_url($args);
+};
+$menu_groups = array(
+    array('key' => 'family', 'label' => 'معلومات العائلة', 'icon' => 'dashicons-groups', 'items' => array(
+        array('view' => 'family', 'label' => 'بطاقة العائلة'),
+        array('view' => 'stores', 'label' => 'الزي والكتب'),
+        array('view' => 'transportation', 'label' => 'المواصلات'),
+    )),
+    array('key' => 'daily', 'label' => 'المتابعة اليومية', 'icon' => 'dashicons-calendar-alt', 'items' => array(
+        array('view' => 'weekly_plan', 'label' => 'الخطة الأسبوعية'),
+        array('view' => 'schedule', 'label' => 'الجدول الدراسي'),
+        array('view' => 'teachers', 'label' => 'الساعات المكتبية'),
+    )),
+    array('key' => 'video', 'label' => 'مكتبة الفيديو', 'icon' => 'dashicons-video-alt3', 'items' => array(
+        array('view' => 'video_library', 'label' => 'مكتبة الفيديو'),
+    )),
+    array('key' => 'performance', 'label' => 'التقييم والأداء', 'icon' => 'dashicons-chart-bar', 'items' => array(
+        array('view' => 'attendance', 'label' => 'الحضور والغياب'),
+        array('view' => 'exams', 'label' => 'الامتحانات والنتائج'),
+        array('view' => 'evaluations', 'label' => 'التقييمات'),
+    )),
+    array('key' => 'messages', 'label' => 'الرسائل', 'icon' => 'dashicons-email-alt', 'items' => array(
+        array('view' => 'messages', 'label' => 'إرسال رسالة', 'args' => array('og_message' => 'compose')),
+        array('view' => 'messages', 'label' => 'صندوق البريد', 'args' => array('og_message' => 'inbox')),
+    )),
+);
 ?>
 <div class="olama-gateway olama-gateway--<?php echo esc_attr($active_view); ?>" dir="rtl" data-olama-gateway>
     <a class="olama-gateway__skip" href="#olama-gateway-content">انتقل إلى المحتوى</a>
@@ -61,18 +92,39 @@ $is_temp_family = !empty($context['is_temp_family']);
             <span><strong><?php echo esc_html($field($family, 'sponsor_full_name', 'العائلة')); ?></strong><small><?php echo $is_temp_family ? 'وصول مؤقت' : 'رقم العائلة ' . esc_html($context['family_id']); ?></small></span>
         </div>
         <nav class="olama-gateway__nav" aria-label="أقسام البوابة">
-            <span class="olama-gateway__nav-label">الخدمات</span>
-            <?php foreach ($model['views'] as $view_key => $view) :
-                $args = array('og_view' => $view_key);
-                if ('family' !== $view_key && $student) {
-                    $args['og_student'] = $student['student_uid'];
+            <span class="olama-gateway__nav-label">الخدمات الرئيسية</span>
+            <?php if (isset($model['views']['dashboard'])) : ?>
+                <a class="olama-gateway__nav-link olama-gateway__nav-link--primary <?php echo 'dashboard' === $active_view ? 'is-active' : ''; ?>" href="<?php echo esc_url($menu_url('dashboard')); ?>" <?php echo 'dashboard' === $active_view ? 'aria-current="page"' : ''; ?>><span class="dashicons dashicons-dashboard" aria-hidden="true"></span>لوحة المتابعة</a>
+            <?php endif; ?>
+
+            <?php foreach ($menu_groups as $group) :
+                $items = array_values(array_filter($group['items'], static function ($item) use ($model) {
+                    return isset($model['views'][$item['view']]);
+                }));
+                if (!$items) {
+                    continue;
                 }
+                $group_is_active = in_array($active_view, array_column($items, 'view'), true);
+                if ('video' === $group['key']) :
+                    $video_item = $items[0];
+                    ?>
+                    <a class="olama-gateway__nav-link <?php echo $group_is_active ? 'is-active' : ''; ?>" href="<?php echo esc_url($menu_url($video_item['view'])); ?>" <?php echo $group_is_active ? 'aria-current="page"' : ''; ?>><span class="dashicons <?php echo esc_attr($group['icon']); ?>" aria-hidden="true"></span><?php echo esc_html($group['label']); ?></a>
+                    <?php continue;
+                endif;
                 ?>
-                <a class="<?php echo $active_view === $view_key ? 'is-active' : ''; ?>" href="<?php echo esc_url($make_url($args)); ?>" <?php echo $active_view === $view_key ? 'aria-current="page"' : ''; ?>>
-                    <span class="dashicons <?php echo esc_attr($view['icon']); ?>" aria-hidden="true"></span>
-                    <?php echo esc_html($view['label']); ?>
-                </a>
+                <details class="olama-gateway__nav-group" <?php echo $group_is_active ? 'open' : ''; ?>>
+                    <summary><span class="dashicons <?php echo esc_attr($group['icon']); ?>" aria-hidden="true"></span><span><?php echo esc_html($group['label']); ?></span><span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></summary>
+                    <div class="olama-gateway__nav-group-links">
+                        <?php foreach ($items as $item) :
+                            $item_args = isset($item['args']) ? $item['args'] : array();
+                            $item_active = $active_view === $item['view'] && (!isset($item_args['og_message']) || $item_args['og_message'] === $model['message_mode']);
+                            ?>
+                            <a class="<?php echo $item_active ? 'is-active' : ''; ?>" href="<?php echo esc_url($menu_url($item['view'], $item_args)); ?>" <?php echo $item_active ? 'aria-current="page"' : ''; ?>><?php echo esc_html($item['label']); ?></a>
+                        <?php endforeach; ?>
+                    </div>
+                </details>
             <?php endforeach; ?>
+
         </nav>
         <a class="olama-gateway__logout" href="<?php echo esc_url($model['logout_url']); ?>">
             <span class="dashicons dashicons-exit" aria-hidden="true"></span> تسجيل الخروج
@@ -574,7 +626,7 @@ $is_temp_family = !empty($context['is_temp_family']);
                 <?php endif; ?>
 
             <?php elseif ('stores' === $active_view) : ?>
-                <section class="olama-gateway__heading"><div><h2>مستلزمات المدرسة</h2><p>العناصر التي خصصها أو سلّمها OLAMA Stores لهذا الطالب.</p></div><span class="olama-gateway__source">OLAMA Stores</span></section>
+                <section class="olama-gateway__heading"><div><h2>الزي والكتب</h2><p>عناصر الزي والكتب والمستلزمات التي خصصها أو سلّمها OLAMA Stores لهذا الطالب.</p></div><span class="olama-gateway__source">OLAMA Stores</span></section>
                 <?php if (is_wp_error($data)) : ?><div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
                 <?php elseif (!$data) : ?><div class="olama-gateway__empty">لا توجد عناصر مسجلة لهذا الطالب في السنة الحالية.</div>
                 <?php else : ?>
