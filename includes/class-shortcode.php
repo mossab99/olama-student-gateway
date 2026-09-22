@@ -75,6 +75,10 @@ class Olama_Student_Gateway_Shortcode {
         if (!in_array($message_mode, array('compose', 'inbox'), true)) {
             $message_mode = 'inbox';
         }
+        $exam_section = isset($_GET['og_exam_section']) ? sanitize_key(wp_unslash($_GET['og_exam_section'])) : '';
+        if (!in_array($exam_section, array('schedule', 'online', 'online-results', 'hall'), true)) {
+            $exam_section = '';
+        }
         if (!$requested_view && $exam_view && isset($views['exams'])) {
             $requested_view = 'exams';
         }
@@ -91,6 +95,7 @@ class Olama_Student_Gateway_Shortcode {
             'views' => $views,
             'active_view' => $active_view,
             'message_mode' => $message_mode,
+            'exam_section' => $exam_section,
             'data' => $this->load_view_data($active_view, $context, $message_mode),
             'logout_url' => wp_logout_url($base_url),
         );
