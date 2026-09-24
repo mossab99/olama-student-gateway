@@ -31,7 +31,7 @@ class Olama_Exam_Manager {
 
     public static function get_exams($filters) {
         self::$filters[] = $filters;
-        return array((object) array('id' => 'published' === $filters['status'] ? 31 : 32));
+        return array((object) array('id' => array('published' => 31, 'active' => 32, 'closed' => 33)[$filters['status']]));
     }
 }
 
@@ -59,10 +59,10 @@ $provider = new Olama_Student_Gateway_Exams_Provider();
 $data = $provider->get_data($context);
 
 assert_true(!empty($data['demo_mode']), 'Temp Family exam data should be explicitly marked as demo mode.');
-assert_true(2 === count($data['online_exams']), 'Published and active online exams should be returned.');
+assert_true(3 === count($data['online_exams']), 'Published, active and closed online exams should be returned for classification.');
 assert_true(array() === $data['online_results'] && array() === $data['official_marks'], 'Demo mode must not expose marks or result records.');
 assert_true(array() === $data['hall'] && array() === $data['schedule']['exams'], 'Demo mode must not resolve canonical student exam records.');
-assert_true(2 === count(Olama_Exam_Manager::$filters), 'Published and active catalogues should both be queried.');
+assert_true(3 === count(Olama_Exam_Manager::$filters), 'Published, active and closed catalogues should be queried.');
 foreach (Olama_Exam_Manager::$filters as $filters) {
     assert_true(4 === $filters['academic_year_id'], 'The active School year should scope demo exams.');
     assert_true(7 === $filters['semester_id'], 'The active School semester should scope demo exams.');

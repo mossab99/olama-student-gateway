@@ -73,7 +73,9 @@ $menu_groups = array(
     )),
     array('key' => 'exams', 'label' => 'الامتحانات', 'icon' => 'dashicons-clipboard', 'items' => array(
         array('view' => 'exams', 'label' => 'جدول الامتحانات', 'standard_only' => true, 'args' => array('og_exam_section' => 'schedule')),
-        array('view' => 'exams', 'label' => 'الامتحانات الإلكترونية', 'args' => array('og_exam_section' => 'online')),
+        array('view' => 'exams', 'label' => 'اختبارات التقويم', 'args' => array('og_exam_section' => 'online')),
+        array('view' => 'exams', 'label' => 'الاختبارات القصيرة', 'args' => array('og_exam_section' => 'short')),
+        array('view' => 'exams', 'label' => 'الاختبارات المنجزة', 'args' => array('og_exam_section' => 'finished')),
         array('view' => 'exams', 'label' => 'نتائج الامتحانات الإلكترونية', 'standard_only' => true, 'args' => array('og_exam_section' => 'online-results')),
         array('view' => 'exams', 'label' => 'قاعات الامتحان', 'standard_only' => true, 'args' => array('og_exam_section' => 'hall')),
     )),
@@ -540,12 +542,25 @@ $menu_groups = array(
                 $exam_section = !empty($model['exam_section']) ? $model['exam_section'] : ($is_temp_family ? 'online' : 'schedule');
                 $exam_sections = array(
                     'schedule' => array('جدول الامتحانات', 'جدول الامتحانات المعتمد للطالب.'),
-                    'online' => array($is_temp_family ? 'الامتحانات الإلكترونية التجريبية' : 'الامتحانات الإلكترونية', $is_temp_family ? 'تجربة الامتحانات المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'الامتحانات المتاحة للبدء أو الاستكمال.'),
+                    'online' => array('اختبارات التقويم', $is_temp_family ? 'تجربة اختبارات التقويم المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'اختبارات التقويم المنشورة والمتاحة للبدء أو الاستكمال.'),
+                    'short' => array('الاختبارات القصيرة', $is_temp_family ? 'تجربة الاختبارات القصيرة المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'الاختبارات القصيرة المنشورة والمتاحة للبدء أو الاستكمال.'),
+                    'finished' => array('الاختبارات المنجزة', 'اختبارات التقويم والاختبارات القصيرة التي انتهى وقتها أو أُغلقت.'),
                     'online-results' => array('نتائج الامتحانات الإلكترونية', 'نتائج الامتحانات الإلكترونية المنشورة للطالب.'),
                     'hall' => array('قاعات الامتحان', 'توزيع القاعة والمقعد المنشور للطالب.'),
                 );
                 $exam_heading = $exam_sections[$exam_section];
-                $exam_list_url = $make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => 'online'));
+                $exam_id = isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0;
+                $exam_list_section = in_array($exam_section, array('online', 'short'), true) ? $exam_section : 'online';
+                if ($exam_id && !is_wp_error($data) && !empty($data['online_exams'])) {
+                    foreach ((array) $data['online_exams'] as $listed_exam) {
+                        if ($exam_id === absint($field($listed_exam, 'id', 0))) {
+                            $exam_list_section = 'quiz' === $field($listed_exam, 'exam_type', 'exam') ? 'short' : 'online';
+                            break;
+                        }
+                    }
+                }
+                $exam_list_url = $make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => $exam_list_section));
+                $exam_back_label = 'short' === $exam_list_section ? 'الاختبارات القصيرة' : 'اختبارات التقويم';
                 ?>
                 <section class="olama-gateway__heading"><div><h2><?php echo esc_html($exam_heading[0]); ?></h2><p><?php echo esc_html($exam_heading[1]); ?></p></div><span class="olama-gateway__status"><?php echo $is_temp_family ? 'عرض تجريبي فقط' : 'قسم الامتحانات'; ?></span></section>
                 <?php
@@ -553,13 +568,13 @@ $menu_groups = array(
                     $available_demo_exams = !is_wp_error($data) && !empty($data['online_exams']) ? (array) $data['online_exams'] : array();
                     ?>
                     <section class="olama-gateway__panel olama-gateway__exam-runner">
-                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($exam_list_url); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى الامتحانات الإلكترونية</a>
+                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($exam_list_url); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى <?php echo esc_html($exam_back_label); ?></a>
                         <?php echo Olama_Student_Gateway_Demo_Exam::render(isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0, $available_demo_exams, $student['student_uid'], $exam_list_url); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes its output. ?>
                     </section>
                 <?php elseif (in_array($exam_engine_view, array('take', 'results'), true) && empty($context['is_temp_family'])) :
                     ?>
                     <section class="olama-gateway__panel olama-gateway__exam-runner">
-                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($exam_list_url); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى الامتحانات الإلكترونية</a>
+                        <a class="olama-gateway__exam-back" href="<?php echo esc_url($exam_list_url); ?>"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span> العودة إلى <?php echo esc_html($exam_back_label); ?></a>
                         <?php if (shortcode_exists('olama_exam')) : ?>
                             <?php echo do_shortcode('[olama_exam]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted producer shortcode. ?>
                         <?php else : ?>
@@ -576,17 +591,23 @@ $menu_groups = array(
                     $hall = isset($data['hall']) ? $data['hall'] : array();
                     $online_exams = isset($data['online_exams']) ? (array) $data['online_exams'] : array();
                     $online_results = isset($data['online_results']) ? (array) $data['online_results'] : array();
-                    $online_exam_rows = array();
+                    $online_exam_rows = array('online' => array(), 'short' => array(), 'finished' => array('exam' => array(), 'quiz' => array()));
                     $exam_state_priority = array('available' => 0, 'upcoming' => 1, 'ended' => 2, 'unavailable' => 3);
                     foreach ($online_exams as $online_exam) {
                         $online_exam_action = Olama_Student_Gateway_Exam_Launcher::action($online_exam, $student['student_uid'], $exam_list_url);
-                        $online_exam_rows[] = array(
+                        $exam_type = 'quiz' === $field($online_exam, 'exam_type', 'exam') ? 'quiz' : 'exam';
+                        $row = array(
                             'exam' => $online_exam,
                             'action' => $online_exam_action,
                             'priority' => isset($exam_state_priority[$online_exam_action['state']]) ? $exam_state_priority[$online_exam_action['state']] : 3,
                         );
+                        if ('ended' === $online_exam_action['state']) {
+                            $online_exam_rows['finished'][$exam_type][] = $row;
+                        } elseif (in_array($online_exam_action['state'], array('available', 'upcoming'), true)) {
+                            $online_exam_rows['quiz' === $exam_type ? 'short' : 'online'][] = $row;
+                        }
                     }
-                    usort($online_exam_rows, static function ($left, $right) use ($field) {
+                    $sort_exam_rows = static function ($left, $right) use ($field) {
                         if ($left['priority'] !== $right['priority']) {
                             return $left['priority'] - $right['priority'];
                         }
@@ -594,7 +615,11 @@ $menu_groups = array(
                         $left_time = 'ended' === $left_state ? $field($left['exam'], 'end_time', '') : $field($left['exam'], 'start_time', '');
                         $right_time = 'ended' === $right['action']['state'] ? $field($right['exam'], 'end_time', '') : $field($right['exam'], 'start_time', '');
                         return 'ended' === $left_state ? strcmp($right_time, $left_time) : strcmp($left_time, $right_time);
-                    });
+                    };
+                    usort($online_exam_rows['online'], $sort_exam_rows);
+                    usort($online_exam_rows['short'], $sort_exam_rows);
+                    usort($online_exam_rows['finished']['exam'], $sort_exam_rows);
+                    usort($online_exam_rows['finished']['quiz'], $sort_exam_rows);
                     ?>
                     <?php if (empty($context['is_temp_family']) && 'hall' === $exam_section) : ?>
                     <section class="olama-gateway__grid" id="exam-hall">
@@ -638,14 +663,25 @@ $menu_groups = array(
                         </section>
                     <?php endif; ?>
 
-                    <?php if ('online' === $exam_section) : ?><section class="olama-gateway__panel olama-gateway__panel--online-exams" id="online-exams">
-                        <header><h3>الامتحانات الإلكترونية</h3><span class="olama-gateway__source"><?php echo !empty($context['is_temp_family']) ? 'عرض تجريبي · بلا حفظ' : 'OLAMA Exam Engine'; ?></span></header>
-                        <?php if (!$online_exam_rows) : ?><div class="olama-gateway__empty">لا توجد امتحانات إلكترونية منشورة حالياً.</div>
+                    <?php if (in_array($exam_section, array('online', 'short', 'finished'), true)) :
+                        $visible_exam_rows = 'finished' === $exam_section
+                            ? array_merge($online_exam_rows['finished']['exam'], $online_exam_rows['finished']['quiz'])
+                            : $online_exam_rows[$exam_section];
+                        ?><section class="olama-gateway__panel olama-gateway__panel--online-exams" id="online-exams">
+                        <header><h3><?php echo esc_html($exam_heading[0]); ?></h3><span class="olama-gateway__source"><?php echo $is_temp_family ? 'عرض تجريبي · بلا حفظ' : 'OLAMA Exam Engine'; ?></span></header>
+                        <?php if (!$visible_exam_rows) : ?><div class="olama-gateway__empty"><?php echo 'finished' === $exam_section ? 'لا توجد اختبارات منجزة حالياً.' : 'لا توجد اختبارات منشورة حالياً.'; ?></div>
                         <?php else : ?><div class="olama-gateway__table-wrap olama-gateway__table-wrap--exams"><table class="olama-gateway__exam-table"><thead><tr><th>الإجراء</th><th>الامتحان</th><th>المادة</th><th>البداية</th><th>النهاية</th><th>المدة</th><th>الحالة</th></tr></thead><tbody>
-                            <?php foreach ($online_exam_rows as $online_exam_row) :
+                            <?php foreach ('finished' === $exam_section ? array('exam' => 'اختبارات التقويم', 'quiz' => 'الاختبارات القصيرة') : array($exam_section => '') as $row_type => $group_label) :
+                                $group_rows = 'finished' === $exam_section ? $online_exam_rows['finished'][$row_type] : $visible_exam_rows;
+                                if (!$group_rows) {
+                                    continue;
+                                }
+                                if ($group_label) : ?><tr class="olama-gateway__exam-group"><th colspan="7"><?php echo esc_html($group_label); ?></th></tr><?php endif;
+                                foreach ($group_rows as $online_exam_row) :
                                 $exam = $online_exam_row['exam'];
                                 $exam_action = $online_exam_row['action'];
                                 ?><tr class="olama-gateway__exam-card" data-exam-state="<?php echo esc_attr($exam_action['state']); ?>"><td class="olama-gateway__exam-action" data-label="الإجراء"><?php if ('available' === $exam_action['state']) : ?><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($exam_action['url']); ?>"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo esc_html($exam_action['label']); ?></a><?php else : ?><span class="olama-gateway__exam-state olama-gateway__exam-state--<?php echo esc_attr($exam_action['state']); ?>"><?php echo esc_html($exam_action['label']); ?></span><?php endif; ?></td><td class="olama-gateway__exam-title" data-label="الامتحان"><strong><?php echo esc_html($field($exam, 'title')); ?></strong></td><td class="olama-gateway__exam-subject" data-label="المادة"><?php echo esc_html($field($exam, 'subject_name')); ?></td><td data-label="البداية"><?php echo esc_html($field($exam, 'start_time')); ?></td><td data-label="النهاية"><?php echo esc_html($field($exam, 'end_time')); ?></td><td data-label="المدة"><?php echo esc_html($field($exam, 'duration_minutes')); ?> دقيقة</td><td class="olama-gateway__exam-status olama-gateway__exam-status--<?php echo esc_attr($exam_action['state']); ?>" data-label="الحالة"><?php echo esc_html($exam_action['status_label']); ?></td></tr><?php endforeach; ?>
+                            <?php endforeach; ?>
                         </tbody></table></div><?php endif; ?>
                     </section><?php endif; ?>
 

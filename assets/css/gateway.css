@@ -709,6 +709,13 @@ html.olama-gateway-menu-lock {
     min-width: 175px;
 }
 
+.olama-gateway__exam-group > th {
+    padding: 12px 16px;
+    background: var(--og-background);
+    color: var(--og-blue);
+    text-align: right;
+}
+
 .olama-gateway__exam-state {
     display: inline-flex;
     align-items: center;
@@ -2076,6 +2083,13 @@ html.olama-gateway-menu-lock {
         clip: rect(0 0 0 0);
         clip-path: inset(50%);
         white-space: nowrap;
+    }
+
+    .olama-gateway__exam-group,
+    .olama-gateway__exam-group > th {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .olama-gateway__exam-card {

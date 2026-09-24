@@ -56,6 +56,10 @@ $exam->status = 'draft';
 $action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
 assert_true('unavailable' === $action['state'], 'A draft exam should not be launchable.');
 
+$exam->status = 'closed';
+$action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
+assert_true('ended' === $action['state'] && '' === $action['url'], 'A closed exam should appear as finished and have no launch URL.');
+
 $exam->status = 'active';
 $exam->id = 0;
 $action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);

@@ -83,7 +83,8 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
             'is_placement' => 0,
         );
         $rows = array();
-        foreach (array('published', 'active') as $status) {
+        // Include closed exams so the finished view also reflects manual closure.
+        foreach (array('published', 'active', 'closed') as $status) {
             $rows = array_merge($rows, (array) Olama_Exam_Manager::get_exams(array_merge($base, array('status' => $status))));
         }
         $unique = array();

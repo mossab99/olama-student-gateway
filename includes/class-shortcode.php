@@ -76,7 +76,7 @@ class Olama_Student_Gateway_Shortcode {
             $message_mode = 'inbox';
         }
         $exam_section = isset($_GET['og_exam_section']) ? sanitize_key(wp_unslash($_GET['og_exam_section'])) : '';
-        if (!in_array($exam_section, array('schedule', 'online', 'online-results', 'hall'), true)) {
+        if (!in_array($exam_section, array('schedule', 'online', 'short', 'finished', 'online-results', 'hall'), true)) {
             $exam_section = '';
         }
         if (!$requested_view && $exam_view && isset($views['exams'])) {
