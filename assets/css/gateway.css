@@ -646,6 +646,17 @@ html.olama-gateway-menu-lock {
     margin-top: 3px;
 }
 
+.olama-gateway__exam-title strong {
+    display: block;
+}
+
+.olama-gateway__exam-title small {
+    color: var(--og-muted);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
 .olama-gateway__button,
 .olama-gateway-login input[type="submit"] {
     display: inline-flex;
