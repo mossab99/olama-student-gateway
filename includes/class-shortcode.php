@@ -3,6 +3,7 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+require_once __DIR__ . '/class-service-settings.php';
 
 class Olama_Student_Gateway_Shortcode {
     private $providers;
@@ -56,7 +57,7 @@ class Olama_Student_Gateway_Shortcode {
             $nonce = isset($_POST['_olama_ministry_nonce']) ? sanitize_text_field(wp_unslash($_POST['_olama_ministry_nonce'])) : '';
             if (!wp_verify_nonce($nonce, 'olama_ministry_submit')) {
                 $ministry_notice = __('تعذر التحقق من الطلب. أعد تحميل الصفحة.', 'olama-student-gateway');
-            } elseif (!empty($context['is_temp_family']) || !function_exists('olama_core') ||
+            } elseif (!Olama_Student_Gateway_Service_Settings::visible('ministry') || !empty($context['is_temp_family']) || !function_exists('olama_core') ||
                 !get_option('olama_ministry_family_enabled', false)) {
                 $ministry_notice = __('خدمة استكمال البيانات الإحصائية غير متاحة لهذا الحساب حالياً.', 'olama-student-gateway');
             } else {
@@ -97,20 +98,45 @@ class Olama_Student_Gateway_Shortcode {
         if (empty($context['study_year'])) unset($views['ministry']);
         $requested_view = isset($_GET['og_view']) ? sanitize_key(wp_unslash($_GET['og_view'])) : '';
         $message_mode = isset($_GET['og_message']) ? sanitize_key(wp_unslash($_GET['og_message'])) : 'inbox';
-        if (!in_array($message_mode, array('compose', 'inbox'), true)) {
-            $message_mode = 'inbox';
-        }
+        $message_modes = array_values(array_filter(array('inbox', 'compose'), static function ($mode) {
+            return Olama_Student_Gateway_Service_Settings::visible('messages.' . $mode);
+        }));
+        if (!in_array($message_mode, $message_modes, true)) $message_mode = $message_modes ? $message_modes[0] : '';
         $exam_section = isset($_GET['og_exam_section']) ? sanitize_key(wp_unslash($_GET['og_exam_section'])) : '';
-        if (!in_array($exam_section, array('schedule', 'online', 'short', 'finished', 'online-results', 'hall'), true)) {
-            $exam_section = '';
-        }
+        $exam_sections = Olama_Student_Gateway_Service_Settings::exam_sections(!empty($context['is_temp_family']));
+        if (!in_array($exam_section, $exam_sections, true)) $exam_section = $exam_sections ? $exam_sections[0] : '';
         if (!$requested_view && $exam_view && isset($views['exams'])) {
             $requested_view = 'exams';
         }
-        $active_view = $requested_view && isset($views[$requested_view]) ? $requested_view : ($student ? 'dashboard' : 'family');
+        $explicit_hidden_subview = ('exams' === $requested_view && isset($_GET['og_exam_section']) &&
+            !Olama_Student_Gateway_Service_Settings::visible('exams.' . sanitize_key(wp_unslash($_GET['og_exam_section'])))) ||
+            ('messages' === $requested_view && isset($_GET['og_message']) &&
+            !Olama_Student_Gateway_Service_Settings::visible('messages.' . sanitize_key(wp_unslash($_GET['og_message']))));
+        $default_view = $student && isset($views['dashboard']) ? 'dashboard' : (isset($views['family']) ? 'family' : key($views));
+        $active_view = !$explicit_hidden_subview && $requested_view && isset($views[$requested_view]) ? $requested_view : ($default_view ?: 'unavailable');
         $base_url = get_permalink();
         if (!$base_url) {
             $base_url = home_url('/');
+        }
+
+        $view_data = $this->load_view_data($active_view, $context, $message_mode);
+        $allow_exam_embed = false;
+        if (!$explicit_hidden_subview && 'exams' === $active_view && in_array($exam_view, array('take', 'results', 'demo'), true)) {
+            if ('results' === $exam_view) {
+                $allow_exam_embed = Olama_Student_Gateway_Service_Settings::visible('exams.online-results');
+            } else {
+                $exam_id = isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0;
+                if ($exam_id && is_array($view_data) && !empty($view_data['online_exams'])) {
+                    foreach ((array) $view_data['online_exams'] as $listed_exam) {
+                        $listed_id = is_array($listed_exam) ? (isset($listed_exam['id']) ? $listed_exam['id'] : 0) : (isset($listed_exam->id) ? $listed_exam->id : 0);
+                        $listed_type = is_array($listed_exam) ? (isset($listed_exam['exam_type']) ? $listed_exam['exam_type'] : 'exam') : (isset($listed_exam->exam_type) ? $listed_exam->exam_type : 'exam');
+                        if ($exam_id === absint($listed_id)) {
+                            $allow_exam_embed = Olama_Student_Gateway_Service_Settings::visible('exams.' . ('quiz' === $listed_type ? 'short' : 'online'));
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         $model = array(
@@ -121,7 +147,8 @@ class Olama_Student_Gateway_Shortcode {
             'active_view' => $active_view,
             'message_mode' => $message_mode,
             'exam_section' => $exam_section,
-            'data' => $this->load_view_data($active_view, $context, $message_mode),
+            'allow_exam_embed' => $allow_exam_embed,
+            'data' => $view_data,
             'logout_url' => wp_logout_url($base_url),
             'ministry_notice' => $ministry_notice,
         );
@@ -173,13 +200,14 @@ class Olama_Student_Gateway_Shortcode {
     }
 
     private function allowed_views($has_student, $is_temp_family = false) {
-        $views = $is_temp_family ? array() : array(
+        $views = $is_temp_family || !Olama_Student_Gateway_Service_Settings::visible('family') ? array() : array(
             'family' => array('label' => __('بطاقة العائلة', 'olama-student-gateway'), 'icon' => 'dashicons-groups'),
         );
         if ($has_student) {
-            $views['dashboard'] = array('label' => __('لوحة المتابعة', 'olama-student-gateway'), 'icon' => 'dashicons-dashboard');
+            if (Olama_Student_Gateway_Service_Settings::visible('dashboard'))
+                $views['dashboard'] = array('label' => __('لوحة المتابعة', 'olama-student-gateway'), 'icon' => 'dashicons-dashboard');
             if (!$is_temp_family && function_exists('olama_core') &&
-                get_option('olama_ministry_family_enabled', false)) {
+                get_option('olama_ministry_family_enabled', false) && Olama_Student_Gateway_Service_Settings::visible('ministry')) {
                 $views['ministry'] = array('label' => __('البيانات الإحصائية', 'olama-student-gateway'), 'icon' => 'dashicons-id-alt');
             }
             $map = array(
@@ -195,7 +223,10 @@ class Olama_Student_Gateway_Shortcode {
                 'messages' => array('olama_student_gateway_messages_view', __('صندوق البريد', 'olama-student-gateway'), 'dashicons-email-alt'),
             );
             foreach ($map as $key => $definition) {
-                if (current_user_can($definition[0])) {
+                $visible = 'exams' === $key ? (bool) Olama_Student_Gateway_Service_Settings::exam_sections($is_temp_family) :
+                    ('messages' === $key ? (Olama_Student_Gateway_Service_Settings::visible('messages.inbox') || Olama_Student_Gateway_Service_Settings::visible('messages.compose')) :
+                    Olama_Student_Gateway_Service_Settings::visible($key));
+                if ($visible && current_user_can($definition[0])) {
                     $views[$key] = array('label' => $definition[1], 'icon' => $definition[2]);
                 }
             }
@@ -204,16 +235,20 @@ class Olama_Student_Gateway_Shortcode {
     }
 
     private function load_view_data($view, array $context, $message_mode = 'inbox') {
+        if ('unavailable' === $view) {
+            return array();
+        }
         if ('ministry' === $view && !empty($context['student']) && function_exists('olama_core')) {
             return olama_core()->student_statistics()->evaluate($context['student']['student_uid'], $context['study_year']);
         }
         if ('family' === $view) {
             $data = $this->providers->data('core', $context, array('resource' => 'family'));
-            if (current_user_can('olama_student_gateway_finance_view')) {
+            if (current_user_can('olama_student_gateway_finance_view') && Olama_Student_Gateway_Service_Settings::visible('family')) {
                 $data['finance'] = $this->providers->data('core', $context, array('resource' => 'finance'));
             }
             if (
                 current_user_can('olama_student_gateway_transportation_view')
+                && Olama_Student_Gateway_Service_Settings::visible('transportation')
                 && $this->providers->available('transportation')
                 && !empty($context['students'])
             ) {
@@ -232,6 +267,7 @@ class Olama_Student_Gateway_Shortcode {
 
             if (
                 current_user_can('olama_student_gateway_weekly_plan_view')
+                && Olama_Student_Gateway_Service_Settings::visible('weekly_plan')
                 && $this->providers->available('weekly_plan')
             ) {
                 $data['weekly_plan'] = $this->providers->data('weekly_plan', $context, array('week' => ''));
@@ -239,6 +275,7 @@ class Olama_Student_Gateway_Shortcode {
 
             if (
                 current_user_can('olama_student_gateway_exams_view')
+                && Olama_Student_Gateway_Service_Settings::visible('exams.schedule')
                 && $this->providers->available('exams')
             ) {
                 $data['exams'] = $this->providers->data('exams', $context);

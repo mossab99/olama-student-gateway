@@ -12,7 +12,10 @@ $active_view = $model['active_view'];
 $make_url = static function (array $args = array()) use ($model) {
     return add_query_arg($args, $model['base_url']);
 };
-$student_url = static function ($student_uid, $view = 'dashboard') use ($make_url) {
+$student_url = static function ($student_uid, $view = 'dashboard') use ($make_url, $model) {
+    if ('dashboard' === $view && !isset($model['views']['dashboard'])) {
+        $view = isset($model['views']['family']) ? 'family' : (array_key_first($model['views']) ?: 'unavailable');
+    }
     return $make_url(array('og_student' => $student_uid, 'og_view' => $view));
 };
 $field = static function ($record, $key, $fallback = '—') {
@@ -119,7 +122,10 @@ $menu_groups = array(
 
             <?php foreach ($menu_groups as $group) :
                 $items = array_values(array_filter($group['items'], static function ($item) use ($model, $is_temp_family) {
-                    return isset($model['views'][$item['view']]) && (empty($item['standard_only']) || !$is_temp_family);
+                    $service = $item['view'];
+                    if (isset($item['args']['og_exam_section'])) $service .= '.' . $item['args']['og_exam_section'];
+                    if (isset($item['args']['og_message'])) $service .= '.' . $item['args']['og_message'];
+                    return Olama_Student_Gateway_Service_Settings::visible($service) && isset($model['views'][$item['view']]) && (empty($item['standard_only']) || !$is_temp_family);
                 }));
                 if (!$items) {
                     continue;
@@ -354,7 +360,7 @@ $menu_groups = array(
                         <span class="olama-gateway__eyebrow">ملخص الطالب · <?php echo esc_html($context['study_year'] ?: 'السنة الحالية'); ?></span>
                         <h2>إليك ملخص يوم <?php echo esc_html($first_name); ?></h2>
                         <p><?php echo esc_html(wp_date('l، j F Y', current_time('timestamp'))); ?> · أحدث المعلومات المنشورة لحساب العائلة.</p>
-                        <?php if (!$is_temp_family) : ?><div class="olama-gateway__hero-actions">
+                        <?php if (!$is_temp_family && isset($model['views']['family'])) : ?><div class="olama-gateway__hero-actions">
                                 <a class="olama-gateway__button olama-gateway__button--ghost" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
                                     <span class="dashicons dashicons-groups" aria-hidden="true"></span> أفراد العائلة
                                 </a>
@@ -407,7 +413,7 @@ $menu_groups = array(
                 }
                 sort($exam_dates);
                 ?>
-                <?php if (!$is_temp_family && function_exists('olama_core') && $context['study_year'] &&
+                <?php if (isset($model['views']['ministry']) && !$is_temp_family && function_exists('olama_core') && $context['study_year'] &&
                     get_option('olama_ministry_family_enabled', false)) : ?>
                     <section class="olama-gateway__panel" aria-labelledby="ministry-dashboard-title">
                         <header><div><h3 id="ministry-dashboard-title">استكمال بيانات الطلبة</h3><p>راجع المعلومات المطلوبة لكل ابن.</p></div></header>
@@ -475,11 +481,11 @@ $menu_groups = array(
                             </article>
                         <?php endif; ?>
 
-                        <section class="olama-gateway__quick-stats olama-gateway__quick-stats--single" aria-label="ملخص الامتحانات">
+                        <?php if (null !== $exams) : ?><section class="olama-gateway__quick-stats olama-gateway__quick-stats--single" aria-label="ملخص الامتحانات">
                             <?php if (is_array($exams)) : ?>
                                 <div><span class="dashicons dashicons-clipboard" aria-hidden="true"></span><span><strong><?php echo esc_html(count($scheduled_exams)); ?></strong><small>عدد الامتحانات</small><small><?php echo $exam_dates ? 'من ' . esc_html($exam_dates[0]) . ' إلى ' . esc_html($exam_dates[count($exam_dates) - 1]) : 'لا توجد امتحانات في الجدول'; ?></small></span></div>
                             <?php endif; ?>
-                        </section>
+                        </section><?php endif; ?>
                     </div>
 
                     <div class="olama-gateway__dashboard-side olama-gateway__dashboard-side--single">
@@ -629,8 +635,8 @@ $menu_groups = array(
 
             <?php elseif ('exams' === $active_view) : ?>
                 <?php
-                $exam_engine_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
-                $exam_section = !empty($model['exam_section']) ? $model['exam_section'] : ($is_temp_family ? 'online' : 'schedule');
+                $exam_engine_view = !empty($model['allow_exam_embed']) && isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
+                $exam_section = !empty($model['exam_section']) ? $model['exam_section'] : (Olama_Student_Gateway_Service_Settings::exam_sections($is_temp_family)[0] ?? 'online');
                 $exam_sections = array(
                     'schedule' => array('جدول الامتحانات', 'جدول الامتحانات المعتمد للطالب.'),
                     'online' => array('اختبارات التقويم', $is_temp_family ? 'تجربة اختبارات التقويم المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'اختبارات التقويم المنشورة والمتاحة للبدء أو الاستكمال.'),
@@ -641,11 +647,12 @@ $menu_groups = array(
                 );
                 $exam_heading = $exam_sections[$exam_section];
                 $exam_id = isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0;
-                $exam_list_section = in_array($exam_section, array('online', 'short'), true) ? $exam_section : 'online';
+                $exam_list_section = in_array($exam_section, array('online', 'short'), true) ? $exam_section : (Olama_Student_Gateway_Service_Settings::visible('exams.online') ? 'online' : (Olama_Student_Gateway_Service_Settings::exam_sections($is_temp_family)[0] ?? 'short'));
                 if ($exam_id && !is_wp_error($data) && !empty($data['online_exams'])) {
                     foreach ((array) $data['online_exams'] as $listed_exam) {
                         if ($exam_id === absint($field($listed_exam, 'id', 0))) {
-                            $exam_list_section = 'quiz' === $field($listed_exam, 'exam_type', 'exam') ? 'short' : 'online';
+                            $listed_section = 'quiz' === $field($listed_exam, 'exam_type', 'exam') ? 'short' : 'online';
+                            if (Olama_Student_Gateway_Service_Settings::visible('exams.' . $listed_section)) $exam_list_section = $listed_section;
                             break;
                         }
                     }
@@ -816,6 +823,8 @@ $menu_groups = array(
                     </tbody></table></div></section>
                 <?php endif; ?>
 
+            <?php elseif ('unavailable' === $active_view) : ?>
+                <div class="olama-gateway__empty">لا توجد خدمات مفعّلة لهذا الحساب حالياً.</div>
             <?php else : ?>
                 <section class="olama-gateway__heading"><div><h2><?php echo esc_html(isset($model['views'][$active_view]) ? $model['views'][$active_view]['label'] : 'الخدمة'); ?></h2><p>يعرض هذا القسم المعلومات التي ينشرها النظام المسؤول.</p></div></section>
                 <?php if (is_wp_error($data)) : ?>

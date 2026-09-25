@@ -21,6 +21,8 @@ final class Olama_Student_Gateway_Plugin {
         add_action('olama_users_register_modules', array($this, 'register_access_module'));
         add_action('init', array($this, 'register_assets'), 10);
         add_action('init', array($this, 'register_shortcode'), 20);
+        add_action('admin_menu', array('Olama_Student_Gateway_Service_Settings', 'register_admin_menu'));
+        add_action('admin_post_olama_student_gateway_save_services', array('Olama_Student_Gateway_Service_Settings', 'save'));
         add_action('wp_enqueue_scripts', array($this, 'maybe_enqueue_assets'));
         add_action('template_redirect', array($this, 'protect_portal_response'));
         add_filter('wp_robots', array($this, 'portal_robots'));

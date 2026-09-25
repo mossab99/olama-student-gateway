@@ -2,7 +2,7 @@
 Contributors: olama
 Requires at least: 6.4
 Requires PHP: 7.4
-Stable tag: 0.8.9
+Stable tag: 0.9.1
 License: GPLv2 or later
 
 Family-first, read-only portal for information produced by OLAMA Core, OLAMA Users, OLAMA School and other OLAMA service plugins.
@@ -29,6 +29,10 @@ External plugins may register a provider on `olama_student_gateway_register_prov
 * `olama_student_gateway_messages_data`
 
 == Changelog ==
+
+= 0.9.1 =
+* Adds an administrator settings submenu for site-wide Student Gateway service visibility.
+* Applies hidden service settings to sidebar links, direct gateway views, and dashboard summaries.
 
 = 0.8.9 =
 * Simplifies sidebar student links to a single first-name, grade, and section line.

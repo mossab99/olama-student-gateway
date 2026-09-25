@@ -2,7 +2,7 @@
 /**
  * Plugin Name: OLAMA Student Gateway
  * Description: Family gateway for OLAMA student information and reviewed Ministry statistical submissions.
- * Version: 0.8.9
+ * Version: 0.9.1
  * Author: OLAMA
  * Text Domain: olama-student-gateway
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('OLAMA_STUDENT_GATEWAY_VERSION', '0.9.0');
+define('OLAMA_STUDENT_GATEWAY_VERSION', '0.9.1');
 define('OLAMA_STUDENT_GATEWAY_FILE', __FILE__);
 define('OLAMA_STUDENT_GATEWAY_PATH', plugin_dir_path(__FILE__));
 define('OLAMA_STUDENT_GATEWAY_URL', plugin_dir_url(__FILE__));
@@ -29,6 +29,7 @@ require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-stores-provi
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-filter-provider.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/class-exam-launcher.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/class-demo-exam.php';
+require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/class-service-settings.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/class-shortcode.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/class-plugin.php';
 
