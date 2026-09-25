@@ -113,6 +113,9 @@ $menu_groups = array(
             <?php if (isset($model['views']['dashboard'])) : ?>
                 <a class="olama-gateway__nav-link olama-gateway__nav-link--primary <?php echo 'dashboard' === $active_view ? 'is-active' : ''; ?>" href="<?php echo esc_url($menu_url('dashboard')); ?>" <?php echo 'dashboard' === $active_view ? 'aria-current="page"' : ''; ?>><span class="dashicons dashicons-dashboard" aria-hidden="true"></span>لوحة المتابعة</a>
             <?php endif; ?>
+            <?php if (isset($model['views']['ministry'])) : ?>
+                <a class="olama-gateway__nav-link <?php echo 'ministry' === $active_view ? 'is-active' : ''; ?>" href="<?php echo esc_url($menu_url('ministry')); ?>" <?php echo 'ministry' === $active_view ? 'aria-current="page"' : ''; ?>><span class="dashicons dashicons-id-alt" aria-hidden="true"></span>استكمال البيانات الإحصائية</a>
+            <?php endif; ?>
 
             <?php foreach ($menu_groups as $group) :
                 $items = array_values(array_filter($group['items'], static function ($item) use ($model, $is_temp_family) {
@@ -179,7 +182,72 @@ $menu_groups = array(
         </header>
 
         <div class="olama-gateway__content">
-            <?php if ('family' === $active_view) : ?>
+            <?php if ('ministry' === $active_view) : ?>
+                <section class="olama-gateway__heading">
+                    <div><h2>استكمال البيانات الإحصائية</h2><p>تُعرض المعلومات المسجلة تلقائياً. أرسل المعلومات الناقصة أو اطلب تصحيح المعلومة غير الصحيحة.</p></div>
+                </section>
+                <?php if (!empty($model['ministry_notice'])) : ?><p role="status"><?php echo esc_html($model['ministry_notice']); ?></p><?php endif; ?>
+                <?php if (is_wp_error($data)) : ?>
+                    <p><?php echo esc_html($data->get_error_message()); ?></p>
+                <?php else : ?>
+                    <p><strong><?php echo esc_html($data['completion_percentage']); ?>%</strong> · <?php echo esc_html($data['primary_status']); ?></p>
+                    <div class="olama-ministry-fields">
+                        <?php
+                        $domain_labels = array(
+                            'SCHOOL' => 'بيانات المدرسة', 'ACADEMIC' => 'البيانات الدراسية',
+                            'CORE_IDENTITY' => 'هوية الطالب', 'RESIDENCE' => 'مكان السكن',
+                            'DERIVED' => 'بيانات محسوبة', 'GUARDIAN' => 'ولي الأمر',
+                            'FAMILY_PROFILE' => 'بيانات الأسرة', 'SENSITIVE_FAMILY_DATA' => 'معلومات إضافية مطلوبة',
+                        );
+                        $last_domain = '';
+                        ?>
+                        <?php foreach ($data['fields'] as $key => $item) :
+                            if (!$item['applicable'] || $item['domain'] === 'SYSTEM') continue;
+                            $school_owned = in_array($item['policy'], array('READ_ONLY', 'ACADEMIC_ONLY', 'SYSTEM_DERIVED'), true);
+                            if ($item['domain'] !== $last_domain) {
+                                $last_domain = $item['domain'];
+                                echo '<h3 class="olama-ministry-section-heading">' . esc_html(isset($domain_labels[$last_domain]) ? $domain_labels[$last_domain] : $last_domain) . '</h3>';
+                            }
+                            ?>
+                            <section class="olama-ministry-field">
+                                <h3><?php echo esc_html($item['label']); ?></h3>
+                                <?php if ($item['value'] !== '') : ?>
+                                    <p><?php echo esc_html($item['value']); ?> <small>· موجود في النظام</small></p>
+                                <?php elseif ($school_owned) : ?>
+                                    <p>بانتظار استكمال المدرسة</p>
+                                <?php elseif ($item['has_pending']) : ?>
+                                    <p>تم إرسال معلومة وتنتظر المراجعة</p>
+                                <?php else : ?>
+                                    <p>مطلوب استكماله</p>
+                                <?php endif; ?>
+                                <?php if (!$school_owned && !$item['has_pending']) : ?>
+                                    <form method="post" action="<?php echo esc_url($menu_url('ministry')); ?>">
+                                        <?php wp_nonce_field('olama_ministry_submit', '_olama_ministry_nonce'); ?>
+                                        <input type="hidden" name="olama_ministry_submit" value="1">
+                                        <input type="hidden" name="ministry_student_uid" value="<?php echo esc_attr($student['student_uid']); ?>">
+                                        <input type="hidden" name="ministry_field_key" value="<?php echo esc_attr($key); ?>">
+                                        <label><?php echo $item['value'] !== '' ? 'القيمة الصحيحة المقترحة' : 'المعلومة المطلوبة'; ?>
+                                            <?php $options = olama_core()->student_statistics()->allowed_values($key); ?>
+                                            <?php if ($options) : ?>
+                                                <select name="ministry_value" required>
+                                                    <option value="">اختر</option>
+                                                    <?php foreach ($options as $choice) : ?>
+                                                        <option value="<?php echo esc_attr($choice); ?>" <?php selected($item['draft_value'], $choice); ?>><?php echo esc_html($choice); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            <?php else : ?>
+                                                <input name="ministry_value" type="<?php echo $key === 'birth_date' ? 'date' : (in_array($key, array('monthly_income', 'family_size', 'sibling_order'), true) ? 'number' : 'text'); ?>" <?php echo $key === 'monthly_income' ? 'min="0" step="0.001"' : (in_array($key, array('family_size', 'sibling_order'), true) ? 'min="1" max="50" step="1"' : ''); ?> value="<?php echo esc_attr($item['draft_value']); ?>" required maxlength="500" autocomplete="off">
+                                            <?php endif; ?>
+                                        </label>
+                                        <button class="olama-gateway__button" type="submit"><?php echo $item['value'] !== '' ? 'طلب تصحيح' : 'إرسال للمراجعة'; ?></button>
+                                        <button class="olama-gateway__button olama-gateway__button--ghost" type="submit" name="ministry_save_draft" value="1">حفظ مسودة</button>
+                                    </form>
+                                <?php endif; ?>
+                            </section>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            <?php elseif ('family' === $active_view) : ?>
                 <section class="olama-gateway__heading">
                     <div><h2>مرحباً بكم في بوابة العائلة</h2><p>اختر أحد الأبناء لمتابعة معلوماته، أو راجع بطاقة العائلة والملخص المالي.</p></div>
                     <span class="olama-gateway__status">بيانات OLAMA Core</span>
@@ -339,6 +407,29 @@ $menu_groups = array(
                 }
                 sort($exam_dates);
                 ?>
+                <?php if (!$is_temp_family && function_exists('olama_core') && $context['study_year'] &&
+                    get_option('olama_ministry_family_enabled', false)) : ?>
+                    <section class="olama-gateway__panel" aria-labelledby="ministry-dashboard-title">
+                        <header><div><h3 id="ministry-dashboard-title">استكمال بيانات الطلبة</h3><p>راجع المعلومات المطلوبة لكل ابن.</p></div></header>
+                        <?php foreach ($students as $family_student) :
+                            $ministry_status = olama_core()->student_statistics()->evaluate($family_student['student_uid'], $context['study_year']);
+                            if (is_wp_error($ministry_status)) continue;
+                            $family_count = count($ministry_status['family_missing']);
+                            ?>
+                            <p>
+                                <strong><?php echo esc_html($family_student['student_name']); ?></strong>
+                                <?php if ($ministry_status['is_complete']) : ?>
+                                    <span>✓ البيانات مكتملة</span>
+                                <?php elseif ($family_count) : ?>
+                                    <span><?php echo esc_html($family_count); ?> معلومات مطلوبة من الأسرة</span>
+                                <?php else : ?>
+                                    <span>لا توجد معلومات مطلوبة من الأسرة حالياً</span>
+                                <?php endif; ?>
+                                <a href="<?php echo esc_url($student_url($family_student['student_uid'], 'ministry')); ?>">مراجعة البيانات</a>
+                            </p>
+                        <?php endforeach; ?>
+                    </section>
+                <?php endif; ?>
                 <section class="olama-gateway__dashboard-grid">
                     <div class="olama-gateway__dashboard-main">
                         <?php if (null !== $weekly) : ?>

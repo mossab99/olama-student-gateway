@@ -51,6 +51,30 @@ class Olama_Student_Gateway_Shortcode {
             return $late_styles . $this->notice($context->get_error_message(), 'error', true);
         }
 
+        $ministry_notice = '';
+        if (isset($_POST['olama_ministry_submit'])) {
+            $nonce = isset($_POST['_olama_ministry_nonce']) ? sanitize_text_field(wp_unslash($_POST['_olama_ministry_nonce'])) : '';
+            if (!wp_verify_nonce($nonce, 'olama_ministry_submit')) {
+                $ministry_notice = __('تعذر التحقق من الطلب. أعد تحميل الصفحة.', 'olama-student-gateway');
+            } elseif (!empty($context['is_temp_family']) || !function_exists('olama_core') ||
+                !get_option('olama_ministry_family_enabled', false)) {
+                $ministry_notice = __('خدمة استكمال البيانات الإحصائية غير متاحة لهذا الحساب حالياً.', 'olama-student-gateway');
+            } else {
+                $posted_uid = isset($_POST['ministry_student_uid']) ? sanitize_text_field(wp_unslash($_POST['ministry_student_uid'])) : '';
+                $authorized = $this->access->select_student($context, $posted_uid);
+                if (is_wp_error($authorized) || !$authorized) {
+                    $ministry_notice = __('تعذر التحقق من الطالب.', 'olama-student-gateway');
+                } else {
+                    $key = isset($_POST['ministry_field_key']) ? sanitize_key(wp_unslash($_POST['ministry_field_key'])) : '';
+                    $value = isset($_POST['ministry_value']) ? wp_unslash($_POST['ministry_value']) : '';
+                    $draft = isset($_POST['ministry_save_draft']);
+                    $saved = olama_core()->student_statistics()->submit($posted_uid, $context['study_year'], $key, $value, get_current_user_id(), $draft);
+                    $ministry_notice = is_wp_error($saved) ? $saved->get_error_message() :
+                        ($draft ? __('تم حفظ المسودة.', 'olama-student-gateway') : __('تم إرسال المعلومة للمراجعة.', 'olama-student-gateway'));
+                }
+            }
+        }
+
         $exam_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
         $requested_student = isset($_GET['og_student']) ? wp_unslash($_GET['og_student']) : '';
         if (!$requested_student && in_array($exam_view, array('dashboard', 'take', 'results', 'demo'), true) && isset($_GET['student_uid'])) {
@@ -70,6 +94,7 @@ class Olama_Student_Gateway_Shortcode {
         }
 
         $views = $this->allowed_views((bool) $student, !empty($context['is_temp_family']));
+        if (empty($context['study_year'])) unset($views['ministry']);
         $requested_view = isset($_GET['og_view']) ? sanitize_key(wp_unslash($_GET['og_view'])) : '';
         $message_mode = isset($_GET['og_message']) ? sanitize_key(wp_unslash($_GET['og_message'])) : 'inbox';
         if (!in_array($message_mode, array('compose', 'inbox'), true)) {
@@ -98,6 +123,7 @@ class Olama_Student_Gateway_Shortcode {
             'exam_section' => $exam_section,
             'data' => $this->load_view_data($active_view, $context, $message_mode),
             'logout_url' => wp_logout_url($base_url),
+            'ministry_notice' => $ministry_notice,
         );
 
         ob_start();
@@ -152,6 +178,10 @@ class Olama_Student_Gateway_Shortcode {
         );
         if ($has_student) {
             $views['dashboard'] = array('label' => __('لوحة المتابعة', 'olama-student-gateway'), 'icon' => 'dashicons-dashboard');
+            if (!$is_temp_family && function_exists('olama_core') &&
+                get_option('olama_ministry_family_enabled', false)) {
+                $views['ministry'] = array('label' => __('البيانات الإحصائية', 'olama-student-gateway'), 'icon' => 'dashicons-id-alt');
+            }
             $map = array(
                 'weekly_plan' => array('olama_student_gateway_weekly_plan_view', __('الخطة الأسبوعية', 'olama-student-gateway'), 'dashicons-calendar-alt'),
                 'schedule' => array('olama_student_gateway_schedule_view', __('الجدول الدراسي', 'olama-student-gateway'), 'dashicons-schedule'),
@@ -174,6 +204,9 @@ class Olama_Student_Gateway_Shortcode {
     }
 
     private function load_view_data($view, array $context, $message_mode = 'inbox') {
+        if ('ministry' === $view && !empty($context['student']) && function_exists('olama_core')) {
+            return olama_core()->student_statistics()->evaluate($context['student']['student_uid'], $context['study_year']);
+        }
         if ('family' === $view) {
             $data = $this->providers->data('core', $context, array('resource' => 'family'));
             if (current_user_can('olama_student_gateway_finance_view')) {

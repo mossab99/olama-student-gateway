@@ -2255,3 +2255,40 @@ html.olama-gateway-menu-lock {
         animation-iteration-count: 1 !important;
     }
 }
+.olama-ministry-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+    gap: 1rem;
+}
+
+.olama-ministry-field {
+    background: #fff;
+    border: 1px solid #dce5e7;
+    border-radius: 12px;
+    padding: 1rem;
+    min-width: 0;
+}
+
+.olama-ministry-field h3 {
+    margin: 0 0 .5rem;
+    font-size: 1rem;
+}
+
+.olama-ministry-section-heading {
+    grid-column: 1 / -1;
+    margin: .8rem 0 0;
+}
+
+.olama-ministry-field label,
+.olama-ministry-field input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.olama-ministry-field input,
+.olama-ministry-field select {
+    min-height: 44px;
+    margin: .4rem 0 .7rem;
+    max-width: 100%;
+}
