@@ -123,7 +123,14 @@ class Olama_Student_Gateway_Shortcode {
         $allow_exam_embed = false;
         if (!$explicit_hidden_subview && 'exams' === $active_view && in_array($exam_view, array('take', 'results', 'demo'), true)) {
             if ('results' === $exam_view) {
-                $allow_exam_embed = Olama_Student_Gateway_Service_Settings::visible('exams.online-results');
+                $attempt_id = isset($_GET['attempt_id']) ? absint($_GET['attempt_id']) : 0;
+                foreach ((array) (isset($view_data['online_results']) ? $view_data['online_results'] : array()) as $result) {
+                    $listed_attempt = is_object($result) ? ($result->attempt_id ?? 0) : ($result['attempt_id'] ?? 0);
+                    if ($attempt_id && $attempt_id === absint($listed_attempt)) {
+                        $allow_exam_embed = Olama_Student_Gateway_Service_Settings::visible('exams.online-results');
+                        break;
+                    }
+                }
             } else {
                 $exam_id = isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0;
                 if ($exam_id && is_array($view_data) && !empty($view_data['online_exams'])) {
