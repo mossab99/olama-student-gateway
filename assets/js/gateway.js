@@ -154,3 +154,45 @@
         }
     });
 }());
+
+(function () {
+    'use strict';
+    document.querySelectorAll('[data-evaluations]').forEach(function (root) {
+        var links = Array.from(root.querySelectorAll('[data-evaluation-tab]'));
+        var reports = Array.from(root.querySelectorAll('[data-evaluation-report]'));
+        function select(id) {
+            reports.forEach(function (report) { report.hidden = report.id !== id; });
+            links.forEach(function (link) { link.setAttribute('aria-current', link.hash === '#' + id ? 'true' : 'false'); });
+        }
+        links.forEach(function (link) {
+            link.addEventListener('click', function (event) { event.preventDefault(); select(link.hash.slice(1)); });
+        });
+        var initial = reports.find(function (report) { return '#' + report.id === window.location.hash; }) || reports[0];
+        if (initial) { select(initial.id); }
+        var opened = [];
+        function restore() {
+            document.body.classList.remove('og-printing-evaluation');
+            reports.forEach(function (report) { report.classList.remove('is-printing'); });
+            opened.forEach(function (item) { item.element.open = item.open; });
+            opened = [];
+        }
+        function prepare(report) {
+            restore();
+            opened = Array.from(report.querySelectorAll('details')).map(function (element) {
+                var item = { element: element, open: element.open }; element.open = true; return item;
+            });
+            document.body.classList.add('og-printing-evaluation');
+            report.classList.add('is-printing');
+        }
+        root.querySelectorAll('[data-evaluation-print]').forEach(function (button) {
+            button.addEventListener('click', function () { prepare(button.closest('[data-evaluation-report]')); window.print(); });
+        });
+        window.addEventListener('beforeprint', function () {
+            if (!document.body.classList.contains('og-printing-evaluation')) {
+                var current = reports.find(function (report) { return !report.hidden; });
+                if (current) { prepare(current); }
+            }
+        });
+        window.addEventListener('afterprint', restore);
+    });
+}());

@@ -44,13 +44,13 @@ class Olama_Student_Gateway_Evaluations_Provider implements Olama_Student_Gatewa
                     foreach ($category->indicators as $indicator) {
                         $score = isset($scores[$indicator->id]) ? $scores[$indicator->id]->score : null;
                         $indicators[] = array('text' => $indicator->indicator_text,
-                            'result' => null !== $score && isset($config[$score]) ? $config[$score] : 'لم يُقيّم');
+                            'score' => $score, 'result' => null !== $score && isset($config[$score]) ? $config[$score] : 'لم يُقيّم');
                     }
                     $categories[] = array('title' => $category->title_ar, 'indicators' => $indicators);
                 }
                 $domains[] = array('title' => $domain->title_ar, 'categories' => $categories);
             }
-            $evaluations[] = array('title' => $record->template_name, 'date' => $record->updated_at, 'domains' => $domains);
+            $evaluations[] = array('id' => absint($record->id), 'scale' => $config, 'title' => $record->template_name, 'date' => $record->updated_at, 'domains' => $domains);
         }
         return array('evaluations' => $evaluations);
     }
