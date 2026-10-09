@@ -49,10 +49,20 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
             'schedule' => $schedule,
             'hall' => $hall,
             'online_exams' => $online,
-            'online_results' => apply_filters('olama_student_gateway_exam_results_data', array(), $context, $args),
+            'online_results' => apply_filters('olama_student_gateway_exam_results_data', $this->online_results($student['student_uid'], $schedule), $context, $args),
             'official_marks' => apply_filters('olama_student_gateway_official_marks_data', array(), $context, $args),
         );
         return apply_filters('olama_student_gateway_exams_data', $data, $context, $args);
+    }
+
+    private function online_results($student_uid, array $schedule) {
+        if (!is_callable(array('Olama_Exam_Manager', 'get_student_results'))) {
+            return array();
+        }
+        return Olama_Exam_Manager::get_student_results($student_uid, array(
+            'academic_year_id' => !empty($schedule['academic_year_id']) ? absint($schedule['academic_year_id']) : (!empty($schedule['year_id']) ? absint($schedule['year_id']) : 0),
+            'semester_id' => !empty($schedule['semester_id']) ? absint($schedule['semester_id']) : 0,
+        ));
     }
 
     private function schedule($student_uid) {

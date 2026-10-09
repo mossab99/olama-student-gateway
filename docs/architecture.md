@@ -47,7 +47,7 @@ For a Temp Family, the local member list replaces family ownership validation. E
 | Curriculum video library | OLAMA Media Library | Integrated; approved active videos for current class subjects only |
 | Exam schedule and hall | OLAMA Exam Management | Integrated; approved schedule only |
 | Online exam catalogue | OLAMA Exam Engine | Integrated; published/active exams only |
-| Online exam results | OLAMA Exam Engine | Contract ready; producer read service required |
+| Online exam results | OLAMA Exam Engine | Integrated through `Olama_Exam_Manager::get_student_results()`; submitted, non-preview attempts with results enabled |
 | Official marks | Oracle | Contract ready; future adapter |
 | Transportation registration | OLAMA Core | Integrated |
 | Operational transportation | OLAMA Transportation | Contract ready |

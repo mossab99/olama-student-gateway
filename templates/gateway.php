@@ -796,7 +796,20 @@ $menu_groups = array(
                     <?php if (empty($context['is_temp_family']) && 'online-results' === $exam_section) : ?>
                     <section class="olama-gateway__panel" id="online-results">
                         <header><h3>نتائج الامتحانات الإلكترونية</h3><span class="olama-gateway__source">OLAMA Exam Engine</span></header>
-                        <?php if (!$online_results) : ?><div class="olama-gateway__empty">ينتظر هذا القسم خدمة نتائج الطالب من Exam Engine؛ لن تتم قراءة جدول المحاولات مباشرة.</div><?php else : do_action('olama_student_gateway_render_exam_results', $online_results, $context); endif; ?>
+                        <?php if (!$online_results) : ?><div class="olama-gateway__empty">لا توجد نتائج منشورة للطالب حتى الآن. تظهر النتائج بعد تسليم الامتحان وتفعيل إظهار النتائج.</div>
+                        <?php elseif (has_action('olama_student_gateway_render_exam_results')) : do_action('olama_student_gateway_render_exam_results', $online_results, $context); ?>
+                        <?php else : ?>
+                        <div class="olama-gateway__table-wrap"><table><thead><tr><th>الامتحان</th><th>المادة</th><th>المحاولة</th><th>تاريخ التسليم</th><th>العلامة</th><th>النسبة</th><th>النتيجة</th></tr></thead><tbody>
+                            <?php foreach ($online_results as $exam_result) :
+                                $result_state = (string) $field($exam_result, 'result', 'pending');
+                                $result_labels = array('pass' => 'ناجح', 'fail' => 'راسب', 'pending' => 'بانتظار التصحيح');
+                                $result_score = $field($exam_result, 'score', null);
+                                $result_percentage = $field($exam_result, 'percentage', null);
+                            ?>
+                            <tr><td data-label="الامتحان"><?php echo esc_html($field($exam_result, 'exam_title')); ?></td><td data-label="المادة"><?php echo esc_html($field($exam_result, 'subject_name')); ?></td><td data-label="المحاولة"><?php echo esc_html($field($exam_result, 'attempt_number')); ?></td><td data-label="تاريخ التسليم"><?php echo esc_html($field($exam_result, 'submitted_at')); ?></td><td data-label="العلامة"><?php echo esc_html(null === $result_score ? '—' : $result_score . ' / ' . $field($exam_result, 'max_score')); ?></td><td data-label="النسبة"><?php echo esc_html(null === $result_percentage ? '—' : $result_percentage . '%'); ?></td><td data-label="النتيجة"><?php echo esc_html(isset($result_labels[$result_state]) ? $result_labels[$result_state] : $result_labels['pending']); ?></td></tr>
+                            <?php endforeach; ?>
+                        </tbody></table></div>
+                        <?php endif; ?>
                     </section>
                     <?php endif; ?>
                 <?php endif; ?>

@@ -41,6 +41,8 @@ add_filter('olama_student_gateway_evaluations_data', function ($data, $context) 
 
 Do not use a family ID supplied by the browser. Do not return drafts, internal supervisor notes, unpublished marks, other recipients, authentication secrets, or raw Oracle payloads.
 
+The exam provider defaults to the Exam Engine's `Olama_Exam_Manager::get_student_results()` service. It verifies the current principal's access to the selected student and returns result summaries for submitted, non-preview, non-placement attempts on published, active or closed exams with `show_results = 1`, scoped to the schedule's academic year and semester when available. No answers or question snapshots are returned. The existing results data filter can override these summaries, and the rendering action can override the built-in results table.
+
 Any future write operation, such as replying to a teacher message, must call the producing plugin service and perform its own nonce, capability and ownership checks.
 
 For the messages view, the optional `$args['mode']` is either `inbox` or `compose`. A producing plugin may use it to render the guardian's inbox or the compose interface; it must perform its own authorization and nonce checks for any write action.
