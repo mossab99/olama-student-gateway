@@ -45,7 +45,7 @@ if (!defined('ABSPATH')) { exit; }
                         <?php foreach ($category['indicators'] as $indicator) :
                             $tone = null !== $indicator['score'] && isset($tones[$indicator['score']]) ? 'og-evaluation-tone-' . $tones[$indicator['score']] : 'og-evaluation-pending';
                         ?>
-                        <div class="og-evaluation-skill"><span><?php echo esc_html($indicator['text']); ?></span><strong class="og-evaluation-badge <?php echo esc_attr($tone); ?>"><?php echo esc_html($indicator['result']); ?></strong></div>
+                        <div class="og-evaluation-skill"><span><?php echo esc_html($indicator['text']); ?><?php if (!empty($indicator['notes'])) : ?><small class="og-evaluation-skill-note"><b>ملاحظة المعلم:</b> <?php echo esc_html($indicator['notes']); ?></small><?php endif; ?></span><strong class="og-evaluation-badge <?php echo esc_attr($tone); ?>"><?php echo esc_html($indicator['result']); ?></strong></div>
                         <?php endforeach; ?>
                     </section>
                     <?php endforeach; ?>
@@ -64,6 +64,9 @@ if (!defined('ABSPATH')) { exit; }
                 <small>المهارات غير المقيّمة لا تُحتسب كمستوى ضعيف. الملخص يعرض عدد المهارات، وليس علامة الطالب.</small>
             </aside>
         </div>
+        <?php if (!empty($evaluation['comments'])) : ?>
+        <section class="og-evaluation-comments"><h4><span class="dashicons dashicons-format-chat" aria-hidden="true"></span>ملاحظات المعلم والمشرف</h4><p><?php echo esc_html($evaluation['comments']); ?></p></section>
+        <?php endif; ?>
     </article>
     <?php endforeach; ?>
 </div>

@@ -2383,3 +2383,15 @@ body.og-printing-evaluation .og-evaluation-report *{-webkit-print-color-adjust:e
 .olama-gateway .og-evaluation-skill{align-items:flex-start;flex-direction:column;gap:8px}
 .olama-gateway .og-evaluation-badge{max-width:100%}
 }
+
+/* Distinct rating colors shared by the badges and distribution bars. */
+.olama-gateway .og-evaluation-tone-0{background:#e0f3e5;color:#20633b}
+.olama-gateway .og-evaluation-tone-1{background:#fff2bf;color:#765800}
+.olama-gateway .og-evaluation-tone-2{background:#e1eefc;color:#265c94}
+.olama-gateway .og-evaluation-tone-3{background:#ffe7ce;color:#914b13}
+.olama-gateway .og-evaluation-tone-4{background:#fbe0e0;color:#a12c35}
+.olama-gateway .og-evaluation-track i{background:currentColor}
+.olama-gateway .og-evaluation-skill-note{display:block;font-size:13px;color:#526b66;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:8px;background:#f3f7f2;border-radius:8px;padding:8px 11px}
+.olama-gateway .og-evaluation-comments{background:#fff;border:1px solid #d9e7d6;border-inline-start:4px solid #1a635b;border-radius:17px;padding:20px 24px;margin-top:20px;min-width:0;break-inside:avoid}
+.olama-gateway .og-evaluation-comments h4{display:flex;align-items:center;gap:9px;color:#1a635b;font-size:16px;margin:0 0 12px}
+.olama-gateway .og-evaluation-comments p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.9;margin:0;color:#203c3a}
