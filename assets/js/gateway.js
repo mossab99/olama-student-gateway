@@ -169,20 +169,20 @@
         });
         var initial = reports.find(function (report) { return '#' + report.id === window.location.hash; }) || reports[0];
         if (initial) { select(initial.id); }
-        var opened = [];
+        var printRoot = null;
         function restore() {
             document.body.classList.remove('og-printing-evaluation');
-            reports.forEach(function (report) { report.classList.remove('is-printing'); });
-            opened.forEach(function (item) { item.element.open = item.open; });
-            opened = [];
+            if (printRoot) { printRoot.remove(); printRoot = null; }
         }
         function prepare(report) {
             restore();
-            opened = Array.from(report.querySelectorAll('details')).map(function (element) {
-                var item = { element: element, open: element.open }; element.open = true; return item;
-            });
+            var layout = report.querySelector('[data-evaluation-print-layout]');
+            if (!layout) { return; }
+            printRoot = document.createElement('div');
+            printRoot.className = 'og-evaluation-print-root';
+            printRoot.appendChild(layout.cloneNode(true));
+            document.body.appendChild(printRoot);
             document.body.classList.add('og-printing-evaluation');
-            report.classList.add('is-printing');
         }
         root.querySelectorAll('[data-evaluation-print]').forEach(function (button) {
             button.addEventListener('click', function () { prepare(button.closest('[data-evaluation-report]')); window.print(); });

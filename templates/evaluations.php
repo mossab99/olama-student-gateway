@@ -67,6 +67,7 @@ if (!defined('ABSPATH')) { exit; }
         <?php if (!empty($evaluation['comments'])) : ?>
         <section class="og-evaluation-comments"><h4><span class="dashicons dashicons-format-chat" aria-hidden="true"></span>ملاحظات المعلم والمشرف</h4><p><?php echo esc_html($evaluation['comments']); ?></p></section>
         <?php endif; ?>
+        <?php include __DIR__ . '/evaluation-print.php'; ?>
     </article>
     <?php endforeach; ?>
 </div>
