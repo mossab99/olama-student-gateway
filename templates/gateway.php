@@ -804,7 +804,19 @@ $menu_groups = array(
                         <?php elseif (has_action('olama_student_gateway_render_exam_results')) : do_action('olama_student_gateway_render_exam_results', $online_results, $context); ?>
                         <?php else : ?>
                         <div class="olama-gateway__table-wrap"><table><thead><tr><th>الامتحان</th><th>المادة</th><th>المحاولة</th><th>تاريخ التسليم</th><th>العلامة</th><th>النسبة</th><th>النتيجة</th><th>الإجراء</th></tr></thead><tbody>
-                            <?php foreach ($online_results as $exam_result) :
+                            <?php
+                            $result_groups = array('exam' => array(), 'quiz' => array());
+                            foreach ($online_results as $exam_result) {
+                                $result_type = 'quiz' === $field($exam_result, 'exam_type', 'exam') ? 'quiz' : 'exam';
+                                $result_groups[$result_type][] = $exam_result;
+                            }
+                            foreach (array('exam' => 'اختبارات التقويم', 'quiz' => 'الاختبارات القصيرة') as $result_type => $group_label) :
+                                if (!$result_groups[$result_type]) {
+                                    continue;
+                                }
+                            ?>
+                            <tr class="olama-gateway__exam-group"><th colspan="8"><?php echo esc_html($group_label); ?></th></tr>
+                            <?php foreach ($result_groups[$result_type] as $exam_result) :
                                 $result_state = (string) $field($exam_result, 'result', 'pending');
                                 $result_labels = array('pass' => 'ناجح', 'fail' => 'راسب', 'pending' => 'بانتظار التصحيح');
                                 $result_score = $field($exam_result, 'score', null);
@@ -820,7 +832,7 @@ $menu_groups = array(
                                 }
                             ?>
                             <tr><td class="olama-gateway__exam-title" data-label="الامتحان"><strong><?php echo esc_html($exam_subject ?: $exam_title); ?></strong><?php if ($exam_subject && $exam_detail) : ?><small>(<?php echo esc_html($exam_detail); ?>)</small><?php endif; ?></td><td data-label="المادة"><?php echo esc_html($field($exam_result, 'subject_name')); ?></td><td data-label="المحاولة"><?php echo esc_html($field($exam_result, 'attempt_number')); ?></td><td data-label="تاريخ التسليم"><?php echo esc_html($field($exam_result, 'submitted_at')); ?></td><td data-label="العلامة"><?php echo esc_html(null === $result_score ? '—' : $result_score . ' / ' . $field($exam_result, 'max_score')); ?></td><td data-label="النسبة"><?php echo esc_html(null === $result_percentage ? '—' : $result_percentage . '%'); ?></td><td data-label="النتيجة"><?php echo esc_html(isset($result_labels[$result_state]) ? $result_labels[$result_state] : $result_labels['pending']); ?></td><td data-label="الإجراء"><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($make_url(array('og_view' => 'exams', 'og_exam_section' => 'online-results', 'og_student' => $student['student_uid'], 'student_uid' => $student['student_uid'], 'exam_view' => 'results', 'attempt_id' => absint($field($exam_result, 'attempt_id', 0))))); ?>">مراجعة الامتحان</a></td></tr>
-                            <?php endforeach; ?>
+                            <?php endforeach; endforeach; ?>
                         </tbody></table></div>
                         <?php endif; ?>
                     </section>
