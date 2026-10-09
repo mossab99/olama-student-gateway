@@ -2353,3 +2353,33 @@ body.og-printing-evaluation .og-evaluation-skill,body.og-printing-evaluation .og
 body.og-printing-evaluation .og-evaluation-category h4{break-after:avoid}
 body.og-printing-evaluation .og-evaluation-report *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* Constrain the implicit content grid: evaluation tabs must not widen the report. */
+.olama-gateway__content{grid-template-columns:minmax(0,1fr);min-width:0}
+.olama-gateway .og-evaluations{min-width:0;width:100%;max-width:100%;container-type:inline-size}
+.olama-gateway .og-evaluation-report,.olama-gateway .og-evaluation-workspace,.olama-gateway .og-evaluation-domains,.olama-gateway .og-evaluation-domain,.olama-gateway .og-evaluation-category,.olama-gateway .og-evaluation-summary{min-width:0;max-width:100%}
+.olama-gateway .og-evaluation-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));overflow:visible;min-width:0}
+.olama-gateway .og-evaluation-tabs a{min-width:0;font-size:14px;line-height:1.8}
+.olama-gateway .og-evaluation-tabs a>span:last-child{min-width:0;overflow-wrap:anywhere}
+.olama-gateway .og-evaluation-tabs small{font-size:12px}
+.olama-gateway .og-evaluation-banner{flex-wrap:wrap}
+.olama-gateway .og-evaluation-banner>div{flex:1 1 280px;min-width:0}
+.olama-gateway .og-evaluation-banner h3{line-height:1.7;overflow-wrap:anywhere}
+.olama-gateway .og-evaluation-banner small{font-size:13px;line-height:1.8}
+.olama-gateway .og-evaluation-category h4{font-size:15px;text-align:start;overflow-wrap:anywhere}
+.olama-gateway .og-evaluation-skill{font-size:15px}
+.olama-gateway .og-evaluation-skill>span{min-width:0;overflow-wrap:anywhere}
+.olama-gateway .og-evaluation-badge{font-size:13px;white-space:normal;overflow-wrap:anywhere}
+.olama-gateway .og-evaluation-summary>small{font-size:12px}
+.olama-gateway .og-evaluation-distribution{font-size:13px;grid-template-columns:minmax(0,85px) minmax(0,1fr) 20px}
+@container(max-width:800px){
+.olama-gateway .og-evaluation-workspace{grid-template-columns:minmax(0,1fr)}
+.olama-gateway .og-evaluation-summary{grid-row:1}
+.olama-gateway .og-evaluation-summary .og-evaluation-ring{margin:14px auto}
+}
+@container(max-width:480px){
+.olama-gateway .og-evaluation-banner{padding:18px}
+.olama-gateway .og-evaluation-banner h3{font-size:20px}
+.olama-gateway .og-evaluation-skill{align-items:flex-start;flex-direction:column;gap:8px}
+.olama-gateway .og-evaluation-badge{max-width:100%}
+}
