@@ -861,6 +861,28 @@ $menu_groups = array(
                     </tbody></table></div></section>
                 <?php endif; ?>
 
+            <?php elseif ('evaluations' === $active_view) : ?>
+                <section class="olama-gateway__heading"><div><h2>التقييمات</h2><p>نتائج التقييمات المعتمدة للطالب في الفصل الدراسي الحالي.</p></div></section>
+                <?php if (is_wp_error($data)) : ?>
+                    <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
+                <?php elseif (empty($data['evaluations'])) : ?>
+                    <div class="olama-gateway__empty">لا توجد تقييمات معتمدة لهذا الطالب في الفصل الدراسي الحالي.</div>
+                <?php else : foreach ($data['evaluations'] as $evaluation) : ?>
+                    <section class="olama-gateway__panel">
+                        <header><h3><?php echo esc_html($evaluation['title']); ?></h3><span><?php echo esc_html($evaluation['date']); ?></span></header>
+                        <?php foreach ($evaluation['domains'] as $domain) : ?>
+                            <h4><?php echo esc_html($domain['title']); ?></h4>
+                            <?php foreach ($domain['categories'] as $category) : ?>
+                                <h5><?php echo esc_html($category['title']); ?></h5>
+                                <div class="olama-gateway__table-wrap"><table><thead><tr><th>المهارة</th><th>نتيجة التقييم</th></tr></thead><tbody>
+                                    <?php foreach ($category['indicators'] as $indicator) : ?>
+                                        <tr><td><?php echo esc_html($indicator['text']); ?></td><td><?php echo esc_html($indicator['result']); ?></td></tr>
+                                    <?php endforeach; ?>
+                                </tbody></table></div>
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </section>
+                <?php endforeach; endif; ?>
             <?php elseif ('unavailable' === $active_view) : ?>
                 <div class="olama-gateway__empty">لا توجد خدمات مفعّلة لهذا الحساب حالياً.</div>
             <?php else : ?>

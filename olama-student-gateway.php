@@ -26,6 +26,7 @@ require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-video-librar
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-exams-provider.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-transportation-provider.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-stores-provider.php';
+require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-evaluations-provider.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/providers/class-filter-provider.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/class-exam-launcher.php';
 require_once OLAMA_STUDENT_GATEWAY_PATH . 'includes/class-demo-exam.php';

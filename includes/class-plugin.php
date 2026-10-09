@@ -209,7 +209,8 @@ final class Olama_Student_Gateway_Plugin {
         $registry->register(new Olama_Student_Gateway_Exams_Provider());
         $registry->register(new Olama_Student_Gateway_Transportation_Provider());
         $registry->register(new Olama_Student_Gateway_Stores_Provider());
-        foreach (array('evaluations', 'attendance', 'messages') as $key) {
+        $registry->register(new Olama_Student_Gateway_Evaluations_Provider());
+        foreach (array('attendance', 'messages') as $key) {
             $registry->register(new Olama_Student_Gateway_Filter_Provider($key));
         }
         do_action('olama_student_gateway_register_providers', $registry);
