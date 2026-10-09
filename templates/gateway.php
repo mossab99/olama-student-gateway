@@ -809,8 +809,17 @@ $menu_groups = array(
                                 $result_labels = array('pass' => 'ناجح', 'fail' => 'راسب', 'pending' => 'بانتظار التصحيح');
                                 $result_score = $field($exam_result, 'score', null);
                                 $result_percentage = $field($exam_result, 'percentage', null);
+                                $exam_subject = trim((string) $field($exam_result, 'subject_name', ''));
+                                $exam_title = trim((string) $field($exam_result, 'exam_title', ''));
+                                $exam_detail = $exam_title;
+                                if ($exam_subject) {
+                                    $exam_detail = trim((string) preg_replace('/\s*[-–—]\s*' . preg_quote($exam_subject, '/') . '\s*$/u', '', $exam_title));
+                                    if ($exam_title === $exam_subject) {
+                                        $exam_detail = '';
+                                    }
+                                }
                             ?>
-                            <tr><td data-label="الامتحان"><?php echo esc_html($field($exam_result, 'exam_title')); ?></td><td data-label="المادة"><?php echo esc_html($field($exam_result, 'subject_name')); ?></td><td data-label="المحاولة"><?php echo esc_html($field($exam_result, 'attempt_number')); ?></td><td data-label="تاريخ التسليم"><?php echo esc_html($field($exam_result, 'submitted_at')); ?></td><td data-label="العلامة"><?php echo esc_html(null === $result_score ? '—' : $result_score . ' / ' . $field($exam_result, 'max_score')); ?></td><td data-label="النسبة"><?php echo esc_html(null === $result_percentage ? '—' : $result_percentage . '%'); ?></td><td data-label="النتيجة"><?php echo esc_html(isset($result_labels[$result_state]) ? $result_labels[$result_state] : $result_labels['pending']); ?></td><td data-label="الإجراء"><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($make_url(array('og_view' => 'exams', 'og_exam_section' => 'online-results', 'og_student' => $student['student_uid'], 'student_uid' => $student['student_uid'], 'exam_view' => 'results', 'attempt_id' => absint($field($exam_result, 'attempt_id', 0))))); ?>">مراجعة الامتحان</a></td></tr>
+                            <tr><td class="olama-gateway__exam-title" data-label="الامتحان"><strong><?php echo esc_html($exam_subject ?: $exam_title); ?></strong><?php if ($exam_subject && $exam_detail) : ?><small>(<?php echo esc_html($exam_detail); ?>)</small><?php endif; ?></td><td data-label="المادة"><?php echo esc_html($field($exam_result, 'subject_name')); ?></td><td data-label="المحاولة"><?php echo esc_html($field($exam_result, 'attempt_number')); ?></td><td data-label="تاريخ التسليم"><?php echo esc_html($field($exam_result, 'submitted_at')); ?></td><td data-label="العلامة"><?php echo esc_html(null === $result_score ? '—' : $result_score . ' / ' . $field($exam_result, 'max_score')); ?></td><td data-label="النسبة"><?php echo esc_html(null === $result_percentage ? '—' : $result_percentage . '%'); ?></td><td data-label="النتيجة"><?php echo esc_html(isset($result_labels[$result_state]) ? $result_labels[$result_state] : $result_labels['pending']); ?></td><td data-label="الإجراء"><a class="olama-gateway__button olama-gateway__button--compact" href="<?php echo esc_url($make_url(array('og_view' => 'exams', 'og_exam_section' => 'online-results', 'og_student' => $student['student_uid'], 'student_uid' => $student['student_uid'], 'exam_view' => 'results', 'attempt_id' => absint($field($exam_result, 'attempt_id', 0))))); ?>">مراجعة الامتحان</a></td></tr>
                             <?php endforeach; ?>
                         </tbody></table></div>
                         <?php endif; ?>
