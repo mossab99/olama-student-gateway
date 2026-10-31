@@ -763,6 +763,68 @@ html.olama-gateway-menu-lock {
     margin: 0;
 }
 
+/* Embedded exams scroll with the document. Hidden overflow on the rounded
+   shell would instead trap sticky descendants in a non-scrolling ancestor. */
+.olama-gateway:has(.olama-gateway__exam-runner #oe-exam-container) {
+    overflow: clip;
+}
+
+/* The exam has its own sticky timer. Keep the portal bar in normal flow so
+   both headers do not occupy the same space while answering questions. */
+.olama-gateway:has(.olama-gateway__exam-runner #oe-exam-container) .olama-gateway__topbar {
+    position: static;
+}
+
+.olama-gateway__exam-runner #oe-exam-container .oe-navigation {
+    position: sticky;
+    top: var(--oe-navigation-top, 142px);
+    max-height: calc(100vh - var(--oe-navigation-top, 142px) - 16px);
+    max-height: calc(100dvh - var(--oe-navigation-top, 142px) - 16px);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+}
+
+/* Navigation measures a question before its reveal animation finishes. Keep
+   its position stable so jumping back cannot tuck it under the sticky timer. */
+.olama-gateway__exam-runner #oe-exam-container .oe-question-card {
+    transform: none;
+}
+
+/* WordPress replaces emoji text (including the submit checkmark) with images.
+   Bound only these UI images; question illustrations retain their own sizes.
+   Important overrides theme/WordPress emoji rules and inline image dimensions. */
+.olama-gateway__exam-runner img.emoji,
+.olama-gateway__exam-runner img.wp-smiley {
+    display: inline-block;
+    width: 1em !important;
+    height: 1em !important;
+    max-width: 1em !important;
+    max-height: 1em !important;
+    margin: 0 .07em !important;
+    padding: 0 !important;
+    border: 0 !important;
+    vertical-align: -.1em;
+    flex: 0 0 1em;
+    object-fit: contain;
+}
+
+@media (max-width: 900px) {
+    .olama-gateway__exam-runner #oe-exam-container .oe-content-side {
+        width: 100%;
+    }
+
+    .olama-gateway__exam-runner #oe-exam-container .oe-navigation {
+        width: 100%;
+        max-height: min(220px, 30vh, calc(100vh - var(--oe-navigation-top, 142px) - 16px));
+        max-height: min(220px, 30dvh, calc(100dvh - var(--oe-navigation-top, 142px) - 16px));
+    }
+
+    .olama-gateway__exam-runner .oe-header-top {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
 .olama-gateway__demo-exam {
     display: grid;
     gap: 18px;
