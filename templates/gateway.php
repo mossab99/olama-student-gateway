@@ -811,12 +811,13 @@ $menu_groups = array(
                         <?php else : ?>
                         <div class="olama-gateway__table-wrap"><table><thead><tr><th>الامتحان</th><th>المادة</th><th>المحاولة</th><th>تاريخ التسليم</th><th>العلامة</th><th>النسبة</th><th>النتيجة</th><th>الإجراء</th></tr></thead><tbody>
                             <?php
-                            $result_groups = array('exam' => array(), 'quiz' => array());
+                            $result_groups = array('exam' => array(), 'direct' => array(), 'quiz' => array());
                             foreach ($online_results as $exam_result) {
-                                $result_type = 'quiz' === $field($exam_result, 'exam_type', 'exam') ? 'quiz' : 'exam';
+                                $result_type = $field($exam_result, 'exam_type', 'exam');
+                                $result_type = in_array($result_type, array('direct', 'quiz'), true) ? $result_type : 'exam';
                                 $result_groups[$result_type][] = $exam_result;
                             }
-                            foreach (array('exam' => 'اختبارات التقويم', 'quiz' => 'الاختبارات القصيرة') as $result_type => $group_label) :
+                            foreach (array('exam' => 'اختبارات التقويم', 'direct' => 'الاختبارات المباشرة', 'quiz' => 'الاختبارات القصيرة') as $result_type => $group_label) :
                                 if (!$result_groups[$result_type]) {
                                     continue;
                                 }
