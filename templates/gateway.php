@@ -76,6 +76,7 @@ $menu_groups = array(
     )),
     array('key' => 'exams', 'label' => 'الامتحانات', 'icon' => 'dashicons-clipboard', 'items' => array(
         array('view' => 'exams', 'label' => 'جدول الامتحانات', 'standard_only' => true, 'args' => array('og_exam_section' => 'schedule')),
+        array('view' => 'exams', 'label' => 'الامتحانات المباشرة', 'args' => array('og_exam_section' => 'direct')),
         array('view' => 'exams', 'label' => 'اختبارات التقويم', 'args' => array('og_exam_section' => 'online')),
         array('view' => 'exams', 'label' => 'الاختبارات القصيرة', 'args' => array('og_exam_section' => 'short')),
         array('view' => 'exams', 'label' => 'الاختبارات المنجزة', 'args' => array('og_exam_section' => 'finished')),
@@ -639,6 +640,7 @@ $menu_groups = array(
                 $exam_section = !empty($model['exam_section']) ? $model['exam_section'] : (Olama_Student_Gateway_Service_Settings::exam_sections($is_temp_family)[0] ?? 'online');
                 $exam_sections = array(
                     'schedule' => array('جدول الامتحانات', 'جدول الامتحانات المعتمد للطالب.'),
+                    'direct' => array('الامتحانات المباشرة', 'اختر المادة ثم الوحدة والدرس. يمكنك التقدم للامتحانات المفعلة في أي وقت وبمحاولات غير محدودة.'),
                     'online' => array('اختبارات التقويم', $is_temp_family ? 'تجربة اختبارات التقويم المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'اختبارات التقويم المنشورة والمتاحة للبدء أو الاستكمال.'),
                     'short' => array('الاختبارات القصيرة', $is_temp_family ? 'تجربة الاختبارات القصيرة المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'الاختبارات القصيرة المنشورة والمتاحة للبدء أو الاستكمال.'),
                     'finished' => array('الاختبارات المنجزة', 'اختبارات التقويم والاختبارات القصيرة التي انتهى وقتها أو أُغلقت.'),
@@ -647,18 +649,19 @@ $menu_groups = array(
                 );
                 $exam_heading = $exam_sections[$exam_section];
                 $exam_id = isset($_GET['exam_id']) ? absint($_GET['exam_id']) : 0;
-                $exam_list_section = in_array($exam_section, array('online', 'short'), true) ? $exam_section : (Olama_Student_Gateway_Service_Settings::visible('exams.online') ? 'online' : (Olama_Student_Gateway_Service_Settings::exam_sections($is_temp_family)[0] ?? 'short'));
+                $exam_list_section = in_array($exam_section, array('direct', 'online', 'short'), true) ? $exam_section : (Olama_Student_Gateway_Service_Settings::visible('exams.online') ? 'online' : (Olama_Student_Gateway_Service_Settings::exam_sections($is_temp_family)[0] ?? 'short'));
                 if ($exam_id && !is_wp_error($data) && !empty($data['online_exams'])) {
                     foreach ((array) $data['online_exams'] as $listed_exam) {
                         if ($exam_id === absint($field($listed_exam, 'id', 0))) {
-                            $listed_section = 'quiz' === $field($listed_exam, 'exam_type', 'exam') ? 'short' : 'online';
+                            $listed_type = $field($listed_exam, 'exam_type', 'exam');
+                            $listed_section = 'direct' === $listed_type ? 'direct' : ('quiz' === $listed_type ? 'short' : 'online');
                             if (Olama_Student_Gateway_Service_Settings::visible('exams.' . $listed_section)) $exam_list_section = $listed_section;
                             break;
                         }
                     }
                 }
                 $exam_list_url = $make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => $exam_list_section));
-                $exam_back_label = 'short' === $exam_list_section ? 'الاختبارات القصيرة' : 'اختبارات التقويم';
+                $exam_back_label = 'direct' === $exam_list_section ? 'الامتحانات المباشرة' : ('short' === $exam_list_section ? 'الاختبارات القصيرة' : 'اختبارات التقويم');
                 if ('results' === $exam_engine_view) {
                     $exam_list_url = $make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => 'online-results'));
                     $exam_back_label = 'نتائج الامتحانات الإلكترونية';
@@ -687,6 +690,8 @@ $menu_groups = array(
                     <div class="olama-gateway__empty">هذا الحساب يستخدم وضع العرض التجريبي فقط، ولا يمكنه إنشاء محاولة امتحان.</div>
                 <?php elseif (is_wp_error($data)) : ?>
                     <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
+                <?php elseif ('direct' === $exam_section) : ?>
+                    <?php include __DIR__ . '/direct-exams.php'; ?>
                 <?php else :
                     $schedule = !empty($data['schedule']) && is_array($data['schedule']) ? $data['schedule'] : array();
                     $scheduled_exams = isset($schedule['exams']) ? (array) $schedule['exams'] : array();
@@ -696,6 +701,7 @@ $menu_groups = array(
                     $online_exam_rows = array('online' => array(), 'short' => array(), 'finished' => array('exam' => array(), 'quiz' => array()));
                     $exam_state_priority = array('available' => 0, 'upcoming' => 1, 'ended' => 2, 'unavailable' => 3);
                     foreach ($online_exams as $online_exam) {
+                        if ('direct' === $field($online_exam, 'exam_type', 'exam')) { continue; }
                         $online_exam_action = Olama_Student_Gateway_Exam_Launcher::action($online_exam, $student['student_uid'], $exam_list_url);
                         $exam_type = 'quiz' === $field($online_exam, 'exam_type', 'exam') ? 'quiz' : 'exam';
                         $row = array(

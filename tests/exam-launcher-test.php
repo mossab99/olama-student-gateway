@@ -76,3 +76,18 @@ assert_true(false === strpos($demo_action['url'], 'exam_view=take'), 'A local me
 assert_true('تجربة الامتحان' === $demo_action['label'], 'A local member should see a demo-specific action label.');
 
 echo "Exam launcher tests passed.\n";
+
+$exam->id = 42;
+$exam->exam_type = 'direct';
+$exam->status = 'active';
+$exam->start_time = '';
+$exam->end_time = '';
+$action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
+assert_true('available' === $action['state'] && '' !== $action['url'], 'Direct exams must launch without a time window.');
+$exam->end_time = '2000-01-01 00:00:00';
+$action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
+assert_true('available' === $action['state'], 'Direct practice remains available after legacy dates expire.');
+$exam->status = 'closed';
+$action = Olama_Student_Gateway_Exam_Launcher::action($exam, 'STU-123', $gateway_url);
+assert_true('ended' === $action['state'] && '' === $action['url'], 'Manually closed direct exams must not launch.');
+echo "Direct exam launcher tests passed.\n";

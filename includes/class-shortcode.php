@@ -83,6 +83,34 @@ class Olama_Student_Gateway_Shortcode {
             // the gateway ownership check before using it as the selection.
             $requested_student = wp_unslash($_GET['student_uid']);
         }
+        // Shared weekly-plan links contain no student identity. Resolve only
+        // members of this family whose current academic scope matches the exam.
+        if (!$requested_student && 'take' === $exam_view && !empty($_GET['exam_id']) && class_exists('Olama_Exam_Manager')) {
+            $target = Olama_Exam_Manager::get_exam(absint($_GET['exam_id']));
+            $matches = array();
+            if ($target && 'direct' === ($target->exam_type ?? '') && in_array($target->status, array('active', 'published'), true)) {
+                foreach ($context['students'] as $candidate) {
+                    $candidate_context = $context;
+                    $candidate_context['student'] = $candidate;
+                    $scope = (new Olama_Student_Gateway_School_Context_Provider())->resolve_scope($candidate_context);
+                    if (!is_wp_error($scope) && (int) $scope['section_id'] === (int) $target->section_id &&
+                        (int) $scope['academic_year_id'] === (int) $target->academic_year_id && (int) $scope['semester_id'] === (int) $target->semester_id) {
+                        $matches[] = $candidate;
+                    }
+                }
+            }
+            if (count($matches) === 1) {
+                $requested_student = $matches[0]['student_uid'];
+                $_GET['student_uid'] = $requested_student;
+            } else {
+                $links = '<div class="olama-gateway__panel" dir="rtl"><p>' . esc_html($matches ? 'اختر الطالب للتقدم للامتحان:' : 'هذا الامتحان غير متاح لطلاب هذا الحساب.') . '</p>';
+                foreach ($matches as $candidate) {
+                    $url = add_query_arg(array('og_view' => 'exams', 'og_exam_section' => 'direct', 'exam_view' => 'take', 'exam_id' => absint($_GET['exam_id']), 'og_student' => $candidate['student_uid'], 'student_uid' => $candidate['student_uid']), get_permalink());
+                    $links .= '<p><a href="' . esc_url($url) . '">' . esc_html($candidate['student_name'] ?? $candidate['student_uid']) . '</a></p>';
+                }
+                return $late_styles . $links . '</div>';
+            }
+        }
         $student = $this->access->select_student($context, $requested_student);
         if (is_wp_error($student)) {
             return $late_styles . $this->notice($student->get_error_message(), 'error');
@@ -138,7 +166,7 @@ class Olama_Student_Gateway_Shortcode {
                         $listed_id = is_array($listed_exam) ? (isset($listed_exam['id']) ? $listed_exam['id'] : 0) : (isset($listed_exam->id) ? $listed_exam->id : 0);
                         $listed_type = is_array($listed_exam) ? (isset($listed_exam['exam_type']) ? $listed_exam['exam_type'] : 'exam') : (isset($listed_exam->exam_type) ? $listed_exam->exam_type : 'exam');
                         if ($exam_id === absint($listed_id)) {
-                            $allow_exam_embed = Olama_Student_Gateway_Service_Settings::visible('exams.' . ('quiz' === $listed_type ? 'short' : 'online'));
+                            $allow_exam_embed = Olama_Student_Gateway_Service_Settings::visible('exams.' . ('direct' === $listed_type ? 'direct' : ('quiz' === $listed_type ? 'short' : 'online')));
                             break;
                         }
                     }
@@ -312,6 +340,16 @@ class Olama_Student_Gateway_Shortcode {
         return $this->providers->data($view, $context);
     }
 
+    private function login_return_url() {
+        $args = array();
+        foreach (array('og_view', 'og_exam_section', 'exam_view', 'exam_id', 'og_student', 'student_uid') as $key) {
+            if (isset($_GET[$key]) && is_scalar($_GET[$key])) {
+                $args[$key] = sanitize_text_field(wp_unslash($_GET[$key]));
+            }
+        }
+        return add_query_arg($args, get_permalink() ?: home_url('/'));
+    }
+
     private function render_login() {
         ob_start();
         ?>
@@ -341,7 +379,7 @@ class Olama_Student_Gateway_Shortcode {
                 }
 
                 wp_login_form(array(
-                    'redirect' => get_permalink() ? get_permalink() : home_url('/'),
+                    'redirect' => $this->login_return_url(),
                     'label_username' => __('Family number or temporary username', 'olama-student-gateway'),
                     'label_password' => __('Password', 'olama-student-gateway'),
                     'label_remember' => __('Remember me', 'olama-student-gateway'),

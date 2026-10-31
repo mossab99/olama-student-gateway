@@ -24,13 +24,14 @@ final class Olama_Student_Gateway_Exam_Launcher {
         if (!$exam_id || !in_array($status, array('published', 'active'), true)) {
             return array('state' => 'unavailable', 'label' => __('غير متاح', 'olama-student-gateway'), 'status_label' => __('غير متاح', 'olama-student-gateway'), 'url' => '');
         }
-        if (!$start || !$end) {
+        $is_direct = 'direct' === self::field($exam, 'exam_type');
+        if (!$is_direct && (!$start || !$end)) {
             return array('state' => 'unavailable', 'label' => __('الموعد غير مكتمل', 'olama-student-gateway'), 'status_label' => __('غير متاح', 'olama-student-gateway'), 'url' => '');
         }
-        if ($now < $start) {
+        if (!$is_direct && $now < $start) {
             return array('state' => 'upcoming', 'label' => __('لم يبدأ بعد', 'olama-student-gateway'), 'status_label' => __('لم يبدأ بعد', 'olama-student-gateway'), 'url' => '');
         }
-        if ($now > $end) {
+        if (!$is_direct && $now > $end) {
             return array('state' => 'ended', 'label' => __('انتهى الامتحان', 'olama-student-gateway'), 'status_label' => __('انتهى الامتحان', 'olama-student-gateway'), 'url' => '');
         }
 

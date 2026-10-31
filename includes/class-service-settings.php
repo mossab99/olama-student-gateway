@@ -33,6 +33,7 @@ final class Olama_Student_Gateway_Service_Settings {
             )),
             'exams' => array('label' => 'الامتحانات', 'items' => array(
                 'exams.schedule' => 'جدول الامتحانات',
+                'exams.direct' => 'الامتحانات المباشرة',
                 'exams.online' => 'اختبارات التقويم',
                 'exams.short' => 'الاختبارات القصيرة',
                 'exams.finished' => 'الاختبارات المنجزة',
@@ -81,9 +82,9 @@ final class Olama_Student_Gateway_Service_Settings {
     }
 
     public static function exam_sections($is_temp_family = false) {
-        $sections = array('schedule', 'online', 'short', 'finished', 'online-results', 'hall');
+        $sections = array('schedule', 'direct', 'online', 'short', 'finished', 'online-results', 'hall');
         if ($is_temp_family) {
-            $sections = array('online', 'short', 'finished');
+            $sections = array('direct', 'online', 'short', 'finished');
         }
         return array_values(array_filter($sections, static function ($section) {
             return self::visible('exams.' . $section);
