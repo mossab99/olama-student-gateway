@@ -361,11 +361,18 @@ $menu_groups = array(
                         <span class="olama-gateway__eyebrow">ملخص الطالب · <?php echo esc_html($context['study_year'] ?: 'السنة الحالية'); ?></span>
                         <h2>إليك ملخص يوم <?php echo esc_html($first_name); ?></h2>
                         <p><?php echo esc_html(wp_date('l، j F Y', current_time('timestamp'))); ?> · أحدث المعلومات المنشورة لحساب العائلة.</p>
-                        <?php if (!$is_temp_family && isset($model['views']['family'])) : ?><div class="olama-gateway__hero-actions">
+                        <div class="olama-gateway__hero-actions">
+                            <?php if ($student && isset($model['views']['exams']) && Olama_Student_Gateway_Service_Settings::visible('exams.direct')) : ?>
+                                <a class="olama-gateway__button" href="<?php echo esc_url($make_url(array('og_view' => 'exams', 'og_exam_section' => 'direct', 'og_student' => $student['student_uid']))); ?>">
+                                    <span class="dashicons dashicons-welcome-learn-more" aria-hidden="true"></span> الامتحانات المباشرة
+                                </a>
+                            <?php endif; ?>
+                            <?php if (!$is_temp_family && isset($model['views']['family'])) : ?>
                                 <a class="olama-gateway__button olama-gateway__button--ghost" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
                                     <span class="dashicons dashicons-groups" aria-hidden="true"></span> أفراد العائلة
                                 </a>
-                        </div><?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </section>
                 <?php

@@ -57,6 +57,11 @@ class Olama_Student_Gateway_Video_Library_Provider implements Olama_Student_Gate
             $subject_ids = array_values(array_unique(array_filter(array_map('absint', $subject_ids))));
         }
 
+        if (is_callable(array('Olama_School_Subject', 'get_for_student_gateway'))) {
+            $allowed_subjects = array_map(static function ($subject) { return (int) $subject->id; }, Olama_School_Subject::get_for_student_gateway($school['grade_id']));
+            $subject_ids = array_values(array_intersect($subject_ids, $allowed_subjects));
+        }
+
         $library = Olama_Media_Guardian_Library::for_curriculum(
             $school['academic_year_id'],
             $school['semester_id'],

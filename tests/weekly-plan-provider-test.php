@@ -25,16 +25,16 @@ class Olama_School_Section {
         ));
     }
     public static function get_section($id) {
-        return 12 === (int) $id ? (object) array('id' => 12) : null;
+        return 12 === (int) $id ? (object) array('id' => 12, 'grade_id' => 8) : null;
     }
 }
 
 class Olama_School_Plan {
     public static function get_plans($section_id, $start, $end) {
         return array(
-            (object) array('id' => 1, 'plan_date' => $start, 'period_number' => 1, 'subject_name' => 'رياضيات', 'status' => 'approved', 'plan_type' => 'homework'),
+            (object) array('id' => 1, 'subject_id' => 20, 'plan_date' => $start, 'period_number' => 1, 'subject_name' => 'رياضيات', 'status' => 'approved', 'plan_type' => 'homework'),
             (object) array('id' => 2, 'plan_date' => $start, 'period_number' => 2, 'subject_name' => 'مسودة', 'status' => 'draft', 'plan_type' => 'homework'),
-            (object) array('id' => 3, 'plan_date' => (new DateTimeImmutable($start))->modify('+1 day')->format('Y-m-d'), 'period_number' => 1, 'subject_name' => 'علوم', 'status' => 'published', 'plan_type' => 'review'),
+            (object) array('id' => 3, 'subject_id' => 21, 'plan_date' => (new DateTimeImmutable($start))->modify('+1 day')->format('Y-m-d'), 'period_number' => 1, 'subject_name' => 'علوم', 'status' => 'published', 'plan_type' => 'review'),
         );
     }
 }
@@ -68,4 +68,11 @@ $local_data = $provider->get_data(array(
 ), array('week' => '2026-08-23'));
 assert_true(is_array($local_data) && 12 === $local_data['section_id'], 'A local member should resolve its selected School section directly.');
 
+if (!class_exists('Olama_School_Subject')) {
+    class Olama_School_Subject {
+        public static function get_for_student_gateway($grade) { return array((object) array('id' => 20)); }
+    }
+}
+$filtered = $provider->get_data(array('student' => array('academic' => array('school_section_id' => 12))), array('week' => '2026-08-23'));
+assert_true(1 === count($filtered['days'][0]['plans']) && array() === $filtered['days'][1]['plans'], 'Hidden subject plans and homework must be excluded.');
 echo "Weekly plan provider tests passed.\n";

@@ -52,4 +52,19 @@ assert_same(array(4, 7, 8, array(20, 21)), Olama_Media_Guardian_Library::$reques
 assert_same(12, $data['section_id'], 'The validated student section should remain in the view model.');
 assert_same(1, $data['video_count'], 'The published video total should be returned.');
 
+if (!class_exists('Olama_School_Subject')) {
+class Olama_School_Subject {
+    public static $visible = array(20);
+    public static function get_for_student_gateway($grade) {
+        assert_same(8, $grade, 'Subject visibility must use the mapped grade.');
+        return array_map(static function ($id) { return (object) array('id' => $id); }, self::$visible);
+    }
+}
+}
+$data = $provider->get_data(array());
+assert_same(array(4, 7, 8, array(20)), Olama_Media_Guardian_Library::$request, 'Hidden subjects must be excluded from video requests.');
+Olama_School_Subject::$visible = array();
+$data = $provider->get_data(array());
+assert_same(array(4, 7, 8, array()), Olama_Media_Guardian_Library::$request, 'An empty allowed list must not widen video access.');
+
 echo "Video library provider tests passed.\n";

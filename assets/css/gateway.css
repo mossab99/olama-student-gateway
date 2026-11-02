@@ -316,10 +316,15 @@ html.olama-gateway-menu-lock {
 }
 
 .olama-gateway__student-switch {
-    display: grid;
-    gap: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: var(--og-muted);
     font-size: 13px;
+}
+
+.olama-gateway__student-switch > span {
+    white-space: nowrap;
 }
 
 .olama-gateway__student-switch select {
@@ -2054,9 +2059,12 @@ html.olama-gateway-menu-lock {
         margin-inline-start: auto;
     }
 
-    .olama-gateway__year,
-    .olama-gateway__student-switch > span {
+    .olama-gateway__year {
         display: none;
+    }
+
+    .olama-gateway__topbar {
+        flex-wrap: wrap;
     }
 
     .olama-gateway__student-switch select {

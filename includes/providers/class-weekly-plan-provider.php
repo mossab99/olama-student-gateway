@@ -30,6 +30,13 @@ class Olama_Student_Gateway_Weekly_Plan_Provider implements Olama_Student_Gatewa
         $published = array_values(array_filter((array) $plans, static function ($plan) {
             return isset($plan->status) && in_array((string) $plan->status, array('approved', 'published'), true);
         }));
+        if (is_callable(array('Olama_School_Subject', 'get_for_student_gateway'))) {
+            $section = Olama_School_Section::get_section($section_id);
+            $allowed = array_map(static function ($subject) { return (int) $subject->id; }, Olama_School_Subject::get_for_student_gateway($section->grade_id ?? 0));
+            $published = array_values(array_filter($published, static function ($plan) use ($allowed) {
+                return in_array((int) ($plan->subject_id ?? 0), $allowed, true);
+            }));
+        }
 
         $days = array();
         for ($offset = 0; $offset < 5; $offset++) {

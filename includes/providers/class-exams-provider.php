@@ -67,7 +67,7 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
     private function direct_catalog(array $scope) {
         $subjects = array();
         if (!class_exists('Olama_School_Subject') || !class_exists('Olama_School_Unit') || !class_exists('Olama_School_Lesson')) { return $subjects; }
-        foreach (Olama_School_Subject::get_subjects_by_grade($scope['grade_id'], true) as $subject) {
+        foreach ($this->gateway_subjects($scope['grade_id']) as $subject) {
             $units = array();
             foreach (Olama_School_Unit::get_units($subject->id, $scope['grade_id'], $scope['semester_id']) as $unit) {
                 $units[] = array('unit' => $unit, 'lessons' => Olama_School_Lesson::get_lessons($unit->id));
@@ -75,6 +75,23 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
             $subjects[] = array('subject' => $subject, 'units' => $units);
         }
         return $subjects;
+    }
+
+    private function gateway_subjects($grade_id) {
+        if (!$grade_id) { return array(); }
+        return array_values(array_filter((array) Olama_School_Subject::get_subjects_by_grade($grade_id, true), static function ($subject) {
+            return (!isset($subject->is_active) || (int) $subject->is_active === 1)
+                && (!isset($subject->appear_in_student_gateway) || (int) $subject->appear_in_student_gateway === 1);
+        }));
+    }
+
+    private function filter_subject_exams(array $exams, array $scope) {
+        // Older installations may not have the School curriculum service.
+        if (!is_callable(array('Olama_School_Subject', 'get_subjects_by_grade'))) { return $exams; }
+        $allowed = array_map(static function ($subject) { return (int) $subject->id; }, $this->gateway_subjects($scope['grade_id'] ?? 0));
+        return array_values(array_filter($exams, static function ($exam) use ($allowed) {
+            return in_array((int) ($exam->subject_id ?? 0), $allowed, true);
+        }));
     }
 
     private function online_results($student_uid, array $schedule) {
@@ -98,6 +115,7 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
         $schedule['exams'] = array_values(array_filter((array) $schedule['exams'], static function ($exam) {
             return isset($exam->status) && 'approved' === (string) $exam->status;
         }));
+        $schedule['exams'] = $this->filter_subject_exams($schedule['exams'], $schedule);
         return $schedule;
     }
 
@@ -125,7 +143,7 @@ class Olama_Student_Gateway_Exams_Provider implements Olama_Student_Gateway_Prov
                 $unique[(int) $row->id] = $row;
             }
         }
-        return array_values($unique);
+        return $this->filter_subject_exams(array_values($unique), $schedule);
     }
 
     private function hall_assignment($student_uid, array $schedule) {
