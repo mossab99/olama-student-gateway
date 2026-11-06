@@ -11,12 +11,14 @@ class Olama_Exam_Identity { public static $allowed = true; public static functio
 class Olama_Exam_Grader {
     public static function grade() { throw new Exception('Review must never regrade or write an attempt.'); }
     public static function grade_question() { return 1; }
+    public static function has_answer($value) { return $value !== null && trim($value) !== ''; }
 }
 class Review_DB {
     public $prefix = 'wp_';
     public $attempt;
     public function prepare($query, $id) { return $query; }
     public function get_row($query) { return $this->attempt; }
+    public function get_var($query) { return '0.00'; }
 }
 function assert_true($value, $message) { if (!$value) { throw new Exception($message); } }
 require dirname(__DIR__, 2) . '/olama-exam-engine/includes/class-exam-shortcodes.php';
@@ -30,6 +32,13 @@ assert_true(strpos($html, 'Correct Answer:') !== false && strpos($html, 'Hidden 
 $wpdb->attempt->show_correct_answers = 1;
 $html = $method->invoke($renderer, 31);
 assert_true(strpos($html, 'Correct Answer:') !== false && strpos($html, 'Hidden explanation') !== false, 'Enabled answer review should include correct answers and explanations.');
+$wpdb->attempt->questions_snapshot_json = json_encode(array(
+    array('question_id' => 1, 'question_text' => 'Blank essay', 'type' => 'essay', 'points' => 3),
+    array('question_id' => 2, 'question_text' => 'Graded essay', 'type' => 'essay', 'points' => 2),
+));
+$wpdb->attempt->answers_json = json_encode(array(1 => ' ', 2 => 'Student answer'));
+$html = $method->invoke($renderer, 31);
+assert_true(strpos($html, 'No answer provided · 0 / 3') !== false && strpos($html, 'Score: 0.00 / 2') !== false && strpos($html, 'oe-pending') === false, 'Blank essays and essays graded zero must both show a score instead of pending.');
 Olama_Exam_Identity::$allowed = false;
 assert_true(strpos($method->invoke($renderer, 31), 'Student answer') === false, 'Unauthorized reviews must not reveal answers.');
 $formatter = new ReflectionMethod($renderer, 'format_student_answer_php');
