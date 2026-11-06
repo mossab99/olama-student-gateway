@@ -97,22 +97,103 @@
             });
         }
 
+        var videoCards = Array.prototype.slice.call(gateway.querySelectorAll('[data-video-card]'));
+        var videoSubjects = Array.prototype.slice.call(gateway.querySelectorAll('[data-video-subject]'));
+        var videoGrid = gateway.querySelector('[data-video-cards]');
+        var videoToolbar = gateway.querySelector('.olama-gateway__video-toolbar');
+        var selectedCard = null;
+        videoCards.forEach(function (card) {
+            card.addEventListener('click', function () {
+                selectedCard = card;
+                videoCards.forEach(function (item) { item.setAttribute('aria-expanded', item === card ? 'true' : 'false'); });
+                videoSubjects.forEach(function (subject) {
+                    subject.hidden = subject.id !== card.getAttribute('aria-controls');
+                    if (!subject.hidden) { subject.querySelector('[data-video-subject-title]').focus(); }
+                });
+                videoGrid.hidden = true;
+                if (videoToolbar) { videoToolbar.hidden = true; }
+            });
+        });
+        gateway.querySelectorAll('[data-video-back]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                videoSubjects.forEach(function (subject) { subject.hidden = true; });
+                videoGrid.hidden = false;
+                if (videoToolbar) { videoToolbar.hidden = false; }
+                videoCards.forEach(function (card) { card.setAttribute('aria-expanded', 'false'); });
+                if (selectedCard) { selectedCard.focus(); }
+            });
+        });
         if (videoSearch) {
-            var videoSubjects = Array.prototype.slice.call(gateway.querySelectorAll('[data-video-subject]'));
             var videoEmpty = gateway.querySelector('[data-video-empty]');
             videoSearch.addEventListener('input', function () {
                 var query = videoSearch.value.trim().toLocaleLowerCase();
                 var visible = 0;
-                videoSubjects.forEach(function (subject) {
-                    var matches = !query || (subject.getAttribute('data-search') || '').toLocaleLowerCase().indexOf(query) !== -1;
-                    subject.hidden = !matches;
-                    if (matches) {
-                        visible += 1;
-                    }
+                videoCards.forEach(function (card) {
+                    card.hidden = !!query && (card.getAttribute('data-search') || '').toLocaleLowerCase().indexOf(query) === -1;
+                    if (!card.hidden) { visible += 1; }
                 });
-                if (videoEmpty) {
-                    videoEmpty.hidden = visible !== 0;
+                if (videoEmpty) { videoEmpty.hidden = visible !== 0; }
+            });
+        }
+
+        var videoDialog = gateway.querySelector('[data-video-dialog]');
+        if (videoDialog) {
+            var videoScreen = videoDialog.querySelector('[data-video-screen]');
+            var videoTitle = videoDialog.querySelector('[data-video-title]');
+            var videoError = videoDialog.querySelector('[data-video-error]');
+            var videoTrigger = null;
+            function playerSource(value) {
+                var url;
+                try { url = new URL(value, window.location.href); } catch (error) { return null; }
+                if (!/^https?:$/.test(url.protocol)) { return null; }
+                var host = url.hostname.toLowerCase();
+                var id;
+                if (host === 'drive.google.com') {
+                    var match = url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
+                    id = match ? match[1] : url.searchParams.get('id');
+                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/file/d/' + id + '/preview', type: 'iframe' }; }
                 }
+                if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com'].indexOf(host) !== -1) {
+                    id = host === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v') || url.pathname.replace(/^\/(embed|shorts)\//, '');
+                    if (/^[a-zA-Z0-9_-]{11}$/.test(id || '')) { return { src: 'https://www.youtube-nocookie.com/embed/' + id, type: 'iframe' }; }
+                }
+                if (['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'].indexOf(host) !== -1) {
+                    var vimeo = url.pathname.match(/^\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?\/?$/);
+                    if (vimeo) { return { src: 'https://player.vimeo.com/video/' + vimeo[1] + ((vimeo[2] || url.searchParams.get('h')) ? '?h=' + encodeURIComponent(vimeo[2] || url.searchParams.get('h')) : ''), type: 'iframe' }; }
+                }
+                if (/\.(mp4|webm|ogv|m4v)$/i.test(url.pathname)) { return { src: url.href, type: 'video' }; }
+                return null;
+            }
+            gateway.querySelectorAll('[data-video-play]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    videoTrigger = button;
+                    videoScreen.replaceChildren();
+                    videoTitle.textContent = button.getAttribute('data-video-title') || '';
+                    var source = playerSource(button.getAttribute('data-video-url'));
+                    videoError.hidden = !!source;
+                    if (source) {
+                        var player = document.createElement(source.type);
+                        if (source.type === 'video') { player.controls = true; player.playsInline = true; player.preload = 'metadata'; }
+                        else {
+                            player.title = videoTitle.textContent;
+                            player.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+                            player.allowFullscreen = true;
+                            player.referrerPolicy = 'strict-origin-when-cross-origin';
+                        }
+                        player.src = source.src;
+                        videoScreen.appendChild(player);
+                    }
+                    videoDialog.showModal();
+                });
+            });
+            videoDialog.querySelector('[data-video-close]').addEventListener('click', function () { videoDialog.close(); });
+            videoDialog.addEventListener('click', function (event) {
+                var bounds = videoDialog.getBoundingClientRect();
+                if (event.target === videoDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) { videoDialog.close(); }
+            });
+            videoDialog.addEventListener('close', function () {
+                videoScreen.replaceChildren();
+                if (videoTrigger) { videoTrigger.focus(); }
             });
         }
 

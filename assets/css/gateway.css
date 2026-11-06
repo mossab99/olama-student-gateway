@@ -1753,7 +1753,7 @@ html.olama-gateway-menu-lock {
     gap: 7px;
 }
 
-.olama-gateway__video-actions a {
+.olama-gateway__video-actions button {
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -2096,7 +2096,7 @@ html.olama-gateway-menu-lock {
         width: 100%;
     }
 
-    .olama-gateway__video-actions a {
+    .olama-gateway__video-actions button {
         justify-content: center;
         flex: 1;
     }
@@ -2507,3 +2507,25 @@ body.og-printing-evaluation .og-evaluation-print-root *{visibility:visible!impor
 .og-print-footer{border-top:1px solid #dce6dc;margin-top:18px;padding-top:10px;text-align:center;break-inside:avoid}
 .og-print-footer strong,.og-print-footer span{display:block}.og-print-footer strong{font-size:10pt;color:#1a635b}.og-print-footer span{font-size:9pt;color:#657674}
 }
+
+/* Subject-first video library and in-site player. */
+.olama-gateway__subject-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:18px; }
+.olama-gateway__subject-card { display:flex; flex-direction:column; align-items:flex-start; gap:14px; padding:24px; text-align:start; font:inherit; color:var(--og-text); background:linear-gradient(135deg,color-mix(in srgb,var(--subject-color) 12%,white),white); border:1px solid color-mix(in srgb,var(--subject-color) 30%,white); border-top:5px solid var(--subject-color); border-radius:18px; box-shadow:var(--og-shadow); cursor:pointer; }
+.olama-gateway__subject-card:hover { border-color:var(--subject-color); transform:translateY(-2px); }
+.olama-gateway__subject-card strong { font-size:19px; }
+.olama-gateway__subject-card small { color:var(--og-muted); }
+.olama-gateway__subject-card-action { display:flex; align-items:center; gap:10px; color:var(--subject-color); font-size:13px; font-weight:700; }
+.olama-gateway__video-subject h3 { margin:0; font-size:19px; }
+.olama-gateway__video-back { margin-inline-start:auto; display:flex; align-items:center; gap:6px; padding:10px; color:var(--subject-color); background:white; border:1px solid var(--og-border); border-radius:9px; font:inherit; cursor:pointer; }
+.olama-gateway__video-actions button { border:0; font-family:inherit; cursor:pointer; }
+.olama-gateway__subject-card:focus-visible, .olama-gateway__video-actions button:focus-visible, .olama-gateway__video-back:focus-visible { outline:3px solid var(--subject-color); outline-offset:3px; }
+.olama-gateway__video-dialog { width:min(960px,94vw); max-width:94vw; max-height:90dvh; padding:0; border:0; border-radius:18px; background:#101b2a; color:white; box-shadow:0 24px 90px #0008; }
+.olama-gateway__video-dialog::backdrop { background:#071221c9; }
+.olama-gateway__video-dialog > header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 20px; }
+.olama-gateway__video-dialog h3 { margin:0; font-size:17px; color:white; }
+.olama-gateway__video-dialog button { display:grid; place-items:center; flex-shrink:0; width:40px; height:40px; border:1px solid #ffffff44; border-radius:10px; background:#ffffff18; color:white; cursor:pointer; }
+.olama-gateway__video-screen { background:#000; }
+.olama-gateway__video-screen:empty { display:none; }
+.olama-gateway__video-screen iframe, .olama-gateway__video-screen video { display:block; width:100%; aspect-ratio:16/9; border:0; max-height:70dvh; }
+.olama-gateway__video-dialog p { padding:20px; color:white; }
+@media (max-width:600px) { .olama-gateway__video-subject > header { flex-wrap:wrap; padding:16px; } .olama-gateway__video-units { padding:0 12px 12px; } .olama-gateway__video-actions button { width:100%; justify-content:center; } }

@@ -13,8 +13,9 @@ $make_url = static function (array $args = array()) use ($model) {
     return add_query_arg($args, $model['base_url']);
 };
 $student_url = static function ($student_uid, $view = 'dashboard') use ($make_url, $model) {
-    if ('dashboard' === $view && !isset($model['views']['dashboard'])) {
-        $view = isset($model['views']['family']) ? 'family' : (array_key_first($model['views']) ?: 'unavailable');
+    $student_views = $model['student_views'] ?? $model['views'];
+    if ('dashboard' === $view && !isset($student_views['dashboard'])) {
+        $view = array_key_first(array_diff_key($student_views, array('family' => true))) ?: 'family';
     }
     return $make_url(array('og_student' => $student_uid, 'og_view' => $view));
 };
@@ -599,24 +600,42 @@ $menu_groups = array(
                         <div class="olama-gateway__empty">لا توجد فيديوهات معتمدة لمواد شعبة الطالب في الفصل الحالي.</div>
                     <?php else : ?>
                         <div class="olama-gateway__video-toolbar">
-                            <div><strong><?php echo esc_html(count($data['subjects'])); ?> مواد</strong><small>مرتبة حسب المادة والوحدة والدرس</small></div>
-                            <label><span class="screen-reader-text">البحث في مكتبة الفيديو</span><span class="dashicons dashicons-search" aria-hidden="true"></span><input type="search" placeholder="ابحث عن مادة أو وحدة أو درس" data-video-search></label>
+                            <div><strong><?php echo esc_html(count($data['subjects'])); ?> مواد</strong><small>اختر المادة لعرض فيديوهاتها</small></div>
+                            <label><span class="screen-reader-text">البحث في مكتبة الفيديو</span><span class="dashicons dashicons-search" aria-hidden="true"></span><input type="search" placeholder="ابحث عن مادة" data-video-search></label>
                         </div>
-                        <section class="olama-gateway__video-library" data-video-list>
-                            <?php foreach ($data['subjects'] as $subject) :
-                                $subject_search = $subject['name'];
-                                foreach ((array) $subject['units'] as $search_unit) {
-                                    $subject_search .= ' ' . $search_unit['name'];
-                                    foreach ((array) $search_unit['lessons'] as $search_lesson) {
-                                        $subject_search .= ' ' . $search_lesson['title'];
+                        <section class="olama-gateway__subject-grid" data-video-cards aria-label="المواد الدراسية">
+                            <?php
+                            $palette = array('#197c91', '#995b45', '#6d57ad', '#287c59', '#b06c16', '#b04471', '#3568a9');
+                            $subject_colors = array();
+                            foreach ($data['subjects'] as $subject_index => $subject) :
+                                $subject_color = sanitize_hex_color($subject['color'] ?? '') ?: $palette[$subject_index % count($palette)];
+                                if (in_array(strtolower($subject_color), $subject_colors, true)) {
+                                    $subject_color = $palette[$subject_index % count($palette)];
+                                    while (in_array(strtolower($subject_color), $subject_colors, true)) {
+                                        $subject_color = '#' . substr(md5($subject_color . $subject_index), 0, 6);
                                     }
                                 }
+                                $subject_colors[$subject_index] = strtolower($subject_color);
+                                $subject_video_count = 0;
+                                foreach ((array) $subject['units'] as $unit) {
+                                    foreach ((array) $unit['lessons'] as $lesson) $subject_video_count += count((array) $lesson['videos']);
+                                }
                                 ?>
-                                <article class="olama-gateway__video-subject" data-video-subject data-search="<?php echo esc_attr($subject_search); ?>" style="--subject-color:<?php echo esc_attr($subject['color']); ?>">
-                                    <header><span class="olama-gateway__video-subject-icon"><span class="dashicons dashicons-video-alt3" aria-hidden="true"></span></span><span><strong><?php echo esc_html($subject['name']); ?></strong><small><?php echo esc_html(count((array) $subject['units'])); ?> وحدات متاحة</small></span></header>
+                                <button type="button" class="olama-gateway__subject-card" data-video-card data-search="<?php echo esc_attr($subject['name']); ?>" aria-controls="og-video-subject-<?php echo absint($subject_index); ?>" aria-expanded="false" style="--subject-color:<?php echo esc_attr($subject_color); ?>">
+                                    <span class="olama-gateway__video-subject-icon"><span class="dashicons dashicons-book-alt" aria-hidden="true"></span></span>
+                                    <strong><?php echo esc_html($subject['name']); ?></strong>
+                                    <small><?php echo esc_html($subject_video_count); ?> فيديو · <?php echo esc_html(count((array) $subject['units'])); ?> وحدات</small>
+                                    <span class="olama-gateway__subject-card-action">عرض الفيديوهات <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </section>
+                        <div class="olama-gateway__video-library" data-video-list>
+                            <?php foreach ($data['subjects'] as $subject_index => $subject) : ?>
+                                <article id="og-video-subject-<?php echo absint($subject_index); ?>" class="olama-gateway__video-subject" data-video-subject hidden style="--subject-color:<?php echo esc_attr($subject_colors[$subject_index]); ?>">
+                                    <header><span class="olama-gateway__video-subject-icon"><span class="dashicons dashicons-video-alt3" aria-hidden="true"></span></span><span><h3 tabindex="-1" data-video-subject-title><?php echo esc_html($subject['name']); ?></h3><small>جميع فيديوهات المادة حسب الوحدة والدرس</small></span><button type="button" class="olama-gateway__video-back" data-video-back>جميع المواد <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span></button></header>
                                     <div class="olama-gateway__video-units">
-                                        <?php foreach ((array) $subject['units'] as $unit_index => $unit) : ?>
-                                            <details <?php echo 0 === $unit_index ? 'open' : ''; ?>>
+                                        <?php foreach ((array) $subject['units'] as $unit) : ?>
+                                            <details open>
                                                 <summary><span><strong><?php echo esc_html($unit['name']); ?></strong><?php if ('' !== (string) $unit['number']) : ?><small>الوحدة <?php echo esc_html($unit['number']); ?></small><?php endif; ?></span><span><?php echo esc_html(count((array) $unit['lessons'])); ?> دروس <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></span></summary>
                                                 <div class="olama-gateway__video-lessons">
                                                     <?php foreach ((array) $unit['lessons'] as $lesson) : ?>
@@ -625,7 +644,7 @@ $menu_groups = array(
                                                             <span><strong><?php echo esc_html($lesson['title']); ?></strong><?php if ('' !== (string) $lesson['number']) : ?><small>الدرس <?php echo esc_html($lesson['number']); ?></small><?php endif; ?></span>
                                                             <span class="olama-gateway__video-actions">
                                                                 <?php foreach ((array) $lesson['videos'] as $video) : ?>
-                                                                    <a href="<?php echo esc_url($video['url']); ?>" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo !empty($video['part']) ? 'الجزء ' . esc_html($video['part']) : 'مشاهدة الفيديو'; ?></a>
+                                                                    <button type="button" data-video-play data-video-url="<?php echo esc_url($video['url']); ?>" data-video-title="<?php echo esc_attr($subject['name'] . ' · ' . $lesson['title'] . (!empty($video['part']) ? ' · الجزء ' . $video['part'] : '')); ?>"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span><?php echo !empty($video['part']) ? 'الجزء ' . esc_html($video['part']) : 'مشاهدة الفيديو'; ?></button>
                                                                 <?php endforeach; ?>
                                                             </span>
                                                         </div>
@@ -636,8 +655,13 @@ $menu_groups = array(
                                     </div>
                                 </article>
                             <?php endforeach; ?>
-                        </section>
-                        <div class="olama-gateway__empty" data-video-empty hidden>لا توجد مادة أو وحدة أو درس مطابق للبحث.</div>
+                        </div>
+                        <div class="olama-gateway__empty" data-video-empty hidden>لا توجد مادة مطابقة للبحث.</div>
+                        <dialog class="olama-gateway__video-dialog" data-video-dialog aria-labelledby="og-video-title">
+                            <header><h3 id="og-video-title" data-video-title></h3><button type="button" data-video-close aria-label="إغلاق الفيديو"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button></header>
+                            <div class="olama-gateway__video-screen" data-video-screen></div>
+                            <p data-video-error hidden>تعذر تشغيل هذا الرابط داخل البوابة. يرجى التواصل مع المدرسة للتحقق من رابط الفيديو.</p>
+                        </dialog>
                     <?php endif; ?>
                 <?php endif; ?>
 

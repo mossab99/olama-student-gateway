@@ -180,6 +180,7 @@ class Olama_Student_Gateway_Shortcode {
             'student' => $student,
             'views' => $views,
             'active_view' => $active_view,
+            'student_views' => $this->allowed_views(true, !empty($context['is_temp_family'])),
             'message_mode' => $message_mode,
             'exam_section' => $exam_section,
             'allow_exam_embed' => $allow_exam_embed,
