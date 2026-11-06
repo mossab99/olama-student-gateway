@@ -2529,3 +2529,90 @@ body.og-printing-evaluation .og-evaluation-print-root *{visibility:visible!impor
 .olama-gateway__video-screen iframe, .olama-gateway__video-screen video { display:block; width:100%; aspect-ratio:16/9; border:0; max-height:70dvh; }
 .olama-gateway__video-dialog p { padding:20px; color:white; }
 @media (max-width:600px) { .olama-gateway__video-subject > header { flex-wrap:wrap; padding:16px; } .olama-gateway__video-units { padding:0 12px 12px; } .olama-gateway__video-actions button { width:100%; justify-content:center; } }
+
+/* Cover Drive's pop-out control; the iframe sandbox also blocks its action. */
+.olama-gateway__video-screen.is-drive-player {
+    position: relative;
+}
+.olama-gateway__video-screen.is-drive-player::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 64px;
+    height: 64px;
+    background: #000;
+    z-index: 1;
+}
+
+/* Compact student overview with prominent learning shortcuts. */
+.olama-gateway--dashboard .olama-gateway__hero {
+    min-height: 0;
+    padding: 22px 26px;
+}
+.olama-gateway--dashboard .olama-gateway__hero h2 {
+    font-size: clamp(22px, 2.5vw, 28px);
+    margin: 5px 0;
+}
+.olama-gateway--dashboard .olama-gateway__hero p { margin: 0; font-size: 13px; }
+.olama-gateway__important-links > header { margin-bottom: 14px; }
+.olama-gateway__important-links h3 { margin: 0 0 4px; font-size: 18px; }
+.olama-gateway__important-links p { margin: 0; color: var(--og-muted); font-size: 13px; }
+.olama-gateway__important-links-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+}
+.olama-gateway__important-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    padding: 18px 16px;
+    color: var(--og-text);
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-top: 3px solid var(--link-color);
+    border-radius: 14px;
+    box-shadow: var(--og-shadow-sm);
+    text-decoration: none;
+}
+.olama-gateway__important-link > .dashicons:first-child {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    color: var(--link-color);
+    background: color-mix(in srgb, var(--link-color) 11%, white);
+}
+.olama-gateway__important-link strong { font-size: 14px; line-height: 1.65; }
+.olama-gateway__important-link > .dashicons:last-child { margin-top: auto; color: var(--link-color); align-self: flex-end; }
+.olama-gateway__important-link:hover { color: var(--link-color); border-color: var(--link-color); box-shadow: var(--og-shadow); }
+.olama-gateway__important-link:focus-visible { outline: 3px solid var(--link-color); outline-offset: 3px; }
+.olama-gateway__dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+}
+.olama-gateway__dashboard-cards > * { min-width: 0; margin: 0; }
+.olama-gateway__dashboard-cards .olama-gateway__panel { padding: 20px; }
+.olama-gateway__dashboard-cards .olama-gateway__panel > header { margin-bottom: 14px; padding-bottom: 12px; }
+.olama-gateway__dashboard-cards .olama-gateway__empty { padding: 18px; }
+.olama-gateway__dashboard-cards .olama-gateway__quick-stats > div { padding: 20px; box-shadow: var(--og-shadow-sm); }
+@media (min-width: 701px) {
+    .olama-gateway__dashboard-cards > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (max-width: 1150px) and (min-width: 701px) {
+    .olama-gateway__important-links-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+    .olama-gateway__important-links-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .olama-gateway__important-link { padding: 14px; gap: 10px; }
+    .olama-gateway__important-link:last-child:nth-child(odd) { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+    .olama-gateway__important-link:last-child:nth-child(odd) > .dashicons:last-child { margin-top: 0; margin-inline-start: auto; align-self: center; }
+    .olama-gateway__dashboard-cards { grid-template-columns: 1fr; gap: 14px; }
+    .olama-gateway--dashboard .olama-gateway__hero { padding: 20px; }
+}

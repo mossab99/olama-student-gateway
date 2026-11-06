@@ -151,7 +151,7 @@
                 if (host === 'drive.google.com') {
                     var match = url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
                     id = match ? match[1] : url.searchParams.get('id');
-                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/file/d/' + id + '/preview', type: 'iframe' }; }
+                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/file/d/' + id + '/preview', type: 'iframe', restrictNavigation: true }; }
                 }
                 if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com'].indexOf(host) !== -1) {
                     id = host === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v') || url.pathname.replace(/^\/(embed|shorts)\//, '');
@@ -171,11 +171,17 @@
                     videoTitle.textContent = button.getAttribute('data-video-title') || '';
                     var source = playerSource(button.getAttribute('data-video-url'));
                     videoError.hidden = !!source;
+                    videoScreen.classList.toggle('is-drive-player', !!source && !!source.restrictNavigation);
                     if (source) {
                         var player = document.createElement(source.type);
                         if (source.type === 'video') { player.controls = true; player.playsInline = true; player.preload = 'metadata'; }
                         else {
                             player.title = videoTitle.textContent;
+                            if (source.restrictNavigation) {
+                                // Drive's own pop-out control cannot be removed across origins.
+                                // Block popups and top navigation even if reached by keyboard.
+                                player.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+                            }
                             player.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
                             player.allowFullscreen = true;
                             player.referrerPolicy = 'strict-origin-when-cross-origin';
@@ -193,6 +199,7 @@
             });
             videoDialog.addEventListener('close', function () {
                 videoScreen.replaceChildren();
+                videoScreen.classList.remove('is-drive-player');
                 if (videoTrigger) { videoTrigger.focus(); }
             });
         }

@@ -12,7 +12,7 @@ const html = execFileSync('php', [path.join(__dirname, 'video-library-render-tes
             const page = await browser.newPage({ viewport: { width, height: 850 } });
             const errors = [];
             page.on('pageerror', error => errors.push(error.message));
-            await page.route('https://drive.google.com/**', route => route.fulfill({ contentType: 'text/html', body: '<p>Embedded player fixture</p>' }));
+            await page.route('https://drive.google.com/**', route => route.fulfill({ contentType: 'text/html', body: '<a href="https://drive.google.com/file/d/file_123/view" target="_blank" id="popout">Open externally</a>' }));
             await page.route('https://school.test/**', route => route.fulfill({ contentType: 'video/mp4', body: '' }));
             await page.setContent(html);
             await page.addStyleTag({ content: fs.readFileSync(path.join(root, 'assets/css/gateway.css'), 'utf8') });
@@ -28,11 +28,23 @@ const html = execFileSync('php', [path.join(__dirname, 'video-library-render-tes
             assert.equal(await page.locator('dialog').evaluate(el => el.open), true);
             assert.equal(await page.locator('dialog iframe').getAttribute('src'), 'https://drive.google.com/file/d/file_123/preview');
             assert.equal(page.url(), 'about:blank');
+            const sandbox = (await page.locator('dialog iframe').getAttribute('sandbox')).split(' ');
+            assert.ok(sandbox.includes('allow-scripts'));
+            assert.ok(!sandbox.includes('allow-popups') && !sandbox.includes('allow-top-navigation') && !sandbox.includes('allow-top-navigation-by-user-activation'));
+            assert.equal(await page.locator('[data-video-screen]').evaluate(el => {
+                const box = el.getBoundingClientRect();
+                return document.elementFromPoint(box.right - 24, box.top + 24) === el;
+            }), true, 'Drive external-window control must be covered');
+            await page.frameLocator('dialog iframe').locator('#popout').waitFor();
+            // Bypass the visual cover to verify keyboard/programmatic activation is blocked too.
+            await page.frameLocator('dialog iframe').locator('#popout').evaluate(el => el.click());
+            assert.equal(page.context().pages().length, 1, 'Drive must not open an external tab');
             await page.keyboard.press('Escape');
             await page.waitForFunction(() => document.querySelector('[data-video-screen]').children.length === 0);
             assert.equal(await page.locator('[data-video-subject]:visible [data-video-play]').first().evaluate(el => el === document.activeElement), true);
             await page.locator('[data-video-subject]:visible [data-video-play]').nth(1).click();
             assert.equal(await page.locator('dialog video[controls]').count(), 1);
+            assert.equal(await page.locator('.is-drive-player').count(), 0, 'Drive cover must not cover native video controls');
             await page.locator('[data-video-close]').click();
             await page.locator('[data-video-back]:visible').click();
             await page.locator('[data-video-search]').fill('missing');

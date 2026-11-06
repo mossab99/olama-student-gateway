@@ -362,20 +362,38 @@ $menu_groups = array(
                         <span class="olama-gateway__eyebrow">ملخص الطالب · <?php echo esc_html($context['study_year'] ?: 'السنة الحالية'); ?></span>
                         <h2>إليك ملخص يوم <?php echo esc_html($first_name); ?></h2>
                         <p><?php echo esc_html(wp_date('l، j F Y', current_time('timestamp'))); ?> · أحدث المعلومات المنشورة لحساب العائلة.</p>
-                        <div class="olama-gateway__hero-actions">
-                            <?php if ($student && isset($model['views']['exams']) && Olama_Student_Gateway_Service_Settings::visible('exams.direct')) : ?>
-                                <a class="olama-gateway__button" href="<?php echo esc_url($make_url(array('og_view' => 'exams', 'og_exam_section' => 'direct', 'og_student' => $student['student_uid']))); ?>">
-                                    <span class="dashicons dashicons-welcome-learn-more" aria-hidden="true"></span> الامتحانات المباشرة
-                                </a>
-                            <?php endif; ?>
-                            <?php if (!$is_temp_family && isset($model['views']['family'])) : ?>
-                                <a class="olama-gateway__button olama-gateway__button--ghost" href="<?php echo esc_url($make_url(array('og_view' => 'family'))); ?>">
-                                    <span class="dashicons dashicons-groups" aria-hidden="true"></span> أفراد العائلة
-                                </a>
-                            <?php endif; ?>
-                        </div>
                     </div>
                 </section>
+                <?php
+                $important_links = array(
+                    array('view' => 'video_library', 'label' => 'فيديوهات الدروس', 'icon' => 'dashicons-video-alt3', 'color' => '#197c91'),
+                    array('view' => 'exams', 'section' => 'direct', 'label' => 'امتحانات الدروس المباشرة', 'icon' => 'dashicons-welcome-learn-more', 'color' => '#287c59'),
+                    array('view' => 'exams', 'section' => 'online', 'label' => 'امتحانات التقويم', 'icon' => 'dashicons-clipboard', 'color' => '#995b45'),
+                    array('view' => 'evaluations', 'label' => 'تقييمات الطلبة', 'icon' => 'dashicons-chart-bar', 'color' => '#6d57ad'),
+                    array('view' => 'exams', 'section' => 'online-results', 'label' => 'نتائج الاختبارات', 'icon' => 'dashicons-awards', 'color' => '#a86c15'),
+                );
+                $important_links = array_filter($important_links, static function ($link) use ($model, $is_temp_family) {
+                    $service = $link['view'] . (isset($link['section']) ? '.' . $link['section'] : '');
+                    return isset($model['views'][$link['view']]) && Olama_Student_Gateway_Service_Settings::visible($service)
+                        && (!$is_temp_family || ($link['section'] ?? '') !== 'online-results');
+                });
+                ?>
+                <?php if ($important_links) : ?>
+                    <section class="olama-gateway__important-links" aria-labelledby="og-important-links-title">
+                        <header><h3 id="og-important-links-title">روابط مهمة</h3><p>كل ما تحتاجه للتعلّم والمتابعة في مكان واحد.</p></header>
+                        <div class="olama-gateway__important-links-grid">
+                            <?php foreach ($important_links as $link) :
+                                $link_args = isset($link['section']) ? array('og_exam_section' => $link['section']) : array();
+                                ?>
+                                <a class="olama-gateway__important-link" href="<?php echo esc_url($menu_url($link['view'], $link_args)); ?>" style="--link-color:<?php echo esc_attr($link['color']); ?>">
+                                    <span class="dashicons <?php echo esc_attr($link['icon']); ?>" aria-hidden="true"></span>
+                                    <strong><?php echo esc_html($link['label']); ?></strong>
+                                    <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+                <?php endif; ?>
                 <?php
                 $weekly = isset($data['weekly_plan']) ? $data['weekly_plan'] : null;
                 $exams = isset($data['exams']) ? $data['exams'] : null;
@@ -445,74 +463,69 @@ $menu_groups = array(
                         <?php endforeach; ?>
                     </section>
                 <?php endif; ?>
-                <section class="olama-gateway__dashboard-grid">
-                    <div class="olama-gateway__dashboard-main">
-                        <?php if (null !== $weekly) : ?>
-                            <article class="olama-gateway__panel olama-gateway__panel--feature">
-                                <header>
-                                    <div><h3>واجبات اليوم</h3><p>الواجبات المنشورة لهذا اليوم فقط.</p></div>
-                                </header>
-                                <?php if (is_wp_error($weekly)) : ?>
-                                    <div class="olama-gateway__empty"><?php echo esc_html($weekly->get_error_message()); ?></div>
-                                <?php elseif (!$today_homework) : ?>
-                                    <div class="olama-gateway__empty">لا توجد واجبات منشورة لهذا اليوم.</div>
-                                <?php else : ?>
-                                    <?php foreach ($today_homework as $plan) : ?>
-                                        <div class="olama-gateway__homework">
-                                            <strong><span class="dashicons dashicons-edit" aria-hidden="true"></span><?php echo esc_html($field($plan, 'subject')); ?></strong>
-                                            <?php foreach (array('homework_student_book' => 'كتاب الطالب', 'homework_exercise_book' => 'دفتر التمارين', 'homework_notebook' => 'الدفتر', 'homework_worksheet' => 'ورقة العمل') as $homework_key => $homework_label) : ?>
-                                                <?php if ('' !== (string) $field($plan, $homework_key, '')) : ?><div><small><?php echo esc_html($homework_label); ?></small><span><?php echo esc_html($field($plan, $homework_key, '')); ?></span></div><?php endif; ?>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </article>
-                        <?php endif; ?>
-
-                        <?php if (null !== $weekly) : ?>
-                            <article class="olama-gateway__panel">
-                                <header><div><h3>خطة اليوم</h3><p>الدروس المنشورة لليوم الحالي.</p></div></header>
-                                <?php if (is_wp_error($weekly)) : ?>
-                                    <div class="olama-gateway__empty"><?php echo esc_html($weekly->get_error_message()); ?></div>
-                                <?php elseif (!$today_plans) : ?>
-                                    <p class="olama-gateway__quiet">لا توجد دروس منشورة لهذا اليوم.</p>
-                                <?php else : ?>
-                                    <div class="olama-gateway__today-list olama-gateway__today-list--standalone">
-                                        <?php foreach ($today_plans as $plan) : ?>
-                                            <div class="olama-gateway__today-row">
-                                                <span class="olama-gateway__subject-mark" aria-hidden="true"></span>
-                                                <span><strong><?php echo esc_html($field($plan, 'subject')); ?></strong><small><?php echo esc_html($field($plan, 'lesson', $field($plan, 'topic'))); ?></small></span>
-                                                <small>الحصة <?php echo esc_html($field($plan, 'period', '—')); ?></small>
-                                            </div>
+                <section class="olama-gateway__dashboard-cards">
+                    <?php if (null !== $weekly) : ?>
+                        <article class="olama-gateway__panel olama-gateway__panel--feature">
+                            <header>
+                                <div><h3>واجبات اليوم</h3><p>الواجبات المنشورة لهذا اليوم فقط.</p></div>
+                            </header>
+                            <?php if (is_wp_error($weekly)) : ?>
+                                <div class="olama-gateway__empty"><?php echo esc_html($weekly->get_error_message()); ?></div>
+                            <?php elseif (!$today_homework) : ?>
+                                <div class="olama-gateway__empty">لا توجد واجبات منشورة لهذا اليوم.</div>
+                            <?php else : ?>
+                                <?php foreach ($today_homework as $plan) : ?>
+                                    <div class="olama-gateway__homework">
+                                        <strong><span class="dashicons dashicons-edit" aria-hidden="true"></span><?php echo esc_html($field($plan, 'subject')); ?></strong>
+                                        <?php foreach (array('homework_student_book' => 'كتاب الطالب', 'homework_exercise_book' => 'دفتر التمارين', 'homework_notebook' => 'الدفتر', 'homework_worksheet' => 'ورقة العمل') as $homework_key => $homework_label) : ?>
+                                            <?php if ('' !== (string) $field($plan, $homework_key, '')) : ?><div><small><?php echo esc_html($homework_label); ?></small><span><?php echo esc_html($field($plan, $homework_key, '')); ?></span></div><?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
-                                <?php endif; ?>
-                            </article>
-                        <?php endif; ?>
-
-                        <?php if (null !== $exams) : ?><section class="olama-gateway__quick-stats olama-gateway__quick-stats--single" aria-label="ملخص الامتحانات">
-                            <?php if (is_array($exams)) : ?>
-                                <div><span class="dashicons dashicons-clipboard" aria-hidden="true"></span><span><strong><?php echo esc_html(count($scheduled_exams)); ?></strong><small>عدد الامتحانات</small><small><?php echo $exam_dates ? 'من ' . esc_html($exam_dates[0]) . ' إلى ' . esc_html($exam_dates[count($exam_dates) - 1]) : 'لا توجد امتحانات في الجدول'; ?></small></span></div>
+                                <?php endforeach; ?>
                             <?php endif; ?>
-                        </section><?php endif; ?>
-                    </div>
+                        </article>
+                    <?php endif; ?>
 
-                    <div class="olama-gateway__dashboard-side olama-gateway__dashboard-side--single">
-                        <?php if (null !== $exams) : ?>
-                            <article class="olama-gateway__panel olama-gateway__summary-card">
-                                <header><h3>الامتحان القادم</h3><span class="olama-gateway__summary-icon is-warning"><span class="dashicons dashicons-clipboard" aria-hidden="true"></span></span></header>
-                                <?php if (is_wp_error($exams)) : ?>
-                                    <div class="olama-gateway__empty"><?php echo esc_html($exams->get_error_message()); ?></div>
-                                <?php elseif (!$next_exam) : ?>
-                                    <p class="olama-gateway__quiet">لا يوجد امتحان قادم في الجدول المعتمد.</p>
-                                <?php else : ?>
-                                    <strong class="olama-gateway__summary-value"><?php echo esc_html($field($next_exam, 'subject_name')); ?></strong>
-                                    <p><?php echo esc_html($field($next_exam, 'exam_date')); ?> · <?php echo esc_html($field($next_exam, 'evaluation_type')); ?></p>
-                                <?php endif; ?>
-                                <a href="<?php echo esc_url($make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => 'schedule'))); ?>">جدول الامتحانات</a>
-                            </article>
-                        <?php endif; ?>
-                    </div>
+                    <?php if (null !== $weekly) : ?>
+                        <article class="olama-gateway__panel">
+                            <header><div><h3>خطة اليوم</h3><p>الدروس المنشورة لليوم الحالي.</p></div></header>
+                            <?php if (is_wp_error($weekly)) : ?>
+                                <div class="olama-gateway__empty"><?php echo esc_html($weekly->get_error_message()); ?></div>
+                            <?php elseif (!$today_plans) : ?>
+                                <p class="olama-gateway__quiet">لا توجد دروس منشورة لهذا اليوم.</p>
+                            <?php else : ?>
+                                <div class="olama-gateway__today-list olama-gateway__today-list--standalone">
+                                    <?php foreach ($today_plans as $plan) : ?>
+                                        <div class="olama-gateway__today-row">
+                                            <span class="olama-gateway__subject-mark" aria-hidden="true"></span>
+                                            <span><strong><?php echo esc_html($field($plan, 'subject')); ?></strong><small><?php echo esc_html($field($plan, 'lesson', $field($plan, 'topic'))); ?></small></span>
+                                            <small>الحصة <?php echo esc_html($field($plan, 'period', '—')); ?></small>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </article>
+                    <?php endif; ?>
+
+                    <?php if (null !== $exams) : ?>
+                        <article class="olama-gateway__panel olama-gateway__summary-card">
+                            <header><h3>الامتحان القادم</h3><span class="olama-gateway__summary-icon is-warning"><span class="dashicons dashicons-clipboard" aria-hidden="true"></span></span></header>
+                            <?php if (is_wp_error($exams)) : ?>
+                                <div class="olama-gateway__empty"><?php echo esc_html($exams->get_error_message()); ?></div>
+                            <?php elseif (!$next_exam) : ?>
+                                <p class="olama-gateway__quiet">لا يوجد امتحان قادم في الجدول المعتمد.</p>
+                            <?php else : ?>
+                                <strong class="olama-gateway__summary-value"><?php echo esc_html($field($next_exam, 'subject_name')); ?></strong>
+                                <p><?php echo esc_html($field($next_exam, 'exam_date')); ?> · <?php echo esc_html($field($next_exam, 'evaluation_type')); ?></p>
+                            <?php endif; ?>
+                            <a href="<?php echo esc_url($make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => 'schedule'))); ?>">جدول الامتحانات</a>
+                        </article>
+                    <?php endif; ?>
+                    <?php if (is_array($exams)) : ?>
+                        <section class="olama-gateway__quick-stats olama-gateway__quick-stats--single" aria-label="ملخص الامتحانات">
+                            <div><span class="dashicons dashicons-clipboard" aria-hidden="true"></span><span><strong><?php echo esc_html(count($scheduled_exams)); ?></strong><small>عدد الامتحانات</small><small><?php echo $exam_dates ? 'من ' . esc_html($exam_dates[0]) . ' إلى ' . esc_html($exam_dates[count($exam_dates) - 1]) : 'لا توجد امتحانات في الجدول'; ?></small></span></div>
+                        </section>
+                    <?php endif; ?>
                 </section>
 
             <?php elseif ('weekly_plan' === $active_view) : ?>
