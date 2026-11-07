@@ -77,15 +77,50 @@ class Olama_Student_Gateway_Shortcode {
         }
 
         $exam_view = isset($_GET['exam_view']) ? sanitize_key(wp_unslash($_GET['exam_view'])) : '';
-        $requested_student = isset($_GET['og_student']) ? wp_unslash($_GET['og_student']) : '';
-        if (!$requested_student && in_array($exam_view, array('dashboard', 'take', 'results', 'demo'), true) && isset($_GET['student_uid'])) {
+        $requested_student = isset($_GET['og_student']) && is_string($_GET['og_student']) ? sanitize_text_field(wp_unslash($_GET['og_student'])) : '';
+        if (!$requested_student && in_array($exam_view, array('dashboard', 'take', 'results', 'demo'), true) && isset($_GET['student_uid']) && is_string($_GET['student_uid'])) {
             // Exam Engine back links carry student_uid. Revalidate it through
             // the gateway ownership check before using it as the selection.
-            $requested_student = wp_unslash($_GET['student_uid']);
+            $requested_student = sanitize_text_field(wp_unslash($_GET['student_uid']));
         }
+        $weekly_video = null;
+        $learning_notice = '';
+        $weekly_link = isset($_GET['og_plan']) || isset($_GET['og_video']);
+        if ($weekly_link) {
+            $plan_id = isset($_GET['og_plan']) && is_scalar($_GET['og_plan']) ? absint($_GET['og_plan']) : 0;
+            $video_id = isset($_GET['og_video']) && is_string($_GET['og_video']) ? sanitize_key(wp_unslash($_GET['og_video'])) : '';
+            $exam_id = 'take' === $exam_view && isset($_GET['exam_id']) && is_scalar($_GET['exam_id']) ? absint($_GET['exam_id']) : 0;
+            $target = $this->weekly_learning_target($context, $plan_id, $video_id, $exam_id);
+            $matches = $target['students'] ?? array();
+            if ($matches && $requested_student) {
+                $matches = array_values(array_filter($matches, static function ($candidate) use ($requested_student) {
+                    return $candidate['student_uid'] === $requested_student;
+                }));
+            }
+
+            if (!$matches) {
+                $learning_notice = __('المادة التعليمية غير متاحة لصفوف الطلاب المسجلين في هذا الحساب.', 'olama-student-gateway');
+                $requested_student = '';
+                $exam_view = '';
+            } elseif ($exam_id && count($matches) > 1) {
+                $links = '<div class="olama-gateway__panel" dir="rtl"><p>' . esc_html__('اختر الطالب للتقدم للامتحان:', 'olama-student-gateway') . '</p>';
+                foreach ($matches as $candidate) {
+                    $url = add_query_arg('og_student', $candidate['student_uid'], Olama_School_Plan::exam_gateway_url($exam_id, $plan_id));
+                    $links .= '<p><a href="' . esc_url($url) . '">' . esc_html($candidate['student_name'] ?? $candidate['student_uid']) . '</a></p>';
+                }
+                return $late_styles . $links . '</div>';
+            } else {
+                $requested_student = $matches[0]['student_uid'];
+                $weekly_video = $target['video'] ?? null;
+                if ($exam_id) {
+                    $_GET['student_uid'] = $requested_student;
+                }
+            }
+        }
+
         // Shared weekly-plan links contain no student identity. Resolve only
         // members of this family whose current academic scope matches the exam.
-        if (!$requested_student && 'take' === $exam_view && !empty($_GET['exam_id']) && class_exists('Olama_Exam_Manager')) {
+        if (!$weekly_link && !$requested_student && 'take' === $exam_view && !empty($_GET['exam_id']) && class_exists('Olama_Exam_Manager')) {
             $target = Olama_Exam_Manager::get_exam(absint($_GET['exam_id']));
             $matches = array();
             if ($target && 'direct' === ($target->exam_type ?? '') && in_array($target->status, array('active', 'published'), true)) {
@@ -125,6 +160,9 @@ class Olama_Student_Gateway_Shortcode {
         $views = $this->allowed_views((bool) $student, !empty($context['is_temp_family']));
         if (empty($context['study_year'])) unset($views['ministry']);
         $requested_view = isset($_GET['og_view']) ? sanitize_key(wp_unslash($_GET['og_view'])) : '';
+        if ($weekly_link) {
+            $requested_view = $learning_notice ? '' : ($weekly_video ? 'video_library' : 'exams');
+        }
         $message_mode = isset($_GET['og_message']) ? sanitize_key(wp_unslash($_GET['og_message'])) : 'inbox';
         $message_modes = array_values(array_filter(array('inbox', 'compose'), static function ($mode) {
             return Olama_Student_Gateway_Service_Settings::visible('messages.' . $mode);
@@ -147,7 +185,7 @@ class Olama_Student_Gateway_Shortcode {
             $base_url = home_url('/');
         }
 
-        $view_data = $this->load_view_data($active_view, $context, $message_mode);
+        $view_data = $weekly_video && 'video_library' === $active_view ? array() : $this->load_view_data($active_view, $context, $message_mode);
         $allow_exam_embed = false;
         if (!$explicit_hidden_subview && 'exams' === $active_view && in_array($exam_view, array('take', 'results', 'demo'), true)) {
             if ('results' === $exam_view) {
@@ -187,6 +225,8 @@ class Olama_Student_Gateway_Shortcode {
             'data' => $view_data,
             'logout_url' => wp_logout_url($base_url),
             'ministry_notice' => $ministry_notice,
+            'learning_notice' => $learning_notice,
+            'weekly_video' => 'video_library' === $active_view ? $weekly_video : null,
         );
 
         ob_start();
@@ -341,9 +381,71 @@ class Olama_Student_Gateway_Shortcode {
         return $this->providers->data($view, $context);
     }
 
+    private function weekly_learning_target(array $context, $plan_id, $video_id, $exam_id) {
+        if (!$plan_id || (!$video_id && !$exam_id) || ($video_id && $exam_id) ||
+            !empty($context['is_temp_family']) || !is_callable(array('Olama_School_Plan', 'get_published_plan'))) {
+            return array();
+        }
+
+        $views = $this->allowed_views(true);
+        if ($video_id ? !isset($views['video_library']) :
+            (!isset($views['exams']) || !Olama_Student_Gateway_Service_Settings::visible('exams.direct'))) {
+            return array();
+        }
+
+        $plan = Olama_School_Plan::get_published_plan($plan_id);
+        $section = $plan ? Olama_School_Section::get_section($plan->section_id) : null;
+        if (!$section || empty($section->grade_id)) {
+            return array();
+        }
+
+        $matches = array();
+        $provider = new Olama_Student_Gateway_School_Context_Provider();
+        foreach ($context['students'] as $candidate) {
+            $candidate_context = $context;
+            $candidate_context['student'] = $candidate;
+            $scope = $provider->resolve_scope($candidate_context);
+            if (is_wp_error($scope) || (int) $scope['academic_year_id'] !== (int) $plan->academic_year_id ||
+                (int) $scope['semester_id'] !== (int) $plan->semester_id ||
+                (int) $scope['grade_id'] !== (int) $section->grade_id ||
+                ($exam_id && (int) $scope['section_id'] !== (int) $plan->section_id)) {
+                continue;
+            }
+            $student = $this->access->select_student($context, $candidate['student_uid']);
+            if ($student && !is_wp_error($student)) {
+                $matches[] = $student;
+            }
+        }
+        if (!$matches) {
+            return array();
+        }
+
+        if ($exam_id) {
+            foreach (Olama_School_Plan::get_report_exams($plan) as $exam) {
+                if ((int) $exam->id === $exam_id) {
+                    return array('students' => $matches);
+                }
+            }
+        } else {
+            $videos = Olama_School_Plan::get_lesson_videos(
+                $plan->section_id, $plan->subject_id, $plan->lesson_id, $plan->academic_year_id, $plan->semester_id
+            );
+            foreach (is_array($videos) ? $videos : array() as $video) {
+                if ($video_id === ($video['id'] ?? '')) {
+                    return array('students' => $matches, 'video' => array(
+                        'url' => $video['url'],
+                        'title' => $plan->lesson_title,
+                        'part' => $video['part'] ?? 0,
+                    ));
+                }
+            }
+        }
+        return array();
+    }
+
     private function login_return_url() {
         $args = array();
-        foreach (array('og_view', 'og_exam_section', 'exam_view', 'exam_id', 'og_student', 'student_uid') as $key) {
+        foreach (array('og_view', 'og_exam_section', 'exam_view', 'exam_id', 'og_student', 'student_uid', 'og_plan', 'og_video') as $key) {
             if (isset($_GET[$key]) && is_scalar($_GET[$key])) {
                 $args[$key] = sanitize_text_field(wp_unslash($_GET[$key]));
             }

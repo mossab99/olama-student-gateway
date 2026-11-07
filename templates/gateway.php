@@ -181,6 +181,9 @@ $menu_groups = array(
         </header>
 
         <div class="olama-gateway__content">
+            <?php if (!empty($model['learning_notice'])) : ?>
+                <p class="olama-gateway__panel" role="alert"><?php echo esc_html($model['learning_notice']); ?></p>
+            <?php endif; ?>
             <?php if ('ministry' === $active_view) : ?>
                 <section class="olama-gateway__heading">
                     <div><h2>استكمال البيانات الإحصائية</h2><p>تُعرض المعلومات المسجلة تلقائياً. أرسل المعلومات الناقصة أو اطلب تصحيح المعلومة غير الصحيحة.</p></div>
@@ -578,7 +581,14 @@ $menu_groups = array(
 
             <?php elseif ('video_library' === $active_view) : ?>
                 <section class="olama-gateway__heading"><div><span class="olama-gateway__eyebrow">OLAMA Media Library</span><h2>مكتبة الفيديو التعليمية</h2><p>الفيديوهات المعتمدة المرتبطة بمنهاج الطالب في الفصل الحالي.</p></div><span class="olama-gateway__status olama-gateway__status--success">فيديوهات معتمدة فقط</span></section>
-                <?php if (is_wp_error($data)) : ?>
+                <?php if (!empty($model['weekly_video'])) : $video = $model['weekly_video']; ?>
+                    <section class="olama-gateway__panel">
+                        <h3><?php echo esc_html($video['title']); ?></h3>
+                        <button type="button" class="olama-gateway__button" data-video-play data-video-open data-video-url="<?php echo esc_url($video['url']); ?>" data-video-title="<?php echo esc_attr($video['title']); ?>">
+                            <?php echo esc_html($video['part'] ? sprintf('مشاهدة الجزء %d', $video['part']) : 'مشاهدة الفيديو'); ?>
+                        </button>
+                    </section>
+                <?php elseif (is_wp_error($data)) : ?>
                     <div class="olama-gateway__empty"><?php echo esc_html($data->get_error_message()); ?></div>
                 <?php else : ?>
                     <div class="olama-gateway__context-strip olama-gateway__context-strip--4">
@@ -648,12 +658,14 @@ $menu_groups = array(
                             <?php endforeach; ?>
                         </div>
                         <div class="olama-gateway__empty" data-video-empty hidden>لا توجد مادة مطابقة للبحث.</div>
-                        <dialog class="olama-gateway__video-dialog" data-video-dialog aria-labelledby="og-video-title">
-                            <header><h3 id="og-video-title" data-video-title></h3><button type="button" data-video-close aria-label="إغلاق الفيديو"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button></header>
-                            <div class="olama-gateway__video-screen" data-video-screen></div>
-                            <p data-video-error hidden>تعذر تشغيل هذا الرابط داخل البوابة. يرجى التواصل مع المدرسة للتحقق من رابط الفيديو.</p>
-                        </dialog>
                     <?php endif; ?>
+                <?php endif; ?>
+                <?php if (!empty($model['weekly_video']) || (!is_wp_error($data) && !empty($data['subjects']))) : ?>
+                    <dialog class="olama-gateway__video-dialog" data-video-dialog aria-labelledby="og-video-title">
+                        <header><h3 id="og-video-title" data-video-title></h3><button type="button" data-video-close aria-label="إغلاق الفيديو"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button></header>
+                        <div class="olama-gateway__video-screen" data-video-screen></div>
+                        <p data-video-error hidden>تعذر تشغيل هذا الرابط داخل البوابة. يرجى التواصل مع المدرسة للتحقق من رابط الفيديو.</p>
+                    </dialog>
                 <?php endif; ?>
 
             <?php elseif ('exams' === $active_view) : ?>

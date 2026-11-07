@@ -290,6 +290,10 @@
                 videoScreen.classList.remove('is-drive-player');
                 if (videoTrigger) { videoTrigger.focus(); }
             });
+            var initialVideo = scope.querySelector('[data-video-play][data-video-open]');
+            if (initialVideo && initialVideo.closest(videoScopeSelector) === scope) {
+                initialVideo.click();
+            }
         }
     });
 }());

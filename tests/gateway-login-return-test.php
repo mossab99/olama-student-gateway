@@ -12,3 +12,7 @@ assert_true('703' === $args['exam_id'] && 'take' === $args['exam_view'] && 'dire
 assert_true('STU-123' === $args['og_student'], 'Login must preserve an explicit family member selection.');
 assert_true(!isset($args['redirect_to']) && 0 === strpos($url, get_permalink()), 'Login returns to the gateway and ignores arbitrary redirect destinations.');
 echo "Gateway exam login return passed.\n";
+
+$_GET = array('og_view' => 'video_library', 'og_plan' => '42', 'og_video' => 'v2-9', 'video_url' => 'https://external.test/');
+parse_str(parse_url($method->invoke($shortcode), PHP_URL_QUERY), $args);
+assert_true($args === array('og_view' => 'video_library', 'og_plan' => '42', 'og_video' => 'v2-9'), 'Login must preserve only the weekly plan and video identifiers.');
