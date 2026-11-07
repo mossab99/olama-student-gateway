@@ -356,35 +356,34 @@ class Olama_Student_Gateway_Shortcode {
         ?>
         <div class="olama-gateway-login" dir="rtl">
             <div class="olama-gateway-login__intro">
-                <span class="olama-gateway-logo">ع</span>
-                <span class="olama-gateway-login__eyebrow"><?php esc_html_e('أكاديمية علماء المستقبل', 'olama-student-gateway'); ?></span>
-                <h2><?php esc_html_e('كل ما يخص أبناءك في مكان واحد', 'olama-student-gateway'); ?></h2>
-                <p><?php esc_html_e('تابع الخطط الأسبوعية والامتحانات والمواصلات والخدمات المنشورة للعائلة من خلال حساب آمن واحد.', 'olama-student-gateway'); ?></p>
+                <h2><?php esc_html_e('بوابة الطالب', 'olama-student-gateway'); ?></h2>
+                <p><?php esc_html_e('رافق أبناءك في رحلتهم الدراسية. انتقل بين ملفاتهم من حساب عائلي واحد، وتعرّف على الخدمات المتاحة لكل طالب.', 'olama-student-gateway'); ?></p>
                 <ul class="olama-gateway-login__benefits">
-                    <li><span class="dashicons dashicons-groups" aria-hidden="true"></span><?php esc_html_e('الوصول إلى جميع الأبناء المرتبطين بالعائلة', 'olama-student-gateway'); ?></li>
-                    <li><span class="dashicons dashicons-shield-alt" aria-hidden="true"></span><?php esc_html_e('عرض المعلومات التي تسمح بها صلاحيات حسابك فقط', 'olama-student-gateway'); ?></li>
-                    <li><span class="dashicons dashicons-update" aria-hidden="true"></span><?php esc_html_e('بيانات منشورة من أنظمة OLAMA المعتمدة', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span><?php esc_html_e('نظّم الأسبوع الدراسي بالخطط الأسبوعية والجداول الدراسية.', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-video-alt3" aria-hidden="true"></span><?php esc_html_e('راجع الدروس في مكتبة الفيديو وتدرّب مع امتحانات الدروس المباشرة.', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-chart-bar" aria-hidden="true"></span><?php esc_html_e('تابع الحضور والتقييمات ومواعيد الامتحانات ونتائجها.', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-email-alt" aria-hidden="true"></span><?php esc_html_e('تواصل مع المدرسة عبر الرسائل واطّلع على تفاصيل المواصلات والزي والكتب.', 'olama-student-gateway'); ?></li>
                 </ul>
             </div>
             <div class="olama-gateway-login__form">
                 <div class="olama-gateway-login__form-head">
                     <span class="olama-gateway-login__eyebrow"><?php esc_html_e('بوابة العائلة', 'olama-student-gateway'); ?></span>
                     <h2><?php esc_html_e('تسجيل الدخول', 'olama-student-gateway'); ?></h2>
-                    <p><?php esc_html_e('استخدم رقم العائلة، أو اسم المستخدم المؤقت، وكلمة المرور المسجلين لديك.', 'olama-student-gateway'); ?></p>
+                    <p><?php esc_html_e('أدخل رقم العائلة وكلمة المرور. إذا كان لديك حساب مؤقت، فأدخل معرّف الحساب في خانة رقم العائلة.', 'olama-student-gateway'); ?></p>
                 </div>
                 <?php
                 if (isset($_GET['og_login']) && 'failed' === sanitize_key(wp_unslash($_GET['og_login']))) {
                     echo '<div class="olama-gateway-notice olama-gateway-notice--error olama-gateway-login__error" role="alert">'
-                        . esc_html__('Invalid username or password. Please try again.', 'olama-student-gateway')
+                        . esc_html__('تعذّر تسجيل الدخول. تحقّق من بيانات الدخول وحاول مرة أخرى.', 'olama-student-gateway')
                         . '</div>';
                 }
 
                 wp_login_form(array(
                     'redirect' => $this->login_return_url(),
-                    'label_username' => __('Family number or temporary username', 'olama-student-gateway'),
-                    'label_password' => __('Password', 'olama-student-gateway'),
-                    'label_remember' => __('Remember me', 'olama-student-gateway'),
-                    'label_log_in' => __('Sign in', 'olama-student-gateway'),
+                    'label_username' => __('رقم العائلة', 'olama-student-gateway'),
+                    'label_password' => __('كلمة المرور', 'olama-student-gateway'),
+                    'label_remember' => __('تذكّرني', 'olama-student-gateway'),
+                    'label_log_in' => __('تسجيل الدخول', 'olama-student-gateway'),
                     'remember' => true,
                     'login_form_middle' => sprintf(
                         '<input type="hidden" name="olama_gateway_login" value="1"><input type="hidden" name="olama_gateway_login_nonce" value="%s">',
