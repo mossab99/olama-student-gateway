@@ -136,74 +136,6 @@
             });
         }
 
-        var videoDialog = gateway.querySelector('[data-video-dialog]');
-        if (videoDialog) {
-            var videoScreen = videoDialog.querySelector('[data-video-screen]');
-            var videoTitle = videoDialog.querySelector('[data-video-title]');
-            var videoError = videoDialog.querySelector('[data-video-error]');
-            var videoTrigger = null;
-            function playerSource(value) {
-                var url;
-                try { url = new URL(value, window.location.href); } catch (error) { return null; }
-                if (!/^https?:$/.test(url.protocol)) { return null; }
-                var host = url.hostname.toLowerCase();
-                var id;
-                if (host === 'drive.google.com') {
-                    var match = url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
-                    id = match ? match[1] : url.searchParams.get('id');
-                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/file/d/' + id + '/preview', type: 'iframe', restrictNavigation: true }; }
-                }
-                if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com'].indexOf(host) !== -1) {
-                    id = host === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v') || url.pathname.replace(/^\/(embed|shorts)\//, '');
-                    if (/^[a-zA-Z0-9_-]{11}$/.test(id || '')) { return { src: 'https://www.youtube-nocookie.com/embed/' + id, type: 'iframe' }; }
-                }
-                if (['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'].indexOf(host) !== -1) {
-                    var vimeo = url.pathname.match(/^\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?\/?$/);
-                    if (vimeo) { return { src: 'https://player.vimeo.com/video/' + vimeo[1] + ((vimeo[2] || url.searchParams.get('h')) ? '?h=' + encodeURIComponent(vimeo[2] || url.searchParams.get('h')) : ''), type: 'iframe' }; }
-                }
-                if (/\.(mp4|webm|ogv|m4v)$/i.test(url.pathname)) { return { src: url.href, type: 'video' }; }
-                return null;
-            }
-            gateway.querySelectorAll('[data-video-play]').forEach(function (button) {
-                button.addEventListener('click', function () {
-                    videoTrigger = button;
-                    videoScreen.replaceChildren();
-                    videoTitle.textContent = button.getAttribute('data-video-title') || '';
-                    var source = playerSource(button.getAttribute('data-video-url'));
-                    videoError.hidden = !!source;
-                    videoScreen.classList.toggle('is-drive-player', !!source && !!source.restrictNavigation);
-                    if (source) {
-                        var player = document.createElement(source.type);
-                        if (source.type === 'video') { player.controls = true; player.playsInline = true; player.preload = 'metadata'; }
-                        else {
-                            player.title = videoTitle.textContent;
-                            if (source.restrictNavigation) {
-                                // Drive's own pop-out control cannot be removed across origins.
-                                // Block popups and top navigation even if reached by keyboard.
-                                player.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
-                            }
-                            player.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
-                            player.allowFullscreen = true;
-                            player.referrerPolicy = 'strict-origin-when-cross-origin';
-                        }
-                        player.src = source.src;
-                        videoScreen.appendChild(player);
-                    }
-                    videoDialog.showModal();
-                });
-            });
-            videoDialog.querySelector('[data-video-close]').addEventListener('click', function () { videoDialog.close(); });
-            videoDialog.addEventListener('click', function (event) {
-                var bounds = videoDialog.getBoundingClientRect();
-                if (event.target === videoDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) { videoDialog.close(); }
-            });
-            videoDialog.addEventListener('close', function () {
-                videoScreen.replaceChildren();
-                videoScreen.classList.remove('is-drive-player');
-                if (videoTrigger) { videoTrigger.focus(); }
-            });
-        }
-
         if (demoExam) {
             var demoQuestions = Array.prototype.slice.call(demoExam.querySelectorAll('[data-demo-question]'));
             var demoProgress = demoExam.querySelector('[data-demo-progress]');
@@ -282,5 +214,77 @@
             }
         });
         window.addEventListener('afterprint', restore);
+    });
+    var videoScopeSelector = '[data-olama-gateway], [data-olama-plan-player]';
+    document.querySelectorAll(videoScopeSelector).forEach(function (scope) {
+        var videoDialog = Array.from(scope.querySelectorAll('[data-video-dialog]')).find(function (dialog) {
+            return dialog.closest(videoScopeSelector) === scope;
+        });
+        if (videoDialog) {
+            var videoScreen = videoDialog.querySelector('[data-video-screen]');
+            var videoTitle = videoDialog.querySelector('[data-video-title]');
+            var videoError = videoDialog.querySelector('[data-video-error]');
+            var videoTrigger = null;
+            function playerSource(value) {
+                var url;
+                try { url = new URL(value, window.location.href); } catch (error) { return null; }
+                if (!/^https?:$/.test(url.protocol)) { return null; }
+                var host = url.hostname.toLowerCase();
+                var id;
+                if (host === 'drive.google.com') {
+                    var match = url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
+                    id = match ? match[1] : url.searchParams.get('id');
+                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/file/d/' + id + '/preview', type: 'iframe', restrictNavigation: true }; }
+                }
+                if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com'].indexOf(host) !== -1) {
+                    id = host === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v') || url.pathname.replace(/^\/(embed|shorts)\//, '');
+                    if (/^[a-zA-Z0-9_-]{11}$/.test(id || '')) { return { src: 'https://www.youtube-nocookie.com/embed/' + id, type: 'iframe' }; }
+                }
+                if (['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'].indexOf(host) !== -1) {
+                    var vimeo = url.pathname.match(/^\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?\/?$/);
+                    if (vimeo) { return { src: 'https://player.vimeo.com/video/' + vimeo[1] + ((vimeo[2] || url.searchParams.get('h')) ? '?h=' + encodeURIComponent(vimeo[2] || url.searchParams.get('h')) : ''), type: 'iframe' }; }
+                }
+                if (/\.(mp4|webm|ogv|m4v)$/i.test(url.pathname)) { return { src: url.href, type: 'video' }; }
+                return null;
+            }
+            scope.addEventListener('click', function (event) {
+                var button = event.target.closest('[data-video-play]');
+                if (!button || button.closest(videoScopeSelector) !== scope) { return; }
+                videoTrigger = button;
+                videoScreen.replaceChildren();
+                videoTitle.textContent = button.getAttribute('data-video-title') || '';
+                var source = playerSource(button.getAttribute('data-video-url'));
+                videoError.hidden = !!source;
+                videoScreen.classList.toggle('is-drive-player', !!source && !!source.restrictNavigation);
+                if (source) {
+                    var player = document.createElement(source.type);
+                    if (source.type === 'video') { player.controls = true; player.playsInline = true; player.preload = 'metadata'; }
+                    else {
+                        player.title = videoTitle.textContent;
+                        if (source.restrictNavigation) {
+                            // Drive's own pop-out control cannot be removed across origins.
+                            // Block popups and top navigation even if reached by keyboard.
+                            player.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+                        }
+                        player.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+                        player.allowFullscreen = true;
+                        player.referrerPolicy = 'strict-origin-when-cross-origin';
+                    }
+                    player.src = source.src;
+                    videoScreen.appendChild(player);
+                }
+                videoDialog.showModal();
+            });
+            videoDialog.querySelector('[data-video-close]').addEventListener('click', function () { videoDialog.close(); });
+            videoDialog.addEventListener('click', function (event) {
+                var bounds = videoDialog.getBoundingClientRect();
+                if (event.target === videoDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) { videoDialog.close(); }
+            });
+            videoDialog.addEventListener('close', function () {
+                videoScreen.replaceChildren();
+                videoScreen.classList.remove('is-drive-player');
+                if (videoTrigger) { videoTrigger.focus(); }
+            });
+        }
     });
 }());
