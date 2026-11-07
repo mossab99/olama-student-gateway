@@ -356,7 +356,7 @@ class Olama_Student_Gateway_Shortcode {
         ?>
         <div class="olama-gateway-login" dir="rtl">
             <div class="olama-gateway-login__intro">
-                <h2><?php esc_html_e('بوابة الطالب', 'olama-student-gateway'); ?></h2>
+                <h2><?php esc_html_e('منصة الطالب الأكاديمية', 'olama-student-gateway'); ?></h2>
                 <p><?php esc_html_e('رافق أبناءك في رحلتهم الدراسية. انتقل بين ملفاتهم من حساب عائلي واحد، وتعرّف على الخدمات المتاحة لكل طالب.', 'olama-student-gateway'); ?></p>
                 <ul class="olama-gateway-login__benefits">
                     <li><span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span><?php esc_html_e('نظّم الأسبوع الدراسي بالخطط الأسبوعية والجداول الدراسية.', 'olama-student-gateway'); ?></li>
