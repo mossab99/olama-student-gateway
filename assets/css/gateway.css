@@ -2600,39 +2600,6 @@ body.og-printing-evaluation .og-evaluation-print-root *{visibility:visible!impor
     }
 }
 
-.olama-gateway__video-screen.has-custom-controls { position:relative; }
-.olama-gateway__video-screen video.og-custom-video { max-height:70dvh; object-fit:contain; }
-.olama-video-controls {
-    display:flex;
-    align-items:center;
-    gap:6px;
-    padding:7px;
-    background:#172333;
-    color:#fff;
-    direction:ltr;
-}
-.olama-video-controls button {
-    flex:0 0 32px;
-    width:32px;
-    height:32px;
-    padding:0;
-    border:1px solid #ffffff40;
-    border-radius:7px;
-    background:#ffffff15;
-    color:#fff;
-    font-size:16px;
-    line-height:1;
-    cursor:pointer;
-}
-.olama-video-controls button:first-child { order:-1; }
-.olama-video-controls input[type="range"] { flex:1 1 auto; min-width:25px; height:20px; margin:0; accent-color:#12b5a5; }
-.olama-video-time { flex:0 0 auto; font-size:11px; white-space:nowrap; font-variant-numeric:tabular-nums; }
-@media (max-width:600px) {
-    .olama-video-controls { gap:4px; padding:5px; }
-    .olama-video-controls button { flex-basis:29px; width:29px; height:29px; }
-    .olama-video-time { font-size:10px; }
-}
-
 /* Compact student overview with prominent learning shortcuts. */
 .olama-gateway--dashboard .olama-gateway__hero {
     min-height: 0;

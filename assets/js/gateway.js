@@ -225,71 +225,6 @@
             var videoTitle = videoDialog.querySelector('[data-video-title]');
             var videoError = videoDialog.querySelector('[data-video-error]');
             var videoTrigger = null;
-            function addVideoControls(video, screen) {
-                var bar = document.createElement('div');
-                bar.className = 'olama-video-controls';
-                bar.setAttribute('role', 'group');
-                bar.setAttribute('aria-label', 'عناصر التحكم بالفيديو');
-
-                var fullscreen = document.createElement('button');
-                fullscreen.type = 'button';
-                fullscreen.textContent = '⛶';
-                fullscreen.setAttribute('aria-label', 'ملء الشاشة');
-
-                var play = document.createElement('button');
-                play.type = 'button';
-                play.textContent = '▶';
-                play.setAttribute('aria-label', 'تشغيل الفيديو');
-
-                var seek = document.createElement('input');
-                seek.type = 'range';
-                seek.min = '0';
-                seek.max = '1000';
-                seek.value = '0';
-                seek.setAttribute('aria-label', 'موضع الفيديو');
-
-                var time = document.createElement('span');
-                time.className = 'olama-video-time';
-                time.textContent = '0:00 / 0:00';
-
-                var mute = document.createElement('button');
-                mute.type = 'button';
-                mute.textContent = '🔊';
-                mute.setAttribute('aria-label', 'كتم الصوت');
-
-                function formatTime(seconds) {
-                    if (!Number.isFinite(seconds)) return '0:00';
-                    return Math.floor(seconds / 60) + ':' + String(Math.floor(seconds % 60)).padStart(2, '0');
-                }
-
-                function update() {
-                    seek.value = video.duration ? String(Math.round(video.currentTime / video.duration * 1000)) : '0';
-                    time.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
-                    play.textContent = video.paused ? '▶' : 'Ⅱ';
-                    play.setAttribute('aria-label', video.paused ? 'تشغيل الفيديو' : 'إيقاف مؤقت');
-                    mute.textContent = video.muted ? '🔇' : '🔊';
-                    mute.setAttribute('aria-label', video.muted ? 'إلغاء كتم الصوت' : 'كتم الصوت');
-                }
-
-                play.addEventListener('click', function () {
-                    if (video.paused) { video.play().catch(function () {}); } else { video.pause(); }
-                });
-                seek.addEventListener('input', function () {
-                    if (video.duration) video.currentTime = Number(seek.value) / 1000 * video.duration;
-                });
-                mute.addEventListener('click', function () { video.muted = !video.muted; update(); });
-                fullscreen.addEventListener('click', function () {
-                    var result = screen.requestFullscreen ? screen.requestFullscreen() : video.webkitEnterFullscreen ? video.webkitEnterFullscreen() : null;
-                    if (result && result.catch) result.catch(function () {});
-                });
-                ['timeupdate', 'durationchange', 'play', 'pause', 'volumechange'].forEach(function (eventName) {
-                    video.addEventListener(eventName, update);
-                });
-                bar.append(fullscreen, play, seek, time, mute);
-                screen.appendChild(bar);
-                update();
-            }
-
             function playerSource(value) {
                 var url;
                 try { url = new URL(value, window.location.href); } catch (error) { return null; }
@@ -299,7 +234,12 @@
                 if (host === 'drive.google.com') {
                     var match = url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
                     id = match ? match[1] : url.searchParams.get('id');
-                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id), fallback: 'https://drive.google.com/file/d/' + id + '/preview' + (url.searchParams.get('resourcekey') ? '?resourcekey=' + encodeURIComponent(url.searchParams.get('resourcekey')) : ''), type: 'video', customControls: true }; }
+                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) {
+                        var preview = new URL('https://drive.google.com/file/d/' + id + '/preview');
+                        var resourceKey = url.searchParams.get('resourcekey');
+                        if (resourceKey) { preview.searchParams.set('resourcekey', resourceKey); }
+                        return { src: preview.href, type: 'iframe', restrictNavigation: true };
+                    }
                 }
                 if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com'].indexOf(host) !== -1) {
                     id = host === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v') || url.pathname.replace(/^\/(embed|shorts)\//, '');
@@ -317,23 +257,13 @@
                 if (!button || button.closest(videoScopeSelector) !== scope) { return; }
                 videoTrigger = button;
                 videoScreen.replaceChildren();
-                videoScreen.classList.remove('has-custom-controls');
                 videoTitle.textContent = button.getAttribute('data-video-title') || '';
                 var source = playerSource(button.getAttribute('data-video-url'));
                 videoError.hidden = !!source;
                 videoScreen.classList.toggle('is-drive-player', !!source && !!source.restrictNavigation);
                 if (source) {
                     var player = document.createElement(source.type);
-                    if (source.type === 'video') {
-                    player.controls = !source.customControls;
-                    player.playsInline = true;
-                    player.preload = 'metadata';
-                    if (source.customControls) {
-                        player.classList.add('og-custom-video');
-                        videoScreen.classList.add('has-custom-controls');
-                        addVideoControls(player, videoScreen);
-                    }
-                }
+                    if (source.type === 'video') { player.controls = true; player.playsInline = true; player.preload = 'metadata'; }
                     else {
                         player.title = videoTitle.textContent;
                         if (source.restrictNavigation) {
@@ -344,21 +274,6 @@
                         player.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
                         player.allowFullscreen = true;
                         player.referrerPolicy = 'strict-origin-when-cross-origin';
-                    }
-                    if (source.fallback) {
-                        player.addEventListener('error', function () {
-                            if (!player.isConnected) return;
-                            var preview = document.createElement('iframe');
-                            preview.title = videoTitle.textContent;
-                            preview.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
-                            preview.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
-                            preview.allowFullscreen = true;
-                            preview.referrerPolicy = 'strict-origin-when-cross-origin';
-                            preview.src = source.fallback;
-                            videoScreen.classList.remove('has-custom-controls');
-                            videoScreen.classList.add('is-drive-player');
-                            videoScreen.replaceChildren(preview);
-                        }, { once: true });
                     }
                     player.src = source.src;
                     videoScreen.appendChild(player);
@@ -372,7 +287,7 @@
             });
             videoDialog.addEventListener('close', function () {
                 videoScreen.replaceChildren();
-                videoScreen.classList.remove('is-drive-player', 'has-custom-controls');
+                videoScreen.classList.remove('is-drive-player');
                 if (videoTrigger) { videoTrigger.focus(); }
             });
         }
