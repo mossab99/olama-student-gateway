@@ -356,22 +356,22 @@ class Olama_Student_Gateway_Shortcode {
         ?>
         <div class="olama-gateway-login" dir="rtl">
             <div class="olama-gateway-login__intro">
-                <h2><?php esc_html_e('منصة الطالب الأكاديمية', 'olama-student-gateway'); ?></h2>
-                <p><?php esc_html_e('رافق أبناءك في رحلتهم الدراسية. انتقل بين ملفاتهم من حساب عائلي واحد، وتعرّف على الخدمات المتاحة لكل طالب.', 'olama-student-gateway'); ?></p>
+                <span class="olama-gateway-login__intro-tag"><?php esc_html_e('رحلة تعلم متكاملة', 'olama-student-gateway'); ?></span>
+                <h2><?php esc_html_e('كل خطوة دراسية أقرب إليك', 'olama-student-gateway'); ?></h2>
+                <p><?php esc_html_e('منصة واحدة تجمع متابعة الأبناء وخدماتهم التعليمية، لتبقى الأسرة شريكاً في كل إنجاز.', 'olama-student-gateway'); ?></p>
                 <ul class="olama-gateway-login__benefits">
-                    <li><span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span><?php esc_html_e('نظّم الأسبوع الدراسي بالخطط الأسبوعية والجداول الدراسية.', 'olama-student-gateway'); ?></li>
-                    <li><span class="dashicons dashicons-video-alt3" aria-hidden="true"></span><?php esc_html_e('راجع الدروس في مكتبة الفيديو وتدرّب مع امتحانات الدروس المباشرة.', 'olama-student-gateway'); ?></li>
-                    <li><span class="dashicons dashicons-chart-bar" aria-hidden="true"></span><?php esc_html_e('تابع الحضور والتقييمات ومواعيد الامتحانات ونتائجها.', 'olama-student-gateway'); ?></li>
-                    <li><span class="dashicons dashicons-email-alt" aria-hidden="true"></span><?php esc_html_e('تواصل مع المدرسة عبر الرسائل واطّلع على تفاصيل المواصلات والزي والكتب.', 'olama-student-gateway'); ?></li>
+                    <li><span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span><span><strong><?php esc_html_e('خطط وجداول دراسية', 'olama-student-gateway'); ?></strong><small><?php esc_html_e('نظرة واضحة على أسبوع الطالب الدراسي', 'olama-student-gateway'); ?></small></span></li>
+                    <li><span class="dashicons dashicons-video-alt3" aria-hidden="true"></span><span><strong><?php esc_html_e('دروس وامتحانات مباشرة', 'olama-student-gateway'); ?></strong><small><?php esc_html_e('تعلّم وتدرّب وتابع التقدم', 'olama-student-gateway'); ?></small></span></li>
+                    <li><span class="dashicons dashicons-chart-bar" aria-hidden="true"></span><span><strong><?php esc_html_e('متابعة الأداء والنتائج', 'olama-student-gateway'); ?></strong><small><?php esc_html_e('الحضور والتقييمات ومواعيد الامتحانات', 'olama-student-gateway'); ?></small></span></li>
+                    <li><span class="dashicons dashicons-email-alt" aria-hidden="true"></span><span><strong><?php esc_html_e('خدمات الأسرة والتواصل', 'olama-student-gateway'); ?></strong><small><?php esc_html_e('المواصلات والكتب والرسائل المدرسية', 'olama-student-gateway'); ?></small></span></li>
                 </ul>
+                <div class="olama-gateway-login__intro-footer"><?php esc_html_e('بيئة تعليمية مترابطة بين الطالب والأسرة والمدرسة', 'olama-student-gateway'); ?></div>
             </div>
             <div class="olama-gateway-login__form">
-                <header class="olama-gateway-login__family-banner">
-                    <h2><?php esc_html_e('بوابة العائلة', 'olama-student-gateway'); ?></h2>
-                </header>
                 <div class="olama-gateway-login__form-head">
+                    <span class="olama-gateway-login__welcome"><?php esc_html_e('مرحباً بعودتكم', 'olama-student-gateway'); ?></span>
                     <h2><?php esc_html_e('تسجيل الدخول', 'olama-student-gateway'); ?></h2>
-                    <p><?php esc_html_e('أدخل رقم العائلة وكلمة المرور. إذا كان لديك حساب مؤقت، فأدخل معرّف الحساب في خانة رقم العائلة.', 'olama-student-gateway'); ?></p>
+                    <p><?php esc_html_e('بوابة العائلة', 'olama-student-gateway'); ?></p>
                 </div>
                 <?php
                 if (isset($_GET['og_login']) && 'failed' === sanitize_key(wp_unslash($_GET['og_login']))) {
@@ -393,7 +393,7 @@ class Olama_Student_Gateway_Shortcode {
                     ),
                 ));
                 ?>
-                <p class="olama-gateway-login__security"><span class="dashicons dashicons-lock" aria-hidden="true"></span><?php esc_html_e('لن تظهر أي معلومات قبل التحقق من الحساب والصلاحيات.', 'olama-student-gateway'); ?></p>
+                <p class="olama-gateway-login__security"><?php esc_html_e('أدخل رقم العائلة وكلمة المرور.', 'olama-student-gateway'); ?></p>
             </div>
         </div>
         <?php
