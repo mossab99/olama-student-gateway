@@ -15,7 +15,7 @@ foreach (array('لوحة المتابعة', 'معلومات العائلة', 'ا
     assert_menu_organization(false !== strpos($template, $label), "The organized navigation should include {$label}.");
 }
 
-foreach (array('بطاقة العائلة', 'الزي والكتب', 'الخطة الأسبوعية', 'الجدول الدراسي', 'الساعات المكتبية', 'الحضور والغياب', 'التقييمات', 'جدول الامتحانات', 'اختبارات التقويم', 'الاختبارات القصيرة', 'الاختبارات المنجزة', 'نتائج الامتحانات الإلكترونية', 'قاعات الامتحان', 'إرسال رسالة', 'صندوق البريد') as $label) {
+foreach (array('الزي والكتب', 'الخطة الأسبوعية', 'الجدول الدراسي', 'الساعات المكتبية', 'الحضور والغياب', 'التقييمات', 'جدول الامتحانات', 'اختبارات التقويم', 'الاختبارات القصيرة', 'الاختبارات المنجزة', 'نتائج الامتحانات الإلكترونية', 'قاعات الامتحان', 'إرسال رسالة', 'صندوق البريد') as $label) {
     assert_menu_organization(false !== strpos($template, $label), "The organized navigation should include {$label}.");
 }
 
@@ -25,7 +25,7 @@ assert_menu_organization(false !== strpos($template, 'olama-gateway__student-men
 assert_menu_organization(false !== strpos($template, 'olama-gateway__student-menu-name'), 'Each sidebar student should render on one compact line.');
 assert_menu_organization(false === strpos($template, 'olama-gateway__family-chip'), 'The sidebar should not render the old family summary card.');
 assert_menu_organization(false !== strpos($template, '$student_first_name($family_student)'), 'Student lists should show first names only.');
-assert_menu_organization(false !== strpos($template, 'olama-gateway__panel--family-profile'), 'The family profile should use the full-width layout hook.');
+assert_menu_organization(false === strpos($template, 'بطاقة العائلة'), 'The family card should be absent from the gateway and its navigation.');
 assert_menu_organization(false !== strpos($template, 'olama-gateway__family-transportation'), 'The family page should render its transportation card.');
 assert_menu_organization(false !== strpos($template, 'الطلاب: '), 'The transportation card should identify the students sharing its arrangement.');
 assert_menu_organization(false !== strpos($template, '>مشي</strong>'), 'The transportation card should show walking when no registration exists.');

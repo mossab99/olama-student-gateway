@@ -237,7 +237,7 @@ class Olama_Student_Gateway_Shortcode {
 
     private function allowed_views($has_student, $is_temp_family = false) {
         $views = $is_temp_family || !Olama_Student_Gateway_Service_Settings::visible('family') ? array() : array(
-            'family' => array('label' => __('بطاقة العائلة', 'olama-student-gateway'), 'icon' => 'dashicons-groups'),
+            'family' => array('label' => __('لوحة العائلة', 'olama-student-gateway'), 'icon' => 'dashicons-groups'),
         );
         if ($has_student) {
             if (Olama_Student_Gateway_Service_Settings::visible('dashboard'))
@@ -278,7 +278,7 @@ class Olama_Student_Gateway_Shortcode {
             return olama_core()->student_statistics()->evaluate($context['student']['student_uid'], $context['study_year']);
         }
         if ('family' === $view) {
-            $data = $this->providers->data('core', $context, array('resource' => 'family'));
+            $data = array();
             if (current_user_can('olama_student_gateway_finance_view') && Olama_Student_Gateway_Service_Settings::visible('family')) {
                 $data['finance'] = $this->providers->data('core', $context, array('resource' => 'finance'));
             }
@@ -289,7 +289,7 @@ class Olama_Student_Gateway_Shortcode {
                 && !empty($context['students'])
             ) {
                 // Transportation is a shared family arrangement. The first
-                // student is the canonical display record for the family card.
+                // student is the display record for the transportation card.
                 $first_student = reset($context['students']);
                 $student_context = $context;
                 $student_context['student'] = $first_student;

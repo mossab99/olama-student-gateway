@@ -4,7 +4,6 @@ if (!defined('ABSPATH')) {
 }
 
 $context = $model['context'];
-$family = $context['family'];
 $students = $context['students'];
 $student = $model['student'];
 $data = $model['data'];
@@ -38,13 +37,6 @@ $student_first_name = static function ($item) {
     $name = is_array($item) && !empty($item['student_name']) ? (string) $item['student_name'] : '';
     return $name ? strtok($name, ' ') : 'طالب';
 };
-$mask_phone = static function ($phone) {
-    $phone = preg_replace('/\s+/', '', (string) $phone);
-    if (strlen($phone) < 7) {
-        return $phone ?: '—';
-    }
-    return substr($phone, 0, 2) . '•••••' . substr($phone, -3);
-};
 $first_name = $student && !empty($student['student_name']) ? strtok($student['student_name'], ' ') : '';
 $academic_context = isset($context['academic']) ? $context['academic'] : array();
 $academic_year_id = absint($field($academic_context, 'academic_year_id', 0));
@@ -59,7 +51,6 @@ $menu_url = static function ($view_key, array $args = array()) use ($make_url, $
 };
 $menu_groups = array(
     array('key' => 'family', 'label' => 'معلومات العائلة', 'icon' => 'dashicons-groups', 'items' => array(
-        array('view' => 'family', 'label' => 'بطاقة العائلة'),
         array('view' => 'stores', 'label' => 'الزي والكتب'),
         array('view' => 'transportation', 'label' => 'المواصلات'),
     )),
@@ -257,7 +248,7 @@ $menu_groups = array(
                 <?php endif; ?>
             <?php elseif ('family' === $active_view) : ?>
                 <section class="olama-gateway__heading">
-                    <div><h2>مرحباً بكم في بوابة العائلة</h2><p>اختر أحد الأبناء لمتابعة معلوماته، أو راجع بطاقة العائلة والملخص المالي.</p></div>
+                    <div><h2>مرحباً بكم في بوابة العائلة</h2><p>اختر أحد الأبناء لمتابعة معلوماته.</p></div>
                     <span class="olama-gateway__status">بيانات OLAMA Core</span>
                 </section>
 
@@ -275,19 +266,6 @@ $menu_groups = array(
                 </section>
 
                 <section class="olama-gateway__grid olama-gateway__grid--2">
-                    <?php if (current_user_can('olama_student_gateway_family_view')) : ?>
-                    <article class="olama-gateway__panel olama-gateway__panel--family-profile">
-                        <header><h3>بطاقة العائلة</h3><span class="olama-gateway__status olama-gateway__status--success">فعالة</span></header>
-                        <dl class="olama-gateway__details">
-                            <div><dt>ولي الأمر</dt><dd><?php echo esc_html($field($family, 'sponsor_full_name')); ?></dd></div>
-                            <div><dt>اسم الأم</dt><dd><?php echo esc_html($field($family, 'mother_name')); ?></dd></div>
-                            <div><dt>الهاتف المعتمد</dt><dd><?php echo esc_html($mask_phone($field($family, 'primary_mobile', ''))); ?></dd></div>
-                            <div><dt>المنطقة</dt><dd><?php echo esc_html($field($family, 'trans_region_name')); ?></dd></div>
-                            <div class="is-wide"><dt>العنوان</dt><dd><?php echo esc_html($field($family, 'family_address')); ?></dd></div>
-                        </dl>
-                    </article>
-                    <?php endif; ?>
-
                     <?php if (current_user_can('olama_student_gateway_finance_view')) : ?>
                     <article class="olama-gateway__panel">
                         <header><h3>الملخص المالي</h3><span class="olama-gateway__source">OLAMA Core</span></header>

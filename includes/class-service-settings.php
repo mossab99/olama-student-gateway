@@ -15,7 +15,7 @@ final class Olama_Student_Gateway_Service_Settings {
                 'ministry' => 'استكمال البيانات الإحصائية',
             )),
             'family' => array('label' => 'معلومات العائلة', 'items' => array(
-                'family' => 'بطاقة العائلة',
+                'family' => 'لوحة العائلة',
                 'stores' => 'الزي والكتب',
                 'transportation' => 'المواصلات',
             )),

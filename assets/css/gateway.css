@@ -485,14 +485,6 @@ html.olama-gateway-menu-lock {
     padding: 22px;
 }
 
-.olama-gateway__panel--family-profile {
-    grid-column: 1 / -1;
-}
-
-.olama-gateway__panel--family-profile .olama-gateway__details {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
 .olama-gateway__family-transportation-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -2131,10 +2123,6 @@ html.olama-gateway-menu-lock {
 
     .olama-gateway__details div.is-wide {
         grid-column: auto;
-    }
-
-    .olama-gateway__panel--family-profile .olama-gateway__details {
-        grid-template-columns: 1fr;
     }
 
     .olama-gateway__family-transportation-list {
