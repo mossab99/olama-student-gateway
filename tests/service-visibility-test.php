@@ -5,6 +5,7 @@ define('ABSPATH', __DIR__);
 $hidden_services = array();
 $capabilities = array();
 
+function add_filter() {}
 function add_action() {}
 function __($message) { return $message; }
 function sanitize_text_field($value) { return is_scalar($value) ? trim((string) $value) : ''; }

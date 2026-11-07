@@ -1,5 +1,6 @@
 <?php
 define('ABSPATH', __DIR__);
+function add_filter() {}
 function add_action() {}
 function __($text) { return $text; }
 function current_user_can($capability) { return true; }

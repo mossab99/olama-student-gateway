@@ -4,6 +4,7 @@ define('ABSPATH', __DIR__);
 
 $test_capabilities = array();
 
+function add_filter() {}
 function add_action() {
 }
 

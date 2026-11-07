@@ -8,6 +8,8 @@ $test_head_done = false;
 $test_gateway_style_done = false;
 
 function add_action() {}
+function add_filter($hook, $callback) { $GLOBALS['test_filters'][$hook] = $callback; }
+function remove_filter($hook, $callback) { unset($GLOBALS['test_filters'][$hook]); }
 function did_action($hook) { global $test_head_done; return 'wp_head' === $hook && $test_head_done ? 1 : 0; }
 function wp_style_is($handle, $status) { global $test_gateway_style_done; return 'olama-student-gateway' === $handle && 'done' === $status && $test_gateway_style_done; }
 function wp_print_styles($handles) {

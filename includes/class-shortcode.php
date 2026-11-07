@@ -13,26 +13,40 @@ class Olama_Student_Gateway_Shortcode {
         $this->providers = $providers;
         $this->access = new Olama_Student_Gateway_Access_Context();
         add_action('wp_login_failed', array($this, 'redirect_failed_gateway_login'), 10, 2);
+        add_filter('login_redirect', array($this, 'restore_gateway_login_destination'), PHP_INT_MAX, 3);
+    }
+
+    public function restore_gateway_login_destination($redirect, $requested_redirect, $user) {
+        if (!$user instanceof WP_User) {
+            return $redirect;
+        }
+
+        return $this->posted_login_destination() ?: $redirect;
     }
 
     public function redirect_failed_gateway_login($username, $error) {
-        if (empty($_POST['olama_gateway_login'])) {
+        $redirect = $this->posted_login_destination();
+        if (!$redirect) {
             return;
         }
-
-        $nonce = isset($_POST['olama_gateway_login_nonce'])
-            ? sanitize_text_field(wp_unslash($_POST['olama_gateway_login_nonce']))
-            : '';
-        if (!$nonce || !wp_verify_nonce($nonce, 'olama_student_gateway_login')) {
-            return;
-        }
-
-        $redirect = isset($_POST['redirect_to'])
-            ? wp_validate_redirect(wp_unslash($_POST['redirect_to']), home_url('/'))
-            : home_url('/');
 
         wp_safe_redirect(add_query_arg('og_login', 'failed', $redirect));
         exit;
+    }
+
+    private function posted_login_destination() {
+        if (!isset($_POST['olama_gateway_destination'], $_POST['olama_gateway_login_nonce']) ||
+            !is_string($_POST['olama_gateway_destination']) || !is_string($_POST['olama_gateway_login_nonce'])) {
+            return '';
+        }
+
+        $destination = wp_unslash($_POST['olama_gateway_destination']);
+        $nonce = wp_unslash($_POST['olama_gateway_login_nonce']);
+        if (!wp_verify_nonce($nonce, 'olama_student_gateway_login:' . $destination)) {
+            return '';
+        }
+
+        return wp_validate_redirect($destination, '');
     }
 
     public function render($atts = array()) {
@@ -482,18 +496,25 @@ class Olama_Student_Gateway_Shortcode {
                         . '</div>';
                 }
 
+                $destination = $this->login_return_url();
+                // WordPress inserts extra fields through this filter, not a wp_login_form argument.
+                $login_fields = static function ($html) use ($destination) {
+                    return $html . sprintf(
+                        '<input type="hidden" name="olama_gateway_destination" value="%s"><input type="hidden" name="olama_gateway_login_nonce" value="%s">',
+                        esc_attr($destination),
+                        esc_attr(wp_create_nonce('olama_student_gateway_login:' . $destination))
+                    );
+                };
+                add_filter('login_form_middle', $login_fields);
                 wp_login_form(array(
-                    'redirect' => $this->login_return_url(),
+                    'redirect' => $destination,
                     'label_username' => __('رقم العائلة', 'olama-student-gateway'),
                     'label_password' => __('كلمة المرور', 'olama-student-gateway'),
                     'label_remember' => __('تذكّرني', 'olama-student-gateway'),
                     'label_log_in' => __('تسجيل الدخول', 'olama-student-gateway'),
                     'remember' => true,
-                    'login_form_middle' => sprintf(
-                        '<input type="hidden" name="olama_gateway_login" value="1"><input type="hidden" name="olama_gateway_login_nonce" value="%s">',
-                        esc_attr(wp_create_nonce('olama_student_gateway_login'))
-                    ),
                 ));
+                remove_filter('login_form_middle', $login_fields);
                 ?>
                 <p class="olama-gateway-login__security"><?php esc_html_e('أدخل رقم العائلة وكلمة المرور.', 'olama-student-gateway'); ?></p>
             </div>
