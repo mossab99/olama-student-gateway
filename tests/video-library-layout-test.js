@@ -9,12 +9,13 @@ const html = execFileSync('php', [path.join(__dirname, 'video-library-render-tes
     const browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH });
     try {
         for (const width of [1366, 390]) {
-            const page = await browser.newPage({ viewport: { width, height: 850 } });
+            const mobile = width < 600;
+            const page = await browser.newPage({ viewport: { width, height: 850 }, isMobile: mobile, hasTouch: mobile });
             const errors = [];
             page.on('pageerror', error => errors.push(error.message));
             await page.route('https://drive.google.com/**', route => route.fulfill({ contentType: 'text/html', body: '<a href="https://drive.google.com/file/d/file_123/view" target="_blank" id="popout">Open externally</a>' }));
             await page.route('https://school.test/**', route => route.fulfill({ contentType: 'video/mp4', body: '' }));
-            await page.setContent(html);
+            await page.setContent('<meta name="viewport" content="width=device-width, initial-scale=1">' + html);
             await page.addStyleTag({ content: fs.readFileSync(path.join(root, 'assets/css/gateway.css'), 'utf8') });
             await page.addScriptTag({ content: fs.readFileSync(path.join(root, 'assets/js/gateway.js'), 'utf8') });
             assert.equal(await page.locator('[data-video-card]:visible').count(), 2);
@@ -34,7 +35,11 @@ const html = execFileSync('php', [path.join(__dirname, 'video-library-render-tes
             assert.equal(await page.locator('[data-video-screen]').evaluate(el => {
                 const box = el.getBoundingClientRect();
                 return document.elementFromPoint(box.right - 24, box.top + 24) === el;
-            }), true, 'Drive external-window control must be covered');
+            }), !mobile, 'Only the desktop player should cover the Drive pop-out corner');
+            if (mobile) {
+                const frame = await page.locator('dialog iframe').boundingBox();
+                assert.ok(frame.height >= frame.width * 0.95, 'The mobile preview should leave room for the picture and touch controls');
+            }
             await page.frameLocator('dialog iframe').locator('#popout').waitFor();
             // Bypass the visual cover to verify keyboard/programmatic activation is blocked too.
             await page.frameLocator('dialog iframe').locator('#popout').evaluate(el => el.click());

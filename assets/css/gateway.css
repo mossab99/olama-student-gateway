@@ -2583,6 +2583,23 @@ body.og-printing-evaluation .og-evaluation-print-root *{visibility:visible!impor
     z-index: 1;
 }
 
+/* The compact Drive player needs room for its touch controls and picture. */
+@media (max-width: 600px), (pointer: coarse) {
+    .olama-gateway__video-dialog > header {
+        padding: 10px 14px;
+    }
+
+    .olama-gateway__video-screen.is-drive-player iframe {
+        aspect-ratio: 1;
+        max-height: 65dvh;
+    }
+
+    /* The sandbox blocks leaving the page without a cover over touch controls. */
+    .olama-gateway__video-screen.is-drive-player::after {
+        content: none;
+    }
+}
+
 /* Compact student overview with prominent learning shortcuts. */
 .olama-gateway--dashboard .olama-gateway__hero {
     min-height: 0;
