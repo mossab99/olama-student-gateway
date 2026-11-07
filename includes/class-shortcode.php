@@ -366,8 +366,10 @@ class Olama_Student_Gateway_Shortcode {
                 </ul>
             </div>
             <div class="olama-gateway-login__form">
+                <header class="olama-gateway-login__family-banner">
+                    <h2><?php esc_html_e('بوابة العائلة', 'olama-student-gateway'); ?></h2>
+                </header>
                 <div class="olama-gateway-login__form-head">
-                    <span class="olama-gateway-login__eyebrow"><?php esc_html_e('بوابة العائلة', 'olama-student-gateway'); ?></span>
                     <h2><?php esc_html_e('تسجيل الدخول', 'olama-student-gateway'); ?></h2>
                     <p><?php esc_html_e('أدخل رقم العائلة وكلمة المرور. إذا كان لديك حساب مؤقت، فأدخل معرّف الحساب في خانة رقم العائلة.', 'olama-student-gateway'); ?></p>
                 </div>
