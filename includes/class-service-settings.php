@@ -33,7 +33,7 @@ final class Olama_Student_Gateway_Service_Settings {
             )),
             'exams' => array('label' => 'الامتحانات', 'items' => array(
                 'exams.schedule' => 'جدول الامتحانات',
-                'exams.direct' => 'الامتحانات المباشرة',
+                'exams.direct' => 'امتحانات الدروس المباشرة',
                 'exams.online' => 'اختبارات التقويم',
                 'exams.short' => 'الاختبارات القصيرة',
                 'exams.finished' => 'الاختبارات المنجزة',

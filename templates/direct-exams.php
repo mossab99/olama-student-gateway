@@ -24,7 +24,7 @@ foreach (($data['online_exams'] ?? array()) as $exam) {
             foreach ($group['lessons'] as $lesson) { $exam_count += count($by_lesson[(int) $lesson->id] ?? array()); }
         }
     ?>
-        <div class="og-direct-stats"><div><strong><?php echo count($entry['units']); ?></strong><span>وحدات دراسية</span></div><div><strong><?php echo (int) $lesson_count; ?></strong><span>دروس المادة</span></div><div><strong><?php echo (int) $exam_count; ?></strong><span>امتحانات مباشرة متاحة</span></div></div>
+        <div class="og-direct-stats"><div><strong><?php echo count($entry['units']); ?></strong><span>وحدات دراسية</span></div><div><strong><?php echo (int) $lesson_count; ?></strong><span>دروس المادة</span></div><div><strong><?php echo (int) $exam_count; ?></strong><span>امتحانات دروس مباشرة متاحة</span></div></div>
         <p class="og-direct-info">تظهر جميع دروس المادة هنا. يتاح التقدم للاختبار بعد تفعيله من المعلم، دون حد زمني وبمحاولات غير محدودة.</p>
         <?php if (!$entry['units']): ?><div class="olama-gateway__empty">لا توجد وحدات لهذه المادة في الفصل الدراسي الحالي.</div><?php endif; ?>
         <?php foreach ($entry['units'] as $group): $unit = $group['unit']; ?>

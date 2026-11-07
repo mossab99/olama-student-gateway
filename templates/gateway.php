@@ -68,7 +68,7 @@ $menu_groups = array(
     )),
     array('key' => 'exams', 'label' => 'الامتحانات', 'icon' => 'dashicons-clipboard', 'items' => array(
         array('view' => 'exams', 'label' => 'جدول الامتحانات', 'standard_only' => true, 'args' => array('og_exam_section' => 'schedule')),
-        array('view' => 'exams', 'label' => 'الامتحانات المباشرة', 'args' => array('og_exam_section' => 'direct')),
+        array('view' => 'exams', 'label' => 'امتحانات الدروس المباشرة', 'args' => array('og_exam_section' => 'direct')),
         array('view' => 'exams', 'label' => 'اختبارات التقويم', 'args' => array('og_exam_section' => 'online')),
         array('view' => 'exams', 'label' => 'الاختبارات القصيرة', 'args' => array('og_exam_section' => 'short')),
         array('view' => 'exams', 'label' => 'الاختبارات المنجزة', 'args' => array('og_exam_section' => 'finished')),
@@ -662,7 +662,7 @@ $menu_groups = array(
                 $exam_section = !empty($model['exam_section']) ? $model['exam_section'] : (Olama_Student_Gateway_Service_Settings::exam_sections($is_temp_family)[0] ?? 'online');
                 $exam_sections = array(
                     'schedule' => array('جدول الامتحانات', 'جدول الامتحانات المعتمد للطالب.'),
-                    'direct' => array('الامتحانات المباشرة', 'اختر المادة ثم الوحدة والدرس. يمكنك التقدم للامتحانات المفعلة في أي وقت وبمحاولات غير محدودة.'),
+                    'direct' => array('امتحانات الدروس المباشرة', 'اختر المادة ثم الوحدة والدرس. يمكنك التقدم للامتحانات المفعلة في أي وقت وبمحاولات غير محدودة.'),
                     'online' => array('اختبارات التقويم', $is_temp_family ? 'تجربة اختبارات التقويم المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'اختبارات التقويم المنشورة والمتاحة للبدء أو الاستكمال.'),
                     'short' => array('الاختبارات القصيرة', $is_temp_family ? 'تجربة الاختبارات القصيرة المنشورة للشعبة دون حفظ المحاولات أو الإجابات أو العلامات.' : 'الاختبارات القصيرة المنشورة والمتاحة للبدء أو الاستكمال.'),
                     'finished' => array('الاختبارات المنجزة', 'اختبارات التقويم والاختبارات القصيرة التي انتهى وقتها أو أُغلقت.'),
@@ -683,7 +683,7 @@ $menu_groups = array(
                     }
                 }
                 $exam_list_url = $make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => $exam_list_section));
-                $exam_back_label = 'direct' === $exam_list_section ? 'الامتحانات المباشرة' : ('short' === $exam_list_section ? 'الاختبارات القصيرة' : 'اختبارات التقويم');
+                $exam_back_label = 'direct' === $exam_list_section ? 'امتحانات الدروس المباشرة' : ('short' === $exam_list_section ? 'الاختبارات القصيرة' : 'اختبارات التقويم');
                 if ('results' === $exam_engine_view) {
                     $exam_list_url = $make_url(array('og_view' => 'exams', 'og_student' => $student['student_uid'], 'og_exam_section' => 'online-results'));
                     $exam_back_label = 'نتائج الامتحانات الإلكترونية';
@@ -839,7 +839,7 @@ $menu_groups = array(
                                 $result_type = in_array($result_type, array('direct', 'quiz'), true) ? $result_type : 'exam';
                                 $result_groups[$result_type][] = $exam_result;
                             }
-                            foreach (array('exam' => 'اختبارات التقويم', 'direct' => 'الاختبارات المباشرة', 'quiz' => 'الاختبارات القصيرة') as $result_type => $group_label) :
+                            foreach (array('exam' => 'اختبارات التقويم', 'direct' => 'امتحانات الدروس المباشرة', 'quiz' => 'الاختبارات القصيرة') as $result_type => $group_label) :
                                 if (!$result_groups[$result_type]) {
                                     continue;
                                 }

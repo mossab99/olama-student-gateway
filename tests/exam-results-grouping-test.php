@@ -38,7 +38,7 @@ preg_match_all('/<tr class="olama-gateway__exam-group"><th colspan="8">(.*?)<\/t
 check_grouping(3 === count($matches), 'Mixed results must render three groups.');
 $expected = array(
     'اختبارات التقويم' => array('ASSESSMENT-ONE', 'LEGACY-ONE', 'LEGACY-TWO'),
-    'الاختبارات المباشرة' => array('DIRECT-ONE', 'DIRECT-TWO'),
+    'امتحانات الدروس المباشرة' => array('DIRECT-ONE', 'DIRECT-TWO'),
     'الاختبارات القصيرة' => array('QUIZ-ONE'),
 );
 check_grouping(array_keys($expected) === array_column($matches, 1), 'Groups must follow assessment, direct, quiz order.');
@@ -55,6 +55,6 @@ ob_start();
 eval('?>' . $section);
 $html = ob_get_clean();
 check_grouping(1 === substr_count($html, 'olama-gateway__exam-group'), 'Empty types must not create empty groups.');
-check_grouping(false !== strpos($html, 'الاختبارات المباشرة'), 'A direct-only list must have the direct heading.');
+check_grouping(false !== strpos($html, 'امتحانات الدروس المباشرة'), 'A direct-only list must have the direct heading.');
 
 echo "Exam results grouping tests passed.\n";
