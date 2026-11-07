@@ -2583,18 +2583,53 @@ body.og-printing-evaluation .og-evaluation-print-root *{visibility:visible!impor
     z-index: 1;
 }
 
-/* The compact Drive player needs room for its touch controls and picture. */
-@media (max-width: 600px), (pointer: coarse) {
+/* Give phone playback the viewport below the close button. */
+@media (max-width: 600px), (pointer: coarse) and (max-height: 600px) {
+    .olama-gateway__video-dialog[open] {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        border-radius: 0;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
     .olama-gateway__video-dialog > header {
-        padding: 10px 14px;
+        flex: 0 0 auto;
+        gap: 8px;
+        padding: 4px 12px;
     }
 
-    .olama-gateway__video-screen.is-drive-player iframe {
-        aspect-ratio: 1;
-        max-height: 65dvh;
+    .olama-gateway__video-dialog h3 {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    /* The sandbox blocks leaving the page without a cover over touch controls. */
+    .olama-gateway__video-screen:not(:empty) {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .olama-gateway__video-screen iframe,
+    .olama-gateway__video-screen video {
+        height: 100%;
+        max-height: none;
+        aspect-ratio: auto;
+        object-fit: contain;
+    }
+}
+
+@media (max-width: 600px), (pointer: coarse) {
+    /* The sandbox blocks leaving the page without covering touch controls. */
     .olama-gateway__video-screen.is-drive-player::after {
         content: none;
     }
