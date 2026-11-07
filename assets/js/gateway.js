@@ -299,7 +299,7 @@
                 if (host === 'drive.google.com') {
                     var match = url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
                     id = match ? match[1] : url.searchParams.get('id');
-                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id), type: 'video', customControls: true }; }
+                    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) { return { src: 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id), fallback: 'https://drive.google.com/file/d/' + id + '/preview' + (url.searchParams.get('resourcekey') ? '?resourcekey=' + encodeURIComponent(url.searchParams.get('resourcekey')) : ''), type: 'video', customControls: true }; }
                 }
                 if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com'].indexOf(host) !== -1) {
                     id = host === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v') || url.pathname.replace(/^\/(embed|shorts)\//, '');
@@ -317,6 +317,7 @@
                 if (!button || button.closest(videoScopeSelector) !== scope) { return; }
                 videoTrigger = button;
                 videoScreen.replaceChildren();
+                videoScreen.classList.remove('has-custom-controls');
                 videoTitle.textContent = button.getAttribute('data-video-title') || '';
                 var source = playerSource(button.getAttribute('data-video-url'));
                 videoError.hidden = !!source;
@@ -343,6 +344,21 @@
                         player.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
                         player.allowFullscreen = true;
                         player.referrerPolicy = 'strict-origin-when-cross-origin';
+                    }
+                    if (source.fallback) {
+                        player.addEventListener('error', function () {
+                            if (!player.isConnected) return;
+                            var preview = document.createElement('iframe');
+                            preview.title = videoTitle.textContent;
+                            preview.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+                            preview.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+                            preview.allowFullscreen = true;
+                            preview.referrerPolicy = 'strict-origin-when-cross-origin';
+                            preview.src = source.fallback;
+                            videoScreen.classList.remove('has-custom-controls');
+                            videoScreen.classList.add('is-drive-player');
+                            videoScreen.replaceChildren(preview);
+                        }, { once: true });
                     }
                     player.src = source.src;
                     videoScreen.appendChild(player);
